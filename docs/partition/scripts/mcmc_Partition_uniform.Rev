@@ -1,0 +1,126 @@
+################################################################################
+#
+# RevBayes Example: Bayesian inference of phylogeny using a GTR+Gamma+Inv
+#                   substitution model for a single, uniform partition model.
+#
+# authors: Michael Landis, Sebastian Hoehna, Tracy A. Heath and Brian R. Moore
+#
+################################################################################
+
+###### This just defines a single model for all sites #######
+
+### Read in sequence data for both genes
+data_cox2 = readDiscreteCharacterData("data/primates_and_galeopterus_cox2.nex")
+data_cytb = readDiscreteCharacterData("data/primates_and_galeopterus_cytb.nex")
+
+### Create concatenated data matrix
+data = concatenate( data_cox2, data_cytb )
+
+# Get some useful variables from the data. We need these later on.
+n_taxa <- data.ntaxa()
+n_branches <- 2 * n_taxa - 3
+taxa <- data.taxa()
+
+
+# Create some vector for the moves and monitors of this analysis
+moves    = VectorMoves()
+monitors = VectorMonitors()
+
+
+######################
+# Substitution Model #
+######################
+
+#### specify the GTR+G+I substitution model applied uniformly to all sites ###
+er_prior <- v(1,1,1,1,1,1)
+er ~ dnDirichlet(er_prior)
+moves.append( mvBetaSimplex(er, alpha=10.0, tune=true, weight=3.0) )
+moves.append( mvDirichletSimplex(er, alpha=10.0, tune=true, weight=1.0) )
+
+pi_prior <- v(1,1,1,1) 
+pi ~ dnDirichlet(pi_prior)
+moves.append( mvBetaSimplex(pi, alpha=10.0, tune=true, weight=2.0) )
+moves.append( mvDirichletSimplex(pi, alpha=10.0, tune=true, weight=1.0) )
+
+
+#### create a deterministic variable for the rate matrix ####
+Q := fnGTR(er,pi) 
+
+
+#############################
+# Among Site Rate Variation #
+#############################
+
+alpha ~ dnUniform(0,1E8)
+gamma_rates := fnDiscretizeGamma( alpha, alpha, 4, false )
+
+# add moves for the stationary frequencies, exchangeability rates and the shape parameter
+moves.append( mvScale(alpha,weight=2) )
+
+
+# the probability of a site being invariable
+pinvar ~ dnBeta(1,1)
+moves.append( mvBetaProbability(pinvar, delta=10.0, tune=true, weight=2.0) )
+
+
+
+##############
+# Tree model #
+##############
+
+out_group = clade("Galeopterus_variegatus")
+# Prior distribution on the tree topology
+topology ~ dnUniformTopology(taxa, outgroup=out_group)
+moves.append( mvNNI(topology, weight=n_taxa/2.0) )
+moves.append( mvSPR(topology, weight=n_taxa/10.0) )
+
+# Branch length prior
+for (i in 1:n_branches) {
+    bl[i] ~ dnExponential(10.0)
+    moves.append( mvScale(bl[i]) )
+}
+
+TL := sum(bl)
+
+psi := treeAssembly(topology, bl)
+
+
+
+
+###################
+# PhyloCTMC Model #
+###################
+
+# the sequence evolution model
+phyloSeq ~ dnPhyloCTMC(tree=psi, Q=Q, siteRates=gamma_rates, pInv=pinvar, type="DNA")
+
+# attach the data
+phyloSeq.clamp(data)
+
+
+############
+# Analysis #
+############
+
+mymodel = model(psi)
+
+# add monitors
+monitors.append( mnScreen(alpha, pinvar, TL, printgen=1000) )
+monitors.append( mnFile(psi, filename="output/PS_uniform.trees", printgen=10) )
+monitors.append( mnModel(filename="output/PS_uniform.log",printgen=10) )
+
+# run the analysis
+mymcmc = mcmc(mymodel, moves, monitors, nruns=2, combine="mixed")
+mymcmc.run(30000,tuningInterval=200)
+
+
+# summarize output
+treetrace = readTreeTrace("output/PS_uniform.trees", treetype="non-clock")
+#treetrace.summarize()
+
+map_tree = mapTree(treetrace,"output/PS_uniform_map.tre")
+
+
+# you may want to quit RevBayes now
+q()
+
