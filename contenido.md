@@ -1,8 +1,7 @@
 ---
 title: Temario
 layout: home
-level: 5
-order: 3
+nav_order: 3
 index: true
 redirect: false
 
