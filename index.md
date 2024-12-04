@@ -22,7 +22,7 @@ El taller será impartido de 9AM a 6PM, del 8 al 10 de Enero, en el Instituto de
   
 Dra. Rosana Zenil-Ferguson, Dept. of Biology, University of Kentucky.
 
-Dra. Ixchel González Ramírez, Dept. of Integrative Biology and UC Jepson Herbarium.
+Dra. Ixchel González Ramírez, Dept. of Integrative Biology and UC Jepson Herbarium, UC Berkeley.
 
 Dr. Santiago Ramírez Barahona, Instituto de Biología, UNAM.
 
