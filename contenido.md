@@ -30,7 +30,7 @@ redirect: false
 
 5. Inferencia filogenética a partir de marcadores genéticos
     1. Clase
-    2. [Tutorial](./docs/partition/Partitioned_tutorial)
+    2. [Tutorial "Análisis estándard con particiones"](./docs/partition/Partitioned_tutorial)
 
 
 ***

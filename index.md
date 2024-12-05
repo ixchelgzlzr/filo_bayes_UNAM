@@ -34,7 +34,7 @@ Ms. Sc. Nicolás Castillo Rodríguez, Dept. of Biology, University of Kentucky.
 
 ***
 
-#### Agradecemos a la Sociedad de Biólogos Sistématas (SSB) por su ayuda para financiar este taller. 
+#### Agradecemos a la Sociedad de Biólogos Sistématas (SSB) por su apoyo para financiar este taller. 
 
 
 ![ssb_logo](./assets/img/ssb.png)
