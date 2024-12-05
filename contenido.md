@@ -7,55 +7,64 @@ redirect: false
 
 ---
 
-# Contenido del taller de Filogenética bayesiana en RevBayes #
+## Día 1---Miércoles 8 de enero
 
-## Día 1 
-### Miércoles 8 de enero
+### Bloque 1 [9:00–11:00, 2 hrs]  
 
-#### Bloque 1 [8:30am a 11:00am]  
+1. **Actividad:** Presentación utilizando diapositivas.
+    1. Participantes. Nombre, pasatiempo, organismo que estudian, motivación para tomar el taller --- diapositivas preparadas [aquí]()
+    2. Presentación del taller
 
-1. **Actividad:** Presentationes --- los estudiantes se presentan utilizando diapositivas preparadas [aquí]()
-
-2. Presentación del taller y los instructores
-
-3. Introducción al pensamiento bayesiano
+2. Introducción al pensamiento bayesiano 
 
 
-#### Bloque 2 [11:30am a 2:00pm]
+### Bloque 2 [11:30–14:00, 2.5 hrs]
 
-1. Pensamiento bayesiano aplicado a inferencia filogenética
+3. Pensamiento bayesiano aplicado a inferencia filogenética
 
-2. Introducción a RevBayes
+4. Introducción a RevBayes
 
 
 
+### Bloque 3 [15:30–18:00, 2.5 hrs]
 
-#### Bloque 3 [3:30pm a 6pm]
-
-1. Inferencia filogenética a partir de marcadores genéticos
+5. Inferencia filogenética a partir de marcadores genéticos
     1. Clase
     2. [Tutorial](./docs/partition/Partitioned_tutorial)
 
 
 ***
 
-## Día 2
-### Jueves 9 de enero
+## Día 2---Jueves 9 de enero
 
-#### Bloque 1 [8:30am a 11:00am]
+### Bloque 1 [9:00–11:00, 2 hrs]  
 
-#### Bloque 2 [11:30am a 2:00pm]
+1. **Actividad**: Diapositivas sobre preguntas de investigación que se pueden abordar en contexto filogenético.
 
-#### Bloque 3 [3:30pm a 6pm]
+2. Panel
+
+### Bloque 2 [11:30–14:00, 2.5 hrs]
+3. Estimación de tiempos de divergencia
+    1. Clase
+    2. Tutorial
+
+### Bloque 3 [15:30–18:00, 2.5 hrs]
+4. Evolución de caracteres discretos
+    1. Clase
+    2. Tutorial
 
 ***
 
-## Día 3
-### Viernes 10 de enero
+## Día 3---Viernes 10 de enero
 
-#### Bloque 1 [8:30am a 11:00am]
+### Bloque 1 [9:00–11:00, 2 hrs]  
+1. Biogeografía
+    1. Clase
+    2. Tutorial
 
-#### Bloque 2 [11:30am a 2:00pm]
+### Bloque 2 [11:30–14:00, 2.5 hrs]
+2. Diversificación
 
-#### Bloque 3 [3:30pm a 6pm]
 
+### Bloque 3 [15:30–18:00, 2.5 hrs]
+Tiempo dedicado a trabajar en grupos temáticos. 
