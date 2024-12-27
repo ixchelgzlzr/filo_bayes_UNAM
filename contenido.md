@@ -11,8 +11,8 @@ redirect: false
 
 ### Bloque 1 [9:00–11:00, 2 hrs]  
 
-1. **Actividad:** Presentación utilizando diapositivas.
-    1. Participantes. Nombre, pasatiempo, organismo que estudian, motivación para tomar el taller --- diapositivas preparadas [aquí]()
+1. **Actividad:** Presentaciones utilizando diapositivas.
+    1. Participantes. Nombre, pasatiempo, organismo que estudian, motivación para tomar el taller --- diapositivas preparadas [aquí](https://docs.google.com/presentation/d/1QWYTvWLIaphzv4Gt7aecXojmANxDsKb0RfyULq_C-u4/edit?usp=sharing)
     2. Presentación del taller
 
 2. Introducción al pensamiento bayesiano 

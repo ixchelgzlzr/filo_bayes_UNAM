@@ -57,17 +57,20 @@ begins.
 ## Introducción
 
 Se reconoce ampliamente que existe variación en la evolución entre distintos sitios de un alineamiento de DNA. 
-Y esta variación es una característica generalizada en los datos que incluyen múltiples genes, loci o genomas. 
-Cuando hacemos una inferencia filogenética a partir de conjuntos de datos como estos, es necesario que utilicemos 
-modelos que toman en cuenta esta heterogeneidad en la evolución de los sitios. 
+Y esta variación es una característica generalizada en los datos que incluyen múltiples genes, loci y/o genomas. 
+Cuando hacemos inferencias filogenéticas a partir de conjuntos de datos como estos, es necesario que utilicemos 
+modelos que toman en cuenta esta heterogeneidad en la evolución de los sitios. El no hacerlo, puede arrojar estimaciones sesgadas de árboles filogenéticos y otros parámetros de interés.
 
+<!--
 Variation in the evolutionary process across the sites of nucleotide
 sequence alignments is well established, and is an increasingly
 pervasive feature of datasets composed of gene regions sampled from
 multiple loci and/or different genomes. Inference of phylogeny from
 these data demands that we adequately model the underlying process
 heterogeneity; failure to do so can lead to biased estimates of
-phylogeny and other parameters {% cite Brown2007 %}.
+phylogeny and other parameters {% cite Brown2007 %}. -->
+
+Para tomar en cuenta la heterogeneidad del proceso evolutivo necesitamos dividir (_partition_ en inglés) nuestros datos. A esto también se le conoce como "usar modelos mixtos" o _mixed-models_ ({% cite Ronquist2003 %})
 
 Accounting for process heterogeneity involves adopting a partitioned
 data approach (sometimes also called a ‘mixed-model’ approach
