@@ -1,7 +1,7 @@
 ---
 title: Análisis con particiones
 layout: home
-subtitle: Protocolo estandard para inferencia de un árbol con RevBayes
+subtitle: Protocolo estándar para inferencia de un árbol con RevBayes
 onav_order: 1
 index: true
 redirect: false
@@ -70,9 +70,11 @@ these data demands that we adequately model the underlying process
 heterogeneity; failure to do so can lead to biased estimates of
 phylogeny and other parameters {% cite Brown2007 %}. -->
 
-Para tomar en cuenta la heterogeneidad del proceso evolutivo necesitamos dividir (_partition_ en inglés) nuestros datos. A esto también se le conoce como "usar modelos mixtos" o _mixed-models_ ({% cite Ronquist2003 %})
+Para tomar en cuenta la heterogeneidad en los procesos evolutivos necesitamos dividir (_partition_ en inglés) nuestros datos. A esto también se le conoce como "modelos mixtos" o _mixed-models_ ({% cite Ronquist2003 %}), en los que los caracteres (e.g.alineamientos de DNA o caracteres morfológicos) primero se separan en subgrupos que buscan representar la hetereogenidad del proceso que genero tales datos.
+El esquema de división (_partitioning scheme_) es guíado por consideraciones biologicas específicas de los datos que estamos utilizando. Por ejemplo, podríamos querer evaluar la variación en la evolución de dentro de un mismo gen (e.g., entre la región del tallo y del bucle de una sequencia del ribosoma), o entre distintos genes de un alineamiento concatenado (e.g., un alineamiento que incluse multiples loci de distintos genomas). La elección de cómo dividir los datos está a consideración del investigador y varios esquemas de división pueden ser considerados para los datos típicamente usados en inferencia filogenética.
 
-Accounting for process heterogeneity involves adopting a partitioned
+
+<!--Accounting for process heterogeneity involves adopting a partitioned
 data approach (sometimes also called a ‘mixed-model’ approach
 {% cite Ronquist2003 %}), in which the sequence alignment is first parsed into a
 number of data subsets that are intended to capture plausible process
@@ -85,9 +87,12 @@ ribosomal sequences), or among gene regions in a concatenated alignment
 (e.g., comprising multiple nuclear loci
 and/or gene regions sampled from different genomes). The choice of
 partitioning scheme is up to the investigator and many possible
-partitions might be considered for a typical dataset.
+partitions might be considered for a typical dataset.--> 
 
-In this exercise, we assume that each data subset evolved under an
+En este ejercicio asumiremos que cada subconjunto de datos evolucionó independientemente bajo un modelo GTR + Γ (modelo general de tiempo reversible con variación entre sitios distribuidas de acuerdo a una función Gamma). En este modelo, los datos observados son condicionalmente dependientes de las tasas de sustitución (θ), las frecuencias estacionarias de los nucleotidos (π), y el grado de variación de la distribución Gamma que define las variación entre sitios (α), así como el árbol enraizado en el que evolucionaron (Ψ) incluyendo la longitud de sus ramas.
+Cuando asumimos distintos modelos GTR + Γ para cada subgrupo de datos, estamos utilizando un modelo compuesto, en el que asumimos que todos los sitions tienen una topología en común, así como longitudes de ramas proporcionales, pero a la vez asumimos que cada subgrupo de sitios tiene parámetros del modelo de substitución independientes. Finalmente, llevamos a cabo una simulación de MCMC para aproximar la probabilidad posterior (PP) conjunta de la filogenia y los otros parámetros.
+
+<!--In this exercise, we assume that each data subset evolved under an
 independent general-time reversible model with gamma-distributed rates
 across sites (GTR+$\Gamma$). Under this model the observed data are
 conditionally dependent on the exchangeability rates ($\theta$),
@@ -99,23 +104,29 @@ all sites are assumed to share a common, rooted tree topology and
 proportional branch lengths, but subsets of sites are assumed to have
 independent substitution model parameters. Finally, we perform a
 separate MCMC simulation to approximate the joint posterior probability
-density of the phylogeny and other parameters.
+density of the phylogeny and other parameters.--> 
 
-For most sequence alignments, several (possibly many) partition schemes
+Para la mayoría de los alineamientos de secuencias de DNA, existen varios (incluso muchos) esquemas de partición de distintos niveles de complejidad que resultan plausibles *a priori*, por lo que es necesario que tengamos una manera objetiva de identificar el esquema de partición que tenga el mejor balance entre obtener una estimación sesgada (cuando se usan modelos sub-parametrizados o simplistas) y el error en la variación de los parámetros (asociado con la sobre-parametrizazion) de los modelos mixtos. 
+
+
+Para la mayoría de las alineaciones de secuencias de DNA, varios (posiblemente muchos) esquemas de partición de complejidad variable son plausibles *a priori*, lo que, por lo tanto, requiere una forma de identificar objetivamente el esquema de partición que equilibre el sesgo de estimación y la varianza del error asociados con modelos mixtos sub- y sobreparametrizados, respectivamente. Cada vez más, la selección del modelo de partición se basa en factores de Bayes (*Bayes factors*), lo que implica primero calcular la probabilidad marginal bajo cada esquema de partición candidato y luego comparar la relación de las probabilidades marginales para el conjunto de esquemas de partición candidatos. La secuencia de análisis que utilizaremos en este tutorial se representa en la Figura 1.
+<!--For most sequence alignments, several (possibly many) partition schemes
 of varying complexity are plausible *a priori*, which therefore requires
 a way to objectively identify the partition scheme that balances
 estimation bias and error variance associated with under- and
-over-parameterized mixed models, respectively. Increasingly,
+over-parameterized mixed models, respectively.los modelos con particiones
 partition-model selection is based on *Bayes factors*
 [e.g., {% cite Suchard2001 %}], which involves first
 calculating the marginal likelihood under each candidate partition
 scheme and then comparing the ratio of the marginal likelihoods for the
 set of candidate partition schemes
 {% cite Brandley2005 cite Nylander2004 cite Mcguire2007 %}. 
-The analysis pipeline that we will use in this tutorial is depicted in Figure [fig:pipeline].
+The analysis pipeline that we will use in this tutorial is depicted in Figure [fig:pipeline]. -->  
 
-> ![](figures/pipeline.png) 
-> The analysis pipeline for
+![fig 13](figures/pipeline.png) 
+*El proceso de análisis para el ejercicio 1. Exploraremos tres esquemas de partición para el conjunto de datos de primates. El primer modelo (el "modelo uniforme")METRO0) asume que todos los sitios evolucionaron bajo un GTR+ comúndomodelo de sustitución. El segundo modelo (el modelo "moderadamente particionado")METRO1) invoca dos subconjuntos de datos correspondientes a las dos regiones genéticas (cytB y cox2), y supone que cada subconjunto de sitios evolucionó bajo un GTR+ independiente.domodelo. El modelo de partición final (el modelo 'altamente particionado',METRO2) invoca cuatro subconjuntos de datos: los dos primeros subconjuntos corresponden a la región del gen cytB, donde los sitios de la primera y la segunda posición del codón se combinan en un subconjunto distinto de los sitios de la tercera posición del codón, y el gen cox2 tiene dos subconjuntos propios, divididos por posiciones de codón de la misma manera, y se supone que cada subconjunto de datos evolucionó bajo un GTR+ independiente.domodelo de sustitución. Nótese que asumimos que todos los sitios comparten una topología de árbol común,PD, y proporciones de longitud de rama, para cada uno de los esquemas de partición candidatos. Realizamos dos conjuntos separados de análisis para cada modelo de partición: una simulación MCMC para aproximar la densidad de probabilidad posterior conjunta de los parámetros del modelo de partición y una simulación MCMC "a posterior potencia" para aproximar la probabilidad marginal para cada modelo mixto. Las estimaciones de probabilidad marginal resultantes se evalúan luego utilizando factores de Bayes para evaluar el ajuste de los datos a los tres modelos de partición candidatos.*
+
+The analysis pipeline for
 Exercise 1. We will explore three partition schemes for the primates
 dataset. The first model (the ‘uniform model’, $M_0$) assumes that all
 sites evolved under a common GTR+$\Gamma$ substitution model. The second

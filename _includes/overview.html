@@ -1,0 +1,29 @@
+{% comment %}
+Display a tutorials's prerequisites and learning objectives.
+{% endcomment %}
+<div class="sidebar no-print">
+<blockquote class="overview" id="overview">
+  <h2>Overview</h2>
+  {% if page.layout == "tutorial" or page.prerequisites.size > 0 %}
+  <div class="row">
+    <div class="col-md-9">
+        <strong>Prerequisites</strong>
+        {% if page.prerequisites.size > 0 %}
+          <ul id="prerequisites">
+          {% for prerequisite in page.prerequisites %}
+            <li>{% page_ref {{ prerequisite }} %}</li>
+          {% endfor %}
+          </ul>
+        {% else %}
+          <ul>
+          <li>None</li>
+          </ul>
+        {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</blockquote>
+{% if include.download %}
+{% include download.html %}
+{% endif %}
+</div>
