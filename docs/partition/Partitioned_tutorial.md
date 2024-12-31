@@ -11,8 +11,8 @@ parent: Temario
 
 Este tutorial fue traducido y modificado a partir del tutorial "Partitioned data analysis" disponible [aquí](https://revbayes.github.io/tutorials/partition/) y escrito por Sebastian Höhna, Michael J. Landis and Tracy A. Heath. 
 
-[DESCARGA LOS DATOS PARA ESTE TUTORIAL](https://github.com/ixchelgzlzr/filo_bayes_UNAM/tree/e5adb1151e2698ed4c3b31f3b0a6524c8f356bdd/docs/partition/data/data.zip).  
-[DESCARGA LOS SCRIPTS PRE-HECHOS DE ESTE TUTORIAL](https://github.com/ixchelgzlzr/filo_bayes_UNAM/tree/e5adb1151e2698ed4c3b31f3b0a6524c8f356bdd/docs/partition/scripts/scripts.zip). 
+[DESCARGA LOS DATOS PARA ESTE TUTORIAL](https://github.com/ixchelgzlzr/filo_bayes_UNAM/blob/main/docs/partition/data/data.zip).  
+[DESCARGA LOS SCRIPTS PRE-HECHOS DE ESTE TUTORIAL](https://github.com/ixchelgzlzr/filo_bayes_UNAM/blob/main/docs/partition/scripts/scripts.zip). 
 
 <!--
 {% section Overview %}
