@@ -1,7 +1,7 @@
 ---
 title: Análisis con particiones
 layout: home
-subtitle: Protocolo estándar para inferencia de un árbol con RevBayes
+subtitle: Inferencia estándar de un árbol filogenético con RevBayes
 onav_order: 1
 index: true
 redirect: false
@@ -9,9 +9,12 @@ parent: Temario
 
 ---
 
-Este tutorial fue traducido y modificado a partir tutorial "Partitioned data analysis" disponible [aquí](https://revbayes.github.io/tutorials/partition/) y escrito por Sebastian Höhna, Michael J. Landis and Tracy A. Heath. 
+Este tutorial fue traducido y modificado a partir del tutorial "Partitioned data analysis" disponible [aquí](https://revbayes.github.io/tutorials/partition/) y escrito por Sebastian Höhna, Michael J. Landis and Tracy A. Heath. 
 
+[DESCARGA LOS DATOS PARA ESTE TUTORIAL](https://github.com/ixchelgzlzr/filo_bayes_UNAM/tree/e5adb1151e2698ed4c3b31f3b0a6524c8f356bdd/docs/partition/data/data.zip).  
+[DESCARGA LOS SCRIPTS PRE-HECHOS DE ESTE TUTORIAL](https://github.com/ixchelgzlzr/filo_bayes_UNAM/tree/e5adb1151e2698ed4c3b31f3b0a6524c8f356bdd/docs/partition/scripts/scripts.zip). 
 
+<!--
 {% section Overview %}
 
 This tutorial provides the second protocol from our recent publication
@@ -50,8 +53,7 @@ If everything loaded properly, then you should see the program begin
 running the Markov chain Monte Carlo analysis needed for estimating the
 posterior distribution. If you continue to let this run, you will
 see it output the states of the Markov chain once the MCMC analysis
-begins.
-
+begins.-->
 
 
 ## Introducción
@@ -126,7 +128,7 @@ The analysis pipeline that we will use in this tutorial is depicted in Figure [f
 ![fig 13](figures/pipeline.png) 
 *El proceso de análisis para el ejercicio 1. Exploraremos tres esquemas de partición para el conjunto de datos de primates. El primer modelo (el "modelo uniforme")METRO0) asume que todos los sitios evolucionaron bajo un GTR+ comúndomodelo de sustitución. El segundo modelo (el modelo "moderadamente particionado")METRO1) invoca dos subconjuntos de datos correspondientes a las dos regiones genéticas (cytB y cox2), y supone que cada subconjunto de sitios evolucionó bajo un GTR+ independiente.domodelo. El modelo de partición final (el modelo 'altamente particionado',METRO2) invoca cuatro subconjuntos de datos: los dos primeros subconjuntos corresponden a la región del gen cytB, donde los sitios de la primera y la segunda posición del codón se combinan en un subconjunto distinto de los sitios de la tercera posición del codón, y el gen cox2 tiene dos subconjuntos propios, divididos por posiciones de codón de la misma manera, y se supone que cada subconjunto de datos evolucionó bajo un GTR+ independiente.domodelo de sustitución. Nótese que asumimos que todos los sitios comparten una topología de árbol común,PD, y proporciones de longitud de rama, para cada uno de los esquemas de partición candidatos. Realizamos dos conjuntos separados de análisis para cada modelo de partición: una simulación MCMC para aproximar la densidad de probabilidad posterior conjunta de los parámetros del modelo de partición y una simulación MCMC "a posterior potencia" para aproximar la probabilidad marginal para cada modelo mixto. Las estimaciones de probabilidad marginal resultantes se evalúan luego utilizando factores de Bayes para evaluar el ajuste de los datos a los tres modelos de partición candidatos.*
 
-The analysis pipeline for
+<!--The analysis pipeline for
 Exercise 1. We will explore three partition schemes for the primates
 dataset. The first model (the ‘uniform model’, $M_0$) assumes that all
 sites evolved under a common GTR+$\Gamma$ substitution model. The second
@@ -148,36 +150,31 @@ partition-model parameters, and a ‘power-posterior’ MCMC simulation to
 approximate the marginal likelihood for each mixed model. The resulting
 marginal-likelihood estimates are then evaluated using Bayes factors to
 assess the fit of the data to the three candidate partition models.
-{:.figure}
+{:.figure}-->
 
 
-{% section Concatenated, Non-partitioned %}
-[![Walkthrough video](/assets/img/YouTube_icon.svg){: height="36" width="36"}](https://youtu.be/LPPYGUP1FZc#t=2m48s)
+{% section  Análisis concatenado, no particionado %}
 
-Our first exercise is to construct a multi-gene analysis where all genes
-evolve under the same process and parameters.
-
-
-{% subsection Setting up the model %}
+<!--Our first exercise is to construct a multi-gene analysis where all genes
+evolve under the same process and parameters.-->
+Nuestro primer ejercicio consiste en un análisis multigénico donde todos los genes evolucionan bajo el mismo proceso y parámetros.
 
 
-{% subsubsection Loading and preparing the data %}
+{% subsection Configuración del modelo %}
 
-To begin, load in the sequences using the ‘readDiscreteCharacterData()‘
-function.
+{% subsubsection Cargar y preparar los datos %}
+
+Para comenzar, cargaremos las secuencias utilizando la función 'readDiscreteCharacterData()'.
+
 ```
 data_cox2 = readDiscreteCharacterData("data/primates_and_galeopterus_cox2.nex")
 data_cytb = readDiscreteCharacterData("data/primates_and_galeopterus_cytb.nex")
 ```
-Since the first step in this exercise is to assume a single model across
-genes, we need to combine the two datasets using
-‘concatenate()‘
+Dado que estamos asumiendo el mismo modelo para todos los genes, necesitamos combinar los dos conjuntos de datos usando 'concatenar()'
 ```
 data = concatenate( data_cox2, data_cytb )
 ```
-Typing ‘data‘ reports the dimensions of the concatenated matrix, this
-provides information about the alignment:
-
+Si tecleamos 'data', obtenemos el reporte sobre las dimensiones de la matriz concatenada:
 ```
    DNA character matrix with 23 taxa and 1837 characters
    =====================================================
@@ -189,289 +186,211 @@ provides information about the alignment:
    Datatype:                      DNA
 ```
 {:.Rev-output}
-For later use, we will store the taxon information (‘taxa‘) and the
-number of taxa and branches.
+
+Guardaremos la información de los taxa ('taxa'), el número de taxa ('n_taxa') y el número de ramas, ya que lo utilizaremos más tarde. 
+
 ```
 n_taxa <- data.ntaxa()
 num_branches <- 2 * n_taxa - 3
 taxa <- data.taxa()
 ```
-Additionally, we will create our move and monitor vectors.
+Enseguida, creamos nuestros vectores de movimientos (*moves*) y monitores (*monitors*).
 ```
 moves    = VectorMoves()
 monitors = VectorMonitors()
 ```
 
+{% subsubsection Modelo de sustitución %}
 
-{% subsubsection Substitution model %}
-
-Now we can proceed with building our GTR$+\Gamma$ model. First, we will
-define and specify a prior on the exchangeability rates of the GTR model
+Ahora podemos proceder con la especificación de nuestro modelo GTR + Γ. En primer lugar, definiremos y especificaremos un prior para las tasas de intercambio (*exchangeability rates*) del modelo GTR.
 ```
 er_prior <- v(1,1,1,1,1,1) 
 er ~ dnDirichlet( er_prior )
 ```
-and assign its moves
+Y les asignamos sus movimientos
 ```
 moves.append( mvBetaSimplex(er, alpha=10, tune=true, weight=3) )
 moves.append( mvDirichletSimplex(er, alpha=10.0, tune=true, weight=1.0) )
 ```
-We can use the same type of distribution as a prior on the 4 stationary
-frequencies ($\pi_A, \pi_C, \pi_G, \pi_T$) since these parameters also
-represent proportions. Specify a flat Dirichlet prior density on the
-base frequencies:
+Podemos utilizar el mismo tipo de distribución para el prior en las 4 frecuencias estacionarias (π_A, π_C, π_G, π_T) ya que estos parámetros también representan proporciones. Así pues, especificamos una densidad "Dirichlet plana" como prior para las frecuencias de los nucleótidos:
 ```
 pi_prior <- v(1,1,1,1) 
 pi ~ dnDirichlet( pi_prior )
 ```
-Now add the simplex scale move on the stationary frequencies to the
-moves vector
+Ahora agregamos movimientos en las frecuencias estacionarias
 ```
 moves.append( mvBetaSimplex(pi, alpha=10, tune=true, weight=2) )
 moves.append( mvDirichletSimplex(pi, alpha=10.0, tune=true, weight=1.0) )
 ```
-We can finish setting up this part of the model by creating a
-deterministic node for the GTR rate matrix ‘Q‘. The ‘fnGTR()‘ function
-takes a set of exchangeability rates and a set of base frequencies to
-compute the rate matrix used when calculating the likelihood of our
-model.
+Podemos terminar de especificar esta parte del modelo creando un nodo determinista para la matriz GTR de tasas instantáneas, 'Q'. La función 'fnGTR()' toma un conjunto de tasas de intercambio y un conjunto de frecuencias de bases para calcular la matriz de tasas instantáneas (Q), que utilizaremos para calcular la versosimilitud (likelihood) de nuestro modelo.
+
 ```
 Q := fnGTR(er,pi)
 ```
 
+{% subsubsection Variación de las tasas de sustitución entre sitios%}
 
-{% subsubsection Among site rate variation %}
+También asumiremos que las tasas de sustitución varían entre sitios del alineamiento de acuerdo con una distribución gamma (definida por un parámetro), es decir, donde el parámetro de la forma es igual al parámetro de la tasa (a = b) y, por lo tanto, con una media de 1.0  {% cite Yang1994a %}. Dado que no tenemos un buen conocimiento previo sobre la varianza de las tasas de sustitución entre sitios, aplicamos una distribución uniforme entre 1 y 10^8. Después, creamos un nodo estocástico llamado 'alpha' con un prior uniforme:
 
-We will also assume that the substitution rates vary among sites
+<!--We will also assume that the substitution rates vary among sites
 according to an one-parametric gamma distribution,
 i.e., where the shape equals the rate
 ($\alpha=\beta$) and thus with mean 1.0 {% cite Yang1994a %}. Since we do not
 have good prior knowledge about the variance in site rates, we apply a uniform distribution between $1$ and $10^8$.
-Then create a stochastic node called ‘alpha‘ with a uniform prior:
+Then create a stochastic node called ‘alpha‘ with a uniform prior:-->
 ```
 alpha ~ dnUniform( 0, 1E8 )
 ```
-The way the ASRV model is implemented involves discretizing the mean-one
-gamma distribution into a set number of rate categories. Thus, we can
-analytically marginalize over the uncertainty in the rate at each site.
-To do this, we need a deterministic node that is a vector of rates
-calculated from the gamma distribution and the number of rate
-categories. The ‘fnDiscretizeGamma()‘ function returns this
-deterministic node and takes three arguments: the shape and rate of the
-gamma distribution and the number of categories. Since we want to
-discretize a mean-one gamma distribution, we can pass in ‘alpha‘ for
-both the shape and rate.
+La forma en que se implementa el modelo ASRV (among sites rate variation) implica discretizar una distribución gamma de media=1 en un número determinado de categorías de tasas. De este modo, podemos marginalizar analíticamente la incertidumbre en la tasa de cada sitio. Para ello, necesitamos un nodo determinista que sea un vector de tasas calculadas a partir de la distribución gamma y el número de categorías de tasas. Esto se realiza con la función 'fnDiscretizeGamma()' que arroja este nodo determinista y requiere tres argumentos: la forma y la tasa de la distribución gamma y el número de categorías. Dado que queremos discretizar una distribución gamma de media = 1, podemos utilizar 'alpha' tanto para la forma, como para la tasa.
 
-Initialize the ‘gamma_rates‘ deterministic node vector using the
-‘fnDiscretizeGamma()‘ function with ‘4‘ bins:
+Inicializamos el vector de nodo determinista 'gamma_rates' utilizando la función 'fnDiscretizeGamma()' con '4' categorías:
 ```
 gamma_rates := fnDiscretizeGamma( alpha, alpha, 4, false )
 ```
-The random variable that controls the rate variation is the stochastic
-node ‘alpha‘. This variable is a single, real positive value (‘RevType =
-RealPos‘). We will apply a simple scale move to this parameter. The
-scale move’s tuning parameter is called ‘lambda‘ and this value dictates
-the size of the proposal.
+La variable aleatoria que controla la variación de la tasa es el nodo estocástico 'alpha'. Esta variable es un valor único, real y positivo ('RevType = RealPos'). Aplicaremos un movimiento simple (*scale*) a este parámetro. El parámetro de ajuste del movimiento de escala se llama 'lambda' y este valor dicta el tamaño de la propuesta (*proposal*).
+
 ```
 moves.append( mvScale(alpha, lambda=0.1, tune=false, weight=4.0) )
 ```
 
+{% section Sitios Invariables %}
 
-{% section Invariant sites %}
-
-Invariant sites (sites that remain fixed throughout their evolutionary
-history) may be seen as an extreme case of among-site rate variation. In
-contrast to $+ \Gamma$ models, the $+I$ model allows site some
-probability of having substitution rate equal to zero. Here, we give the
-probability of a site being invariant with ‘pinvar‘
+Los sitios invariable (sitios que permanecen fijos a lo largo de su historia evolutiva) pueden considerarse un caso extremo de variación de la tasa entre sitios. En contraste con el modelo + Γ, el modelo + I permite que el sitio tenga cierta probabilidad de tener una tasa de sustitución igual a cero. Aquí, parametrizamos la probabilidad de que un sitio sea invariable con 'pinvar'. Y agregamos movimientos a este parámetro:
 ```
 pinvar ~ dnBeta(1,1)
 moves.append( mvBetaProbability(pinvar, delta=10.0, tune=true, weight=2.0) )
 ```
 
 
-{% section Tree prior %}
+{% section Prior en el Árbol %}
 
-The tree topology and branch lengths are also stochastic nodes in our
-model. For simplicity, we will use the same prior distribution on the
-tree topology, a uniform topology prior, and branch lengths, independent
-exponential prior distributions, as done in the .
+La topología del árbol y las longitudes de las ramas también son nodos estocásticos en nuestro modelo. Para simplificar, utilizaremos la misma distribución previa en la topología del árbol, una distribución previa de topología uniforme, y las longitudes de las ramas, distribuciones previas exponenciales independientes, como se hizo en los modelos de sustitución de nucleótidos .
 
-We will assume that all possible labeled, unrooted tree topologies have
-equal probability. This is the ‘dnUniformTopology()‘ distribution in
-‘RevBayes‘. Note that in ‘RevBayes‘ it is advisable to specify the
-outgroup for your study system if you use an unrooted tree prior,
-whereas other software, e.g.,`MrBayes` uses the first
-taxon in the data matrix file as the outgroup. Specify the ‘topology‘
-stochastic node by passing in the tip labels ‘names‘ to the
-‘dnUniformTopology()‘ distribution:
+Asumiremos que todas las topologías de árboles no enraízados tienen la misma probabilidad. Esta probabilidad está reflejada por la distribución `dnUniformTopology()` en `RevBayes`. 
+Hay que tener en cuenta que en `RevBayes` es recomendable especificar el grupo externo para su sistema de estudio si se utiliza un árbol sin raíz a priori. En otros softwares, como `MrBayes`, se toma el primer taxón de la matriz de datos como grupo externo. 
+Así pues, especificamos el nodo estocástico 'topology' con la función `dnUniformTopology()` usando los nombres de los terminales 'names':
 ```
 out_group = clade("Galeopterus_variegatus")
 topology ~ dnUniformTopology(taxa, outgroup=out_group)
 ```
-To update the unrooted tree topology, we can use both a nearest-neighbor
-interchange move (‘mvNNI‘) and a subtree-prune and regrafting move
-(‘mvSPR‘). These moves do not have tuning parameters associated with
-them, thus you only need to pass in the ‘topology‘ node and proposal
-‘weight‘.
+Para explorar la topología del árbol sin raíz, podemos utilizar tanto un movimiento de intercambio de vecino más cercano (`mvNNI`) como un movimiento de poda y reinjerto de subárbol (`mvSPR`). Estos movimientos no tienen parámetros de ajuste asociados, por lo que solo es necesario pasar el nodo `topology` y el peso (*weight*() de la propuesta.
 ```
 moves.append( mvNNI(topology, weight=n_taxa/2.0) )
 moves.append( mvSPR(topology, weight=n_taxa/10.0) )
 ```
-The weight specifies how often the move will be applied either on
-average per iteration or relative to all other moves. Have a look at the
-[MCMC Diagnosis
-tutorial](https://github.com/revbayes/revbayes_tutorial/raw/master/tutorial_TeX/RB_MCMC_Tutorial/RB_MCMC_Tutorial.pdf)
-for more details about moves and MCMC strategies.
+El peso especifica la frecuencia con la que se aplicará el movimiento, ya sea en promedio por iteración o en relación con todos los demás movimientos. Consulta el tutorial [Diagnóstico de MCMCs](https://github.com/revbayes/revbayes_tutorial/raw/master/tutorial_TeX/RB_MCMC_Tutorial/RB_MCMC_Tutorial.pdf) para obtener más detalles sobre los movimientos y las estrategias de MCMC.
 
-Next we have to create a stochastic node for each of the $2N-3$ branches
-in our tree (where $N=$ ‘n_species‘). We can do this using a ‘for‘ loop
-— this is a plate in our graphical model. In this loop, we can create
-each of the branch-length nodes and assign each move. Copy this entire
-block of ‘Rev‘ code into the console:
+A continuación tenemos que crear un nodo estocástico para cada uno de las 2N-3 ramas en nuestro árbol (donde N='n_species'). Podemos hacer esto usando un "for loop". En este loop, podemos crear cada uno de los nodos correspondientes a las longitudes de rama y asignarles movimientos. Copia todo este bloque de código:
 ```
 for (i in 1:num_branches) {
     br_lens[i] ~ dnExponential(10.0)
     moves.append( mvScale(br_lens[i]) )
 }
 ```
-It is convenient for monitoring purposes to add the tree length as
-deterministic variable. The tree length is simply the sum of all branch
-lengths. . Accordingly, the tree length can be computed using the
-‘sum()‘ function, which calculates the sum of any vector of values.
+Con fines de monitoreo, resulta conveniente agregar la longitud total del árbol como variable determinista. La longitud del árbol es simplemente la suma de las longitudes de todas las ramas. En consecuencia, la longitud del árbol se puede calcular utilizando la función `sum()`, que calcula la suma de cualquier vector de valores.
+
 ```
 TL := sum(br_lens)
 ```
-Finally, we can create a *phylogram* (a phylogeny in which the branch
-lengths are proportional to the expected number of substitutions/site)
-by combining the tree topology and branch lengths. We do this using the
-‘treeAssembly()‘ function, which applies the value of the $i^{th}$
-member of the ‘br_lens‘ vector to the branch leading to the $i^{th}$
-node in ‘topology‘. Thus, the ‘psi‘ variable is a deterministic node:
+
+Por último, podemos crear un filograma (una filogenia en la que las longitudes de las ramas son proporcionales al número esperado de sustituciones por sitio) combinando la topología del árbol y las longitudes de las ramas. Para ello, utilizamos la función `treeAssembly()`, que aplica los valores de longitud de ramas del vector ‘br_lens‘ a las ramas que sostienen a cada node en la topología, `topology`. 
+Por lo tanto, la variable psi es un nodo determinista:
+
 ```
 psi := fnTreeAssembly(topology, br_lens)
 ```
 
+{% subsection Ponniéndolo todo junto %}
 
-{% subsection Putting it All Together %}
+Ya tenemos todos los parámetros necesarios para modelar el proceso de sustitución molecular filogenética:
 
-
-We now have all the parameters needed to model the phylogenetic
-molecular substitution process
 ```
 seq ~ dnPhyloCTMC(tree=psi, Q=Q,  siteRates=gamma_rates, pInv=pinvar, type="DNA")
 ```
-To compute the likelihood, we condition the process on the data observed
-at the tips of the tree
+Para calcular la verosimilitud, condicionamos el proceso a los datos observados en las puntas del árbol utilizando la función `.clamp()`:
 ```
 seq.clamp(data)
 ```
-Since the model is now specified, we wrap the components in a
-Model object.
+Como ahora el modelo está completamente definido y especificado, envolvemos los componentes en un objeto llamado `my_model`.
+
 ```
 my_model = model(Q)
 ```
 
+{% subsubsection Especificación de monitores %}
 
-{% subsubsection Specifying Monitors %}
 
-For our MCMC analysis we need to set up a vector of *monitors* to save
-the states of our Markov chain. The monitor functions are all called
-‘mn\*‘, where ‘\*‘ is the wildcard representing the monitor type. First,
-we will initialize the model monitor using the ‘mnModel‘ function. This
-creates a new monitor variable that will output the states for all model
-parameters when passed into a MCMC function.
+Para nuestro análisis con MCMC, necesitamos configurar un vector de monitores para guardar los estados de nuestra cadena de Markov. Las funciones para especificar monitores siempre empiezan con ('mn*'), donde '*' es el comodín que representa el tipo de monitor. Primero, inicializaremos el monitor del modelo utilizando la función `mnModel`. Esto crea una variable nueva que generará (es decir, escribirá en un archivo de texto, el cuál también especificaremos) los estados de todos los parámetros del modelo durante una MCMC.
 ```
 monitors.append( mnModel(filename="output/PS_uniform.log",printgen=10) )
 ```
-The ‘mnFile‘ monitor will record the states for only the parameters
-passed in as arguments. We use this monitor to specify the output for
-our sampled trees and branch lengths.
+El monitor `mnFile` registrará únicamente los estados de los parámetros que se le indiquen como argumentos. Usamos este monitor para definir el archivo donde guardaremos los árboles y las longitudes de las ramas muestreadas, es decir, el nodo `psi`.
 ```
 monitors.append( mnFile(psi, filename="output/PS_uniform.trees", printgen=10) )
 ```
-Finally, create a screen monitor that will report the states of
-specified variables to the screen with ‘mnScreen‘:
+Por último, creamos un monitor de pantalla, `mnScreen`, que mostrará los estados de las variables especificadas en la terminal donde estámos corriendo en análisis:
+
 ```
 monitors.append( mnScreen(alpha, pinvar, TL, printgen=1000) )
 ```
 
+{% subsubsection Inicialización y ejecución de la simulación MCMC %}
 
+Con un modelo completamente especificado, un conjunto de monitores, y un conjunto de movimientos, estamos listos para configurar el algoritmo MCMC que muestreará los valores de los parámetros en proporción a su probabilidad posterior. La función `mcmc()` creará el objeto MCMC:
 
-{% subsubsection Initializing and Running the MCMC Simulation %}
-
-With a fully specified model, a set of monitors, and a set of moves, we
-can now set up the MCMC algorithm that will sample parameter values in
-proportion to their posterior probability. The ‘mcmc()‘ function will
-create our MCMC object:
 ```
 mymcmc = mcmc(my_model, monitors, moves, nruns=2, combine="mixed")
 ```
-Note that this will automatically run two independent replicated MCMC
-simulations because we specified ‘nruns=2‘.
+Ten en cuenta que esto correrá automáticamente dos MCMCs independientes porque especificamos `nruns=2`.
+Ahora, corremos el MCMC:
 
-Now, run the MCMC:
 ```
 mymcmc.run(generations=30000, tuningInterval=200)
 ```
-When the analysis is complete, you will have the monitor files in your
-output directory.
 
-‘RevBayes‘ can also summarize the tree samples by reading in the
-tree-trace file:
+Una vez finalizado el análisis, tendrás los archivos de los monitores en tu directorio de salida.
+
+'RevBayes' también puede procesar la muestra de los árboles leyendo el archivo de los árboles:
+
 ```
 treetrace = readTreeTrace("output/PS_uniform.trees", treetype="non-clock")
 treetrace.summarize()
 ```
-The ‘mapTree()‘ function will summarize the tree samples and write the
-maximum a posteriori tree to file:
+La función `mapTree()` procesa la muestra de árboles y calcula el árbol de máxima probabilidad posterior (MAP) en el archivo:
+
 ```
 map_tree = mapTree(treetrace,"output/PS_uniform_map.tre")
 ```
-This completes the uniform partition analysis. The next two sections
-will implement more complex partitioning schemes in a similar manner.
+Con esto finalizamos el análisis de sin particiones. Las dos secciones siguientes implementarán esquemas de particionamiento más complejos.
 
 
+{% section Partición por gen %}
 
+El modelo uniforme utilizado en la sección anterior supone que todos los sitios en la alineación evolucionaron bajo el mismo proceso, por lo que comparten el mismo árbol, las mismas longitudes de rama y los mismos parámetros del modelo de sustitución (GTR + Γ). Sin embargo, nuestro alineamiento contiene dos regiones genéticas distintas (cytB y cox2), por lo que quizás nos gustaría explorar la posibilidad de que el proceso de sustitución sea diferente entre estas dos regiones genéticas. Esto requiere que (1) especifiquemos las particiones de datos correspondientes a estos dos genes y (2) definamos un modelo de sustitución independiente para cada partición.
 
-{% section Partitioning by Gene Region %}
-[![Walkthrough video](/assets/img/YouTube_icon.svg){: height="36" width="36"}](https://youtu.be/LPPYGUP1FZc#t=17m06s)
+Primero, limpiaremos el espacio de trabajo de todas las variables declaradas.
 
-The uniform model used in the previous section assumes that all sites in
-the alignment evolved under the same process described by a shared tree,
-branch length proportions, and parameters of the GTR+$\Gamma$
-substitution model. However, our alignment contains two distinct gene
-regions—cytB and cox2—so we may wish to explore the possibility that the
-substitution process differs between these two gene regions. This
-requires that we first specify the data partitions corresponding to
-these two genes, then define an independent substitution model for each
-data partition.
-
-First, we’ll clear the workspace of all declared variables
 ```
 clear()
 ```
-Since we wish to avoid individually specifying each parameter of the
-GTR+$\Gamma$ model for each of our data partitions, we can *loop* over
-our datasets and create vectors of nodes. To do this, we begin by
-creating a vector of data file names:
+Dado que queremos evitar tener que especificar individualmente cada parámetro del modelo GTR+ Γ para cada una de nuestras particiones de datos, podemos utilizar un loop en nuestros conjuntos de datos y crear vectores de nodos. Para ello, comenzamos creando un vector con los nombres de los archivos de datos:
+
 ```
 filenames <- v("data/primates_and_galeopterus_cox2.nex", "data/primates_and_galeopterus_cytb.nex")
 ```
-Set a variable for the number of partitions:
+Establecemos una variable para el número de particiones:
 ```
 n_data_subsets <- filenames.size()
 ```
-Next we’ll create a vector of data matrices called ‘data‘, and a corresponding vector recording the number of sites in each partition:
+A continuación, creamos un vector de matrices de datos llamado "data", y un vector correspondiente que registra la cantidad de sitios en cada partición:
 ```
 for (i in 1:n_data_subsets){
     data[i] = readDiscreteCharacterData(filenames[i])
     num_sites[i] = data[i].nchar()
 }
 ```
-Now we can initialize some important variables. This does require,
-however, that both of our alignments have the same number of species and
-matching tip names.
+Ahora podemos inicializar algunas variables importantes. Sin embargo, esto requiere que ambas alineaciones tengan la misma cantidad de especies y que los nombres de los terminales coincidan. 
+
 ```
 taxa <- data[1].taxa()
 n_taxa <- data[1].ntaxa()
@@ -482,24 +401,14 @@ monitors = VectorMonitors()
 ```
 
 
-{% subsection Specify the Parameters by Looping Over Partitions %}
+{% subsection Especificar los parámetrosmde cada partición usando un loop %}
 
-We can avoid creating unique names for every node in our model if we use
-a ‘for‘ loop to iterate over our partitions. Thus, we will only have to
-type in our entire GTR+$\Gamma$ model parameters once. This will produce
-a vector for each of the unlinked parameters
-—e.g., there will be a vector of ‘alpha‘
-nodes where the stochastic node for the first partition (cytB) will be
-‘alpha[1]‘ and the stochastic node for the second partition (cox2)
-will be called ‘alpha[2]‘.
+Podemos evitar la creación de nombres únicos para cada nodo de nuestro modelo si utilizamos un *for loop* para iterar sobre nuestras particiones. De esta forma, solo tendremos que escribir nuestro modelo GTR + Γ una sola vez. Este procedimiento construirá un vector para cada uno de los parámetros; por ejemplo, habrá un vector de nodos "alpha", donde el nodo estocástico para la primera partición (cytB) será "alpha[1]" y el nodo estocástico para la segunda partición (cox2) se llamará "alpha[2]".
 
-The script for the model,
-RevBayes_scripts/mcmc_Partition_gene.Rev, creates the
-model parameters for each partition in one large loop. Here, we will
-split the loop into smaller parts to achieve the same end.
+El script para este modelo, `RevBayes_scripts/mcmc_Partition_gene.Rev`, crea los parámetros para cada partición en un loop grande. Pero aquí, dividiremos el loop en loops más pequeños por motivos didácticos.
 
-First, we will create the GTR rate matrix for partition $i$ by first
-creating exchangeability rates
+Primero, crearemos la matriz de tasas de cambio instantáneo GTR para la partición `i` creando primero las tasas de intercambio:
+
 ```
 for (i in 1:n_data_subsets) {
     er_prior[i] <- v(1,1,1,1,1,1)
@@ -507,7 +416,7 @@ for (i in 1:n_data_subsets) {
     moves.append( mvBetaSimplex(er[i], alpha=10, tune=true, weight=3) )
 }
 ```
-and stationary frequencies
+y las frecuencias estacionarias:
 ```
 for (i in 1:n_data_subsets) {
     pi_prior[i] <- v(1,1,1,1)
@@ -515,17 +424,13 @@ for (i in 1:n_data_subsets) {
     moves.append( mvBetaSimplex(pi[i], alpha=10, tune=true, weight=2) )
 }
 ```
-then passing those parameters into a rate matrix function
+y después, pasamos esos parámetros a una función que calcula la matríz de tasas de cambio instantáneo.
 ```
 for (i in 1:n_data_subsets) {
     Q[i] := fnGTR(er[i],pi[i]) 
 }
 ```
-which states the rate matrix (Q[i]) for partition $i$ is
-determined by the exchangeability rates (er[i]) and
-stationary frequencies (pi[i]) also defined for partition
-$i$. Following this format, we construct the remaining partition
-parameters: the $+\Gamma$ mixture model
+que establece la matriz de tasas de cambio instantáneo (Q[i]) para la partición i está determinada por las tasas de intercambio (er[i]) y las frecuencias estacionarias (pi[i]). Siguiendo este formato, construimos los parámetros de partición restantes. Es decir, los parámetros del modelo mixto + Γ;
 ```
 for (i in 1:n_data_subsets) {
     alpha[i] ~ dnUniform( 0.0, 1E8 )
@@ -534,14 +439,14 @@ for (i in 1:n_data_subsets) {
     moves.append( mvScale(alpha[i],weight=2) )
 }
 ```
-the $+I$ invariant sites model
+el modelo de sitios invariables, + I;
 ```
 for (i in 1:n_data_subsets) {
     pinvar[i] ~ dnBeta(1,1)
     moves.append( mvBetaProbability(pinvar[i], delta=10.0, tune=true, weight=2.0) )
 }
 ```
-and the per-partition substitution rate multipliers
+y los multiplicadores de las tasas de sustitución por partición
 ```
 # specify a rate multiplier for each partition
 part_rate_mult ~ dnDirichlet( rep(10.0, n_data_subsets) )
@@ -560,64 +465,10 @@ part_rate := (part_rate_mult / num_sites) * sum(num_sites)
 ```
 
 
+{% subsubsection Prior del árbol %}
 
-{% aside Different Substitution Models for each Gene %}
+Asumiremos que ambos genes evolucionan en el mismo árbol. Por lo tanto, necesitamos especificar una variable aleatoria para nuestro parámetro del árbol, de la misma manera en que lo especificamos para el análisis sin particiones.
 
-Alternatively, we might be interested in applying different substitution
-models for each gene independently instead of assuming the same
-substitution albeit with different parameters for each gene. In this two
-gene case this is rather simple to do by specifying the substitution
-model for each gene independently. For many genes this might become
-lengthy and you might want to write a script to generate this section
-(note: we may provide such scripts soon).
-
-For simplicity and sake of demonstration, we assume that the cytochrome
-b region evolves under a Jukes-Cantor substitution model and the COX-II
-gene under an HKY substitution model. We begin with the cytochrome b
-gene and the Jukes-Cantor substitution model:
-```
-# specify the JC rate matrix
-Q[1] <- fnJC(4)
-```
-Second, we specify the HKY substitution model for the COX-II gene:
-```
-pi_prior <- v(1,1,1,1) 
-pi ~ dnDirichlet(pi_prior)
-
-# specify a move to propose updates to on pi
-moves.append( mvBetaSimplex(pi, weight=2) )
-moves.append( mvDirichletSimplex(pi, weight=1) )
-
-# specify a lognormal distribution as the prior distribution on kappa
-kappa ~ dnLognormal(0.0,1.25)
-
-# a simple scaling move to update kappa
-moves.append( mvScale(kappa) )
-
-# Finally, create the HKY rate matrix
-Q[2] := fnHKY(kappa,pi)
-```
-Note that we specified manually in this way our vector of rate matrices
-‘Q‘. We can thus specify any substitution model manually for a given
-gene. We hope that this brief example conveys the idea how to specify
-gene-specific substitution models. You can add rate-variation among
-sites and/or probabilities for a site being invariant for each gene too.
-Finally, you can then either loop over all genes to create the
-‘dnPhyloCTMC‘ distribution (see below) if the structure of the model
-allows it (*i.e.,*if all models have a
-variable for site-rate-variation and probabilities for invariant site),
-or you efficiently set these variables to default values
-(*e.g.,*‘pinvar[i]=0.0‘ if there is no
-probability for a site being invariant for this gene), or you create the
-‘seq[i] $\sim$ dnPhyloCTMC(...)‘ manually outside a loop as well.
-{% endaside %}
-
-
-{% subsubsection Tree prior %}
-
-We assume that both genes evolve along the same tree. Hence, we need to
-specify a random variable for our tree parameter which is the same as
-was specified for mcmc_Partition_uniform.Rev.
 ```
 out_group = clade("Galeopterus_variegatus")
 # Prior distribution on the tree topology
@@ -637,40 +488,37 @@ psi := treeAssembly(topology, bl)
 ```
 
 
-{% subsection Putting it all together %}
+{% subsection Poniéndolo todo junto %}
 
-Since we have a rate matrix and a site-rate model for each partition, we
-must create a phylogenetic CTMC for each gene. Additionally, we must fix
-the values of these nodes by attaching their respective data matrices.
-These two nodes are linked by the ‘psi‘ node and their log-likelihoods
-are added to get the likelihood of the whole DAG.
+Dado que para cada partición tenemos una matriz de tasas (Q) y un modelo de variación de tasas por sitio (+Γ, + I), necesitamos crear un CTMC para cada gen. Además, debemos fijar los valores de estos nodos adjuntando sus respectivas matrices de datos. Estos dos nodos están vinculados por el nodo "psi" y sus verosimilitudes logarítmicas se suman para obtener la verosimilitud total.
+
 ```
 for (i in 1:n_data_subsets) {
     seq[i] ~ dnPhyloCTMC(tree=psi, Q=Q[i], branchRates=part_rate[i], siteRates=gamma_rates[i], pInv=pinvar[i], type="DNA")
     seq[i].clamp(data[i])
 }
 ```
-The remaining steps should be familiar: wrap the model components in a
-model object
+Los pasos restantes deberían resultarte familiares: envuelve los componentes del modelo en un objeto de modelo.
+
 ```
 my_model = model(psi)
 ```
 
 
-{% subsubsection Create monitors %}
+{% subsubsection Monitores%}
 
-create the monitors
+creamos los monitores
 ```
 monitors.append( mnModel(filename="output/PS_gene.log",printgen=10) )
 monitors.append( mnFile(psi, filename="output/PS_gene.trees", printgen=100) )
 monitors.append( mnScreen(TL, printgen=1000) )
 ```
-configure and run the MCMC analysis
+configuramos y corremos la MCMC;
 ```
 mymcmc = mcmc(my_model, moves, monitors, nruns=2, combine="mixed")
 mymcmc.run(30000,tuningInterval=200)
 ```
-and summarize the posterior density of trees with a MAP tree
+y procesamos las muestras de árboles, construyendo un árbol MAP
 ```
 treetrace = readTreeTrace("output/PS_gene.trees", treetype="non-clock")
 treetrace.summarize()
@@ -678,35 +526,20 @@ mapTree(treetrace,"output/PS_gene_MAP.tre")
 ```
 
 
+{% section Partición por posición de codón y por gen %}
 
+Debido al código genético, a menudo nos encontramos con que las distintas posiciones dentro de un codón (primero, segundo y tercero) evolucionan a tasas diferentes. Por lo tanto, utilizando nuestro conocimiento de los datos biológicos, podemos idear un tercer enfoque que divida aún más nuestro alineamiento. Para este ejercicio, dividiremos los sitios dentro del gen cytB y cox2 por su posición en el codón.
 
-{% section Partitioning by Codon Position and by Gene %}
-[![Walkthrough video](/assets/img/YouTube_icon.svg){: height="36" width="36"}](https://youtu.be/LPPYGUP1FZc#t=25m37s)
-
-Because of the genetic code, we often find that different positions
-within a codon (first, second, and third) evolve at different rates.
-Thus, using our knowledge of biological data, we can devise a third
-approach that further partitions our alignment. For this exercise, we
-will partition sites within the cytB and cox2 gene by codon position.
 ```
 clear()
 data_cox2 <- readDiscreteCharacterData("data/primates_and_galeopterus_cox2.nex")
 data_cytb <- readDiscreteCharacterData("data/primates_and_galeopterus_cytb.nex")
 ```
-We must now add our codon-partitions to the ‘data‘ vector. The first and
-second elements in the data vector will describe cytB data,
-and the third and fourth elements will describe cox2 data. Moreover, the
-first and third elements will describe the evolutionary process for the
-first and second codon position sites, while the second and fourth
-elements describe the process for the third codon position sites alone.
+Ahora debemos añadir nuestras particiones por codones al vector "data". El primer y segundo elemento del vector `data` corresponden al gen cytB, mientras que el tercer y cuarto elemento corresponden al gen cox2. Además, el primer y tercer elemento del vector `data` corresponden a las posiciones 1 y 2 del codón, mientras que el segundo y cuarto elemento del vector `data` corresponden a la tercera posición del codón.
 
-We can create this by calling the helper function ‘setCodonPartition()‘,
-which is a member function of the data matrix. We are assuming that the
-gene is *in frame*, meaning the first column in your alignment is a
-first codon position. The ‘setCodonPartition()‘ function takes a single
-argument, the position of the alignment you wish to extract. It then
-returns every third column, starting at the index provided as an
-argument.
+Podemos hacer esto utilizando la función auxiliar `setCodonPartition()`, que es una función especifica para la matriz de datos (y por eso la syntaxis incluye un punto, como sucede en el lenguaje python). Assumiremos que el gen está en el marco de lectura, lo que significa que la primera columna del alinemamiento corresponde a la primera posición de un codón. La función `setCodonPartition()` toma un único argumento: la posición en el alinemaiento que deseamos extraer. Y a partir de ahí, devuelve cada tercer columna, comenzando en el índice proporcionado como argumento.
+
+Primero guardamos los alineamientos correspondientes en cada una de las particiones (data[i]), y después utilizamos la función `setCodonPartition()` para excluir todas las secuencias excepto las posiciones que corresponden a cada partición. Por ejemplo, para `data[1]` guardamos la primer y segunda posicion, exluyendo la tercera. 
 
 Before we can use the use the ‘setCodonPartition()‘ function, we must
 first populate the position in the ‘data‘ matrix with some sequences.
@@ -716,27 +549,23 @@ Then we call the member function of ‘data[1]‘ to exclude all but the
 data[1] <- data_cox2
 data[1].setCodonPartition( v(1,2) )
 ```
-Assign the 3$^{rd}$ codon positions for cox2 to ‘data[2]‘:
+Y para `data[2]`, asignamos solo la tercera posición:
 ```
 data[2] <- data_cox2
 data[2].setCodonPartition( 3 )
 ```
-Then repeat for cytB, being careful to store the subsetted data to
-elements 3 and 4:
+Después, repetimos esto para el gen cytB, teniendo cuidado de guardar las particiones en los elementos 3 y 4 del vector `data`:
 ```
 data[3] <- data_cytb
 data[3].setCodonPartition( v(1,2) )
 data[4] <- data_cytb
 data[4].setCodonPartition( 3 )
 ```
-Now we have a data vector containing each subset. We can then specify
-the independent substitution models per data subset. The remaining parts
-of the model are identical to the previous exercise where we partitioned
-by gene.
+Ahora tenemos un vector `data` que contiene cada partición. Enseguida podemos especificar los modelos de sustitución independientes por subconjunto de datos. Las partes restantes del modelo son idénticas al ejercicio anterior, en el que realizamos la partición por gen.
 
-Don’t forget to rename the output files!
+¡No olvides cambiar el nombre de los archivos!
 
-
+<!--
 {% section Exercises %}
 [![Walkthrough video](/assets/img/YouTube_icon.svg){: height="36" width="36"}](https://youtu.be/LPPYGUP1FZc#t=29m11s)
 
@@ -798,4 +627,4 @@ ss.marginal()
 ps = pathSampler(file="model_uniform.out", powerColumnName="power", likelihoodColumnName="likelihood")
 ps.marginal()
 ```
-
+-->
