@@ -107,61 +107,19 @@ independent substitution model parameters. Finally, we perform a
 separate MCMC simulation to approximate the joint posterior probability
 density of the phylogeny and other parameters.--> 
 
-Para la mayoría de los alineamientos de secuencias de DNA, existen varios (incluso muchos) esquemas de partición de distintos niveles de complejidad que resultan plausibles *a priori*, por lo que es necesario que tengamos una manera objetiva de identificar el esquema de partición que tenga el mejor balance entre obtener una estimación sesgada (cuando se usan modelos sub-parametrizados o simplistas) y el error en la variación de los parámetros (asociado con la sobre-parametrizazion) de los modelos mixtos. 
+Para la mayoría de los alineamientos de secuencias de DNA, existen varios (incluso muchos) esquemas de partición de distintos niveles de complejidad que resultan plausibles *a priori*, por lo que es necesario que tengamos una manera objetiva de identificar el esquema de partición que tenga el mejor balance entre obtener una estimación sesgada (cuando se usan modelos sub-parametrizados o simplistas) y el error en la variación de los parámetros (asociado con la sobre-parametrizazion) de los modelos mixtos. Cada vez más, la selección del modelo de partición se basa en factores de Bayes (*Bayes factors*), lo que implica primero calcular la probabilidad marginal bajo cada esquema de partición y luego comparar el cociente de las probabilidades marginales obtenidos para cada partición. La secuencia de análisis que utilizaremos en este tutorial se representa en la Figura 1.
+
+![fig 1](figures/pipeline.png) 
+_**El proceso de análisis para el ejercicio 1**. Exploraremos tres esquemas de partición para el conjunto de datos de primates. El primer modelo (el "modelo uniforme") asume que todos los sitios evolucionaron bajo un mismo modelo de sustitución GTR + Γ. El segundo modelo (el modelo "moderadamente particionado") utiliza dos subconjuntos de datos correspondientes a los dos genes del alineamiento (cytB y cox2), y supone que cada uno de estos subconjuntos evolucionó independientemente bajo su propio modelo GTR + Γ. El modelo de partición final (el modelo 'altamente particionado') tiene cuatro subconjuntos de datos: los dos primeros subconjuntos corresponden a la región del gen cytB, donde los sitios de la primera y la segunda posición del codón se combinan en un subconjunto distinto de los sitios de la tercera posición del codón, y el gen cox2 tiene dos subconjuntos propios, divididos por posiciones de codón de la misma manera. Asumimos que cada subconjunto de datos evolucionó independientemente bajo su propio modelo GTR + Γ. Nótese que en los tres esquemas de partición asumimos que todos los sitios comparten una topología de árbol en común y proporciones de longitud de rama. Para cada modelo de partición, realizamos una simulación MCMC para aproximar la densidad de probabilidad posterior conjunta de los parámetros del modelo de partición._
 
 
-Para la mayoría de las alineaciones de secuencias de DNA, varios (posiblemente muchos) esquemas de partición de complejidad variable son plausibles *a priori*, lo que, por lo tanto, requiere una forma de identificar objetivamente el esquema de partición que equilibre el sesgo de estimación y la varianza del error asociados con modelos mixtos sub- y sobreparametrizados, respectivamente. Cada vez más, la selección del modelo de partición se basa en factores de Bayes (*Bayes factors*), lo que implica primero calcular la probabilidad marginal bajo cada esquema de partición candidato y luego comparar la relación de las probabilidades marginales para el conjunto de esquemas de partición candidatos. La secuencia de análisis que utilizaremos en este tutorial se representa en la Figura 1.
-<!--For most sequence alignments, several (possibly many) partition schemes
-of varying complexity are plausible *a priori*, which therefore requires
-a way to objectively identify the partition scheme that balances
-estimation bias and error variance associated with under- and
-over-parameterized mixed models, respectively.los modelos con particiones
-partition-model selection is based on *Bayes factors*
-[e.g., {% cite Suchard2001 %}], which involves first
-calculating the marginal likelihood under each candidate partition
-scheme and then comparing the ratio of the marginal likelihoods for the
-set of candidate partition schemes
-{% cite Brandley2005 cite Nylander2004 cite Mcguire2007 %}. 
-The analysis pipeline that we will use in this tutorial is depicted in Figure [fig:pipeline]. -->  
+## 1) Análisis concatenado, no particionado
 
-![fig 13](figures/pipeline.png) 
-*El proceso de análisis para el ejercicio 1. Exploraremos tres esquemas de partición para el conjunto de datos de primates. El primer modelo (el "modelo uniforme")METRO0) asume que todos los sitios evolucionaron bajo un GTR+ comúndomodelo de sustitución. El segundo modelo (el modelo "moderadamente particionado")METRO1) invoca dos subconjuntos de datos correspondientes a las dos regiones genéticas (cytB y cox2), y supone que cada subconjunto de sitios evolucionó bajo un GTR+ independiente.domodelo. El modelo de partición final (el modelo 'altamente particionado',METRO2) invoca cuatro subconjuntos de datos: los dos primeros subconjuntos corresponden a la región del gen cytB, donde los sitios de la primera y la segunda posición del codón se combinan en un subconjunto distinto de los sitios de la tercera posición del codón, y el gen cox2 tiene dos subconjuntos propios, divididos por posiciones de codón de la misma manera, y se supone que cada subconjunto de datos evolucionó bajo un GTR+ independiente.domodelo de sustitución. Nótese que asumimos que todos los sitios comparten una topología de árbol común,PD, y proporciones de longitud de rama, para cada uno de los esquemas de partición candidatos. Realizamos dos conjuntos separados de análisis para cada modelo de partición: una simulación MCMC para aproximar la densidad de probabilidad posterior conjunta de los parámetros del modelo de partición y una simulación MCMC "a posterior potencia" para aproximar la probabilidad marginal para cada modelo mixto. Las estimaciones de probabilidad marginal resultantes se evalúan luego utilizando factores de Bayes para evaluar el ajuste de los datos a los tres modelos de partición candidatos.*
-
-<!--The analysis pipeline for
-Exercise 1. We will explore three partition schemes for the primates
-dataset. The first model (the ‘uniform model’, $M_0$) assumes that all
-sites evolved under a common GTR+$\Gamma$ substitution model. The second
-model (the ‘moderately partitioned’ model, $M_1$) invokes two data
-subsets corresponding to the two gene regions (cytB and cox2), and
-assumes each subset of sites evolved under an independent GTR+$\Gamma$
-model. The final partition model (the ‘highly partitioned’ model, $M_2$)
-invokes four data subsets—the first two subsets corresponds to the cytB
-gene region, where the first and second codon position sites are
-combined into one subset distinct from the third codon position sites,
-and the cox2 gene has two subsets of its own, partitioned by codon
-positions in the same way—and each data subset is assumed evolved under
-an independent GTR+$\Gamma$ substitution model. Note that we assume that
-all sites share a common tree topology, $\Psi$, and branch-length
-proportions, for each of the candidate partition schemes.We perform two
-separate sets of analyses for each partition model—a MCMC simulation to
-approximate the joint posterior probability density of the
-partition-model parameters, and a ‘power-posterior’ MCMC simulation to
-approximate the marginal likelihood for each mixed model. The resulting
-marginal-likelihood estimates are then evaluated using Bayes factors to
-assess the fit of the data to the three candidate partition models.
-{:.figure}-->
-
-
-{% section  Análisis concatenado, no particionado %}
-
-<!--Our first exercise is to construct a multi-gene analysis where all genes
-evolve under the same process and parameters.-->
 Nuestro primer ejercicio consiste en un análisis multigénico donde todos los genes evolucionan bajo el mismo proceso y parámetros.
 
+### Configuración del modelo
 
-{% subsection Configuración del modelo %}
-
-{% subsubsection Cargar y preparar los datos %}
+#### Cargar y preparar los datos
 
 Para comenzar, cargaremos las secuencias utilizando la función 'readDiscreteCharacterData()'.
 
@@ -184,7 +142,6 @@ Si tecleamos 'data', obtenemos el reporte sobre las dimensiones de la matriz con
    Number of included characters: 1837
    Datatype:                      DNA
 ```
-{:.Rev-output}
 
 Guardaremos la información de los taxa ('taxa'), el número de taxa ('n_taxa') y el número de ramas, ya que lo utilizaremos más tarde. 
 
@@ -199,8 +156,8 @@ moves    = VectorMoves()
 monitors = VectorMonitors()
 ```
 
-{% subsubsection Modelo de sustitución %}
-
+#### Modelo de sustitución
+  
 Ahora podemos proceder con la especificación de nuestro modelo GTR + Γ. En primer lugar, definiremos y especificaremos un prior para las tasas de intercambio (*exchangeability rates*) del modelo GTR.
 ```
 er_prior <- v(1,1,1,1,1,1) 
@@ -227,16 +184,11 @@ Podemos terminar de especificar esta parte del modelo creando un nodo determinis
 Q := fnGTR(er,pi)
 ```
 
-{% subsubsection Variación de las tasas de sustitución entre sitios%}
+#### Variación de las tasas de sustitución entre sitios
 
 También asumiremos que las tasas de sustitución varían entre sitios del alineamiento de acuerdo con una distribución gamma (definida por un parámetro), es decir, donde el parámetro de la forma es igual al parámetro de la tasa (a = b) y, por lo tanto, con una media de 1.0  {% cite Yang1994a %}. Dado que no tenemos un buen conocimiento previo sobre la varianza de las tasas de sustitución entre sitios, aplicamos una distribución uniforme entre 1 y 10^8. Después, creamos un nodo estocástico llamado 'alpha' con un prior uniforme:
 
-<!--We will also assume that the substitution rates vary among sites
-according to an one-parametric gamma distribution,
-i.e., where the shape equals the rate
-($\alpha=\beta$) and thus with mean 1.0 {% cite Yang1994a %}. Since we do not
-have good prior knowledge about the variance in site rates, we apply a uniform distribution between $1$ and $10^8$.
-Then create a stochastic node called ‘alpha‘ with a uniform prior:-->
+
 ```
 alpha ~ dnUniform( 0, 1E8 )
 ```
@@ -252,7 +204,7 @@ La variable aleatoria que controla la variación de la tasa es el nodo estocást
 moves.append( mvScale(alpha, lambda=0.1, tune=false, weight=4.0) )
 ```
 
-{% section Sitios Invariables %}
+#### Sitios Invariables
 
 Los sitios invariable (sitios que permanecen fijos a lo largo de su historia evolutiva) pueden considerarse un caso extremo de variación de la tasa entre sitios. En contraste con el modelo + Γ, el modelo + I permite que el sitio tenga cierta probabilidad de tener una tasa de sustitución igual a cero. Aquí, parametrizamos la probabilidad de que un sitio sea invariable con 'pinvar'. Y agregamos movimientos a este parámetro:
 ```
@@ -261,7 +213,7 @@ moves.append( mvBetaProbability(pinvar, delta=10.0, tune=true, weight=2.0) )
 ```
 
 
-{% section Prior en el Árbol %}
+#### Prior en el Árbol
 
 La topología del árbol y las longitudes de las ramas también son nodos estocásticos en nuestro modelo. Para simplificar, utilizaremos la misma distribución previa en la topología del árbol, una distribución previa de topología uniforme, y las longitudes de las ramas, distribuciones previas exponenciales independientes, como se hizo en los modelos de sustitución de nucleótidos .
 
@@ -299,7 +251,7 @@ Por lo tanto, la variable psi es un nodo determinista:
 psi := fnTreeAssembly(topology, br_lens)
 ```
 
-{% subsection Ponniéndolo todo junto %}
+#### Poniéndolo todo junto
 
 Ya tenemos todos los parámetros necesarios para modelar el proceso de sustitución molecular filogenética:
 
@@ -316,7 +268,7 @@ Como ahora el modelo está completamente definido y especificado, envolvemos los
 my_model = model(Q)
 ```
 
-{% subsubsection Especificación de monitores %}
+### Especificación de monitores
 
 
 Para nuestro análisis con MCMC, necesitamos configurar un vector de monitores para guardar los estados de nuestra cadena de Markov. Las funciones para especificar monitores siempre empiezan con ('mn*'), donde '*' es el comodín que representa el tipo de monitor. Primero, inicializaremos el monitor del modelo utilizando la función `mnModel`. Esto crea una variable nueva que generará (es decir, escribirá en un archivo de texto, el cuál también especificaremos) los estados de todos los parámetros del modelo durante una MCMC.
@@ -333,7 +285,7 @@ Por último, creamos un monitor de pantalla, `mnScreen`, que mostrará los estad
 monitors.append( mnScreen(alpha, pinvar, TL, printgen=1000) )
 ```
 
-{% subsubsection Inicialización y ejecución de la simulación MCMC %}
+### Inicialización y ejecución de la simulación MCMC
 
 Con un modelo completamente especificado, un conjunto de monitores, y un conjunto de movimientos, estamos listos para configurar el algoritmo MCMC que muestreará los valores de los parámetros en proporción a su probabilidad posterior. La función `mcmc()` creará el objeto MCMC:
 
@@ -363,7 +315,7 @@ map_tree = mapTree(treetrace,"output/PS_uniform_map.tre")
 Con esto finalizamos el análisis de sin particiones. Las dos secciones siguientes implementarán esquemas de particionamiento más complejos.
 
 
-{% section Partición por gen %}
+## 2) Partición por gen
 
 El modelo uniforme utilizado en la sección anterior supone que todos los sitios en la alineación evolucionaron bajo el mismo proceso, por lo que comparten el mismo árbol, las mismas longitudes de rama y los mismos parámetros del modelo de sustitución (GTR + Γ). Sin embargo, nuestro alineamiento contiene dos regiones genéticas distintas (cytB y cox2), por lo que quizás nos gustaría explorar la posibilidad de que el proceso de sustitución sea diferente entre estas dos regiones genéticas. Esto requiere que (1) especifiquemos las particiones de datos correspondientes a estos dos genes y (2) definamos un modelo de sustitución independiente para cada partición.
 
@@ -400,7 +352,7 @@ monitors = VectorMonitors()
 ```
 
 
-{% subsection Especificar los parámetrosmde cada partición usando un loop %}
+### Especificar los parámetros de cada partición usando un loop
 
 Podemos evitar la creación de nombres únicos para cada nodo de nuestro modelo si utilizamos un *for loop* para iterar sobre nuestras particiones. De esta forma, solo tendremos que escribir nuestro modelo GTR + Γ una sola vez. Este procedimiento construirá un vector para cada uno de los parámetros; por ejemplo, habrá un vector de nodos "alpha", donde el nodo estocástico para la primera partición (cytB) será "alpha[1]" y el nodo estocástico para la segunda partición (cox2) se llamará "alpha[2]".
 
@@ -464,7 +416,7 @@ part_rate := (part_rate_mult / num_sites) * sum(num_sites)
 ```
 
 
-{% subsubsection Prior del árbol %}
+### Prior del árbol
 
 Asumiremos que ambos genes evolucionan en el mismo árbol. Por lo tanto, necesitamos especificar una variable aleatoria para nuestro parámetro del árbol, de la misma manera en que lo especificamos para el análisis sin particiones.
 
@@ -487,7 +439,7 @@ psi := treeAssembly(topology, bl)
 ```
 
 
-{% subsection Poniéndolo todo junto %}
+### Poniéndolo todo junto
 
 Dado que para cada partición tenemos una matriz de tasas (Q) y un modelo de variación de tasas por sitio (+Γ, + I), necesitamos crear un CTMC para cada gen. Además, debemos fijar los valores de estos nodos adjuntando sus respectivas matrices de datos. Estos dos nodos están vinculados por el nodo "psi" y sus verosimilitudes logarítmicas se suman para obtener la verosimilitud total.
 
@@ -503,8 +455,7 @@ Los pasos restantes deberían resultarte familiares: envuelve los componentes de
 my_model = model(psi)
 ```
 
-
-{% subsubsection Monitores%}
+## Monitores y MCMC
 
 creamos los monitores
 ```
@@ -525,7 +476,7 @@ mapTree(treetrace,"output/PS_gene_MAP.tre")
 ```
 
 
-{% section Partición por posición de codón y por gen %}
+## 3) Partición por posición de codón y por gen
 
 Debido al código genético, a menudo nos encontramos con que las distintas posiciones dentro de un codón (primero, segundo y tercero) evolucionan a tasas diferentes. Por lo tanto, utilizando nuestro conocimiento de los datos biológicos, podemos idear un tercer enfoque que divida aún más nuestro alineamiento. Para este ejercicio, dividiremos los sitios dentro del gen cytB y cox2 por su posición en el codón.
 
@@ -564,66 +515,3 @@ Ahora tenemos un vector `data` que contiene cada partición. Enseguida podemos e
 
 ¡No olvides cambiar el nombre de los archivos!
 
-<!--
-{% section Exercises %}
-[![Walkthrough video](/assets/img/YouTube_icon.svg){: height="36" width="36"}](https://youtu.be/LPPYGUP1FZc#t=29m11s)
-
-1.  **Reviewing posterior estimates.** Open the
-    PS_codon.log file in `Tracer`. Remember
-    that data subsets 1 and 2 are for cox2, partitions 3 and 4 are for
-    cytB, subsets 1 and 3 are for sites in the first and second codon
-    positions (per gene), and subsets 2 and 4 are for sites in the third
-    and fourth codon positions (per gene).
-
-    Aside from the tree topology and branch lengths, each data subset is
-    modeled to have its own set of parameters. However, the posterior
-    estimates for some parameters appear quite similar between some
-    pairs of subsets yet different between other pairs of subsets. For
-    example, part_rate is the per-subset substitution
-    rate. This clock is approximately one order of magnitude faster for
-    partitions 2 and 4 (third codon position sites) than it is for
-    subsets 1 and 3 (non-third codon position sites).
-
-    Identify other parameter-subset relationships like this in the
-    posterior. Under this model, would you consider the gene or the
-    codon site position to hold greater influence over the site’s
-    evolutionary mode?
-
-2.  **Comparison of MAP trees.** Open the three inferred
-    MAP trees in `FigTree`. Check to enable “Node Labels”,
-    click “Display” and select “posterior” from the dropdown menu.
-    Internal nodes now report the probability of the clade appearing in
-    the posterior density of sampled trees. Do different models yield
-    different tree topologies? Generally, do complex models provide
-    higher or lower clade support?
-
-3.  **Partitioned model selection.** Bayes factors are
-    computed as the ratio of marginal likelihoods 
-    for more details). Rather than constructing the analysis with an
-    mcmc object, marginal likelihood computations rely on
-    output from a powerPosterior object.
-
-    Copy mcmc_Partition_uniform.Rev to
-    ml_Partition_uniform.Rev. In
-    ml_Partition_uniform.Rev, delete all lines after the
-    model function is called, so the MCMC is never run and
-    the MAP tree is never computed.
-
-    Instead, configure and run a power posterior analysis
-```
-pow_p = powerPosterior(mymodel, moves, monitors, "output/model_uniform.out", cats=127)
-pow_p.burnin(generations=5000,tuningInterval=200)
-pow_p.run(generations=2000)
-```
-    then compute the marginal likelihood using the stepping stone
-    sampler
-```
-ss = steppingStoneSampler(file="output/model_uniform.out", powerColumnName="power", likelihoodColumnName="likelihood")
-ss.marginal()
-```
-    and again using the path sampler
-```
-ps = pathSampler(file="model_uniform.out", powerColumnName="power", likelihoodColumnName="likelihood")
-ps.marginal()
-```
--->
