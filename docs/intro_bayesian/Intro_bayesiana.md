@@ -5,7 +5,7 @@ nav_order: 2
 index: true
 redirect: false
 parent: Temario
-katex: True
+math: katex
 ---
 Este tutorial fue creado por Rosana Zenil-Ferguson (Deciembre 2025)
 
@@ -173,7 +173,7 @@ En el reality show, Silvia tiene tres citas completamente a ciegas  con la misma
 
 Proponemos la varialbe aleatoria $$Y$$ donde 
 
-$$Y=0,1,2,3 \textrm{  son el número de citas que salieron bien}$$
+$$Y=0,1,2,3$$  son el número de citas que salieron bien
 La probabilidad del número de citas que salieron bien va a ser dependiente del carisma de Silvia, recordemos que ese carisma se mide a través de $$\theta$$. Vamos a proponer una nueva distribución para el resultado de las citas
 
 $$P(Y=k|\theta)= {N\choose k} \theta^k (1-\theta)^{N-k}$$
@@ -207,6 +207,7 @@ Lo que acabamos de hacer es observar un resultado de la distribución binomial  
 ### La función de verosimilitud (likelihood function)
 
 $$P(Y=y_1|\theta)\times P(Y=y_2|\theta) = {3\choose 2} \theta^2 (1-\theta)^{1}\times {3\choose 1} \theta^1 (1-\theta)^{2} \approx \theta^{2+1}(1-\theta)^{1+2}=\theta^3(1-\theta)^3$$
+
 **La función de verosimilitud** se define como la probabilidad de los datos dado el modelo. El modelo en este caso es $$\theta$$, el carisma de Silvia. La probabilidad de los datos es la multiplicación de los resultados de las citas con cada persona, es una multiplicación porque lo que pase con una persona es independiente de lo que pase con la otra. 
 
 $$P(Datos|\theta)= \prod_{y_i=1}^{2}P(Y=y_i|\theta)\approx \theta^3(1-\theta)^3$$
@@ -237,13 +238,15 @@ La verosimilitud es muchas veces criticada o confundida como frecuentista. Esto 
 Finalmente vamos a calcular $$P(A|B)$$ o en el nuevo lenguaje de nuestras variables aleatorias $$P(\theta|Datos)$$ es la distribución posterior del carisma de Silvia
 
 La distribución posterior es **proporcional** a la verosimilitud multiplicada por la distribución a priori
+
 $$\underbrace{P(\theta|Data)}_{Posterior}\propto \underbrace{P(Data|\theta)}_{Likelihood}\times \underbrace{P(\theta)}_{Prior}$$
-La parte proporcional viene de ignoral el denominador del teorema de Bayes porque no contiene nada de información sobre $\theta$.
+
+La parte proporcional viene de ignoral el denominador del teorema de Bayes porque no contiene nada de información sobre $$\theta$$.
 
 $$P(\theta|Datos)\propto \underbrace{\theta^k(1-\theta)^{n-k}}_{\textrm{Verosimilitud (producto de las binomiales)}} \times \underbrace{\theta^{a-1}(1-\theta)^{b-1}}_{\textrm{prior Beta distribution}}$$
+
 Esto se ve feo en ecuación, pero veamos las gráficas.
 
-\tiny
 ```{r}
 # En este gráfico vamos a comparar la a priori, la verosimilitud, y la posterior. 
 trial_data <- c(1,2)
