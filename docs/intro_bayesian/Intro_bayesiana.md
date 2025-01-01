@@ -5,6 +5,7 @@ nav_order: 2
 index: true
 redirect: false
 parent: Temario
+katex: True
 ---
 Este tutorial fue creado por Rosana Zenil-Ferguson (Deciembre 2025)
 
@@ -54,7 +55,7 @@ Defininamos dos eventos a los que les vamos a medir la probabilidad
 
 Con estos dos eventos se puede caracterizar este reality show. Como expectadores y estadísticos nosotros podemos definir de entrada algunas probabilidades. Por ejemplo, en el primer capítulo, se hace la introducción de Silvia y de entrada no sabemos mucho de Silvia. Dos decisiones que podemos tomar
 
-1.$$P(A)=0.5$$ representa la probabilidad de que Silva es carismática o no con la misma probabilidad
+1. $$P(A)=0.5$$ representa la probabilidad de que Silva es carismática o no con la misma probabilidad
 
 2. $$P(A)=0.1$$ porque Silvia dijo en su introducción "no me gustan los perros" y entonces decidimos que Silvia tiene una probabilidad bajita de ser carismática 
 

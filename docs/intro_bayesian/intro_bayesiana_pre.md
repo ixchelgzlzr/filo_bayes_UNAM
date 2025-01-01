@@ -5,6 +5,7 @@ nav_order: 1
 index: true
 redirect: false
 parent: Temario
+katex: True
 ---
 
 Este tutorial fue creado por Rosana Zenil-Ferguson (Deciembre 2025)
@@ -16,7 +17,7 @@ La estadística bayesiana es una rama del estudio de la Estadística que se enfo
 Existen dos diferencias centrales de la estadística Bayesiana cuando la comparamos con la forma de hacer estadística tradicional (ya sea frecuentista o bajo el método de verosimilitud). Estas diferencias son las siguientes:
 
 
-1. Cómo se miden las probabilidades en Bayesiana es distinto a cómo se define la probabilidad en estadística tradicional.
+1.  Cómo se miden las probabilidades en Bayesiana es distinto a cómo se define la probabilidad en estadística tradicional.
 
 2.  Los parámetros en estadística Bayesiana son desconocidos pero también son **variables aleatorias**. En estadística tradicional, los parámetros son desconocidos pero son variables fijas. Esta diferencia es esencial. 
 
