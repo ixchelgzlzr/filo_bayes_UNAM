@@ -1,7 +1,7 @@
 title: Filogenética Bayesiana en RevBayes
 description: Un taller de filogénetica bayesiana impartido en la UNAM, Enero 2025
 
-remote_theme: just-the-docs/just-the-docs@v0.5.2
+theme: just-the-docs
 
 url: https://ixchelgzlzr.github.io/filo_bayes_UNAM/
 
