@@ -16,6 +16,7 @@ heading_anchors: true
 
 back_to_top: true
 
+markdown: kramdown
 kramdown:
   math_engine: katex
 
