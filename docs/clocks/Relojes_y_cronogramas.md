@@ -2,7 +2,7 @@
 title: Relojes moleculares y cronogramas
 subtitle: Comparing relaxed clock models & estimating rooted time trees
 layout: home
-onav_order: 2
+onav_order: 4
 index: true
 redirect: false
 parent: Temario

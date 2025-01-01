@@ -1,7 +1,7 @@
 ---
 title: "Introducción a la estadística Bayesiana- Completa tus notas"
 layout: home
-onav_order: 1
+nav_order: 1
 index: true
 redirect: false
 parent: Temario
@@ -28,7 +28,7 @@ Las citas en línea o a ciegas son difíciles, especialmente si tu personalidad 
 
 Defininamos dos eventos a los que les vamos a medir la probabilidad
 
-1. $A$ = Es el evento que representa que Silvia es muy carismática
+1. $A$= Es el evento que representa que Silvia es muy carismática
 
 2. $B$  = Es el evento que representa cuantas de las citas a ciegas de Silvia salieron bien.
 

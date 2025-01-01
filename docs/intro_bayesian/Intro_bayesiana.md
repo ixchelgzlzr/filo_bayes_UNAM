@@ -1,7 +1,7 @@
 ---
 title: "Introducción a la estadística Bayesiana"
 layout: home
-onav_order: 1
+nav_order: 2
 index: true
 redirect: false
 parent: Temario
