@@ -5,10 +5,10 @@ nav_order: 1
 index: true
 redirect: false
 parent: Temario
-katex: True
+math: katex
 ---
 
-Este tutorial fue creado por Rosana Zenil-Ferguson (Deciembre 2025)
+Este tutorial fue creado por Rosana Zenil-Ferguson (Diciembre 2025)
 
 # ¿Qué es la estadística Bayesiana?
 
