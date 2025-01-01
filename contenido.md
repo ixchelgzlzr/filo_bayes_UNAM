@@ -30,7 +30,7 @@ redirect: false
 
 5. Inferencia filogenética a partir de marcadores genéticos
     1. Clase
-    2. [Tutorial "Análisis estándard con particiones"](./docs/partition/Partitioned_tutorial)
+    2. [Tutorial: Análisis estándar con particiones](./docs/partition/Partitioned_tutorial)
 
 
 ***
@@ -46,7 +46,7 @@ redirect: false
 ### Bloque 2 [11:30–14:00, 2.5 hrs]
 3. Estimación de tiempos de divergencia
     1. Clase
-    2. Tutorial
+    2. [Tutorial: Relojes moleculares & cronogramas](./docs/clocks/Relojes_y_cronogramas)
 
 ### Bloque 3 [15:30–18:00, 2.5 hrs]
 4. Evolución de caracteres discretos
