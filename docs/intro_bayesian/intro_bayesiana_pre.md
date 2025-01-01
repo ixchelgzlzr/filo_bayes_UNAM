@@ -1,6 +1,7 @@
 ---
 title: "Introducción a la estadística Bayesiana- Completa tus notas"
 layout: home
+onav_order: 1
 index: true
 redirect: false
 parent: Temario
