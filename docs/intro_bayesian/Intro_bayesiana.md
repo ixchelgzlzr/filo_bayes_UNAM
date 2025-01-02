@@ -92,7 +92,7 @@ $$A$$: El carísma de Silvia.
 $$X$$: variable aleatoria (una función) que se define como
 
 $$X= \begin{cases}
-      0 & \textrm{cuando } A^C  \textrm{ Silvia no tiene carisma}\\
+      0 & \textrm{cuando } A^C  \textrm{ Silvia no tiene carisma}\middle|
       1 & \textrm{cuando } A  \textrm{ Silvia tiene carisma}
     \end{cases}$$
 
