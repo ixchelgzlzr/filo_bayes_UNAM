@@ -2,7 +2,7 @@
 title: Relojes moleculares y cronogramas
 subtitle: Comparing relaxed clock models & estimating rooted time trees
 layout: home
-onav_order: 4
+nav_order: 4
 index: true
 redirect: false
 parent: Temario
@@ -22,7 +22,7 @@ Introducción
 
 Entre las cuestiones centrales que se exploran en biología, se encuentran aquellas que buscan comprender el ritmo y la velocidad de los procesos evolutivos. Obtener estimaciones precisas de los tiempos de divergencia de las especies es vital para comprender la biogeografía histórica, estimar las tasas de divergencia e identificar las causas de la variación en las tasas de evolución molecular.  
 
-Este tutorial te proporcionorá una descripción general de cómo se estiman tiempos de divergencia utilizando calibración con fósiles y comparando modelos de reloj relajado en un marco bayesiano. El ejercicio te guiará a través de los pasos necesarios para estimar las relaciones filogenéticas y datar las divergencias entre las especies utilizando el programa [RevBayes](http://revbayes.github.io/) {% cite Hoehna2014b Hoehna2016b %}.
+Este tutorial te proporcionorá una descripción general de cómo se estiman tiempos de divergencia utilizando calibración con fósiles y comparando modelos de reloj en un marco bayesiano. El ejercicio te guiará a través de los pasos necesarios para estimar las relaciones filogenéticas y datar las divergencias entre las especies utilizando el programa [RevBayes](http://revbayes.github.io/) {% cite Hoehna2014b Hoehna2016b %}.
 
 
 Para empezar
@@ -81,7 +81,7 @@ El proceso BD que utilizaremos es un proceso de tasas constantes condicionado po
 {% figure bdgm %}
 <img src="figures/BDPR_gm.png" width="500">
 {% figcaption %}
-Modelo gráfico que representa el proceso BD condicionado por la edad de la raín en RevBayes
+**Fig. 1.** Modelo gráfico que representa el proceso BD condicionado por la edad de la raín en RevBayes
 {% endfigcaption %}
 {% endfigure %}
 
@@ -177,89 +177,68 @@ Con estos parámetros podemos especificar el nodo estocástico de la edad raíz:
     # root_time ~ dnLognormal(2.33, 0.25, offset=38)
    
 
-### Time Tree Stochastic Node
+### Nodo estocástico del cronograma
 
-Now that we have specified all of the parameters of the birth-death
-process, we can create our stochastic node representing the tree
-topology and divergence times.
+Ahora que ya hemos especificado todos los parámetros del proceso BD, podemos crear nuestro nodo estocástico que representa la topología del árbol y los tiempos de divergencia.
 
     timetree ~ dnBDP(lambda=birth_rate, mu=death_rate, rho=rho, rootAge=root_time, samplingStrategy="uniform", condition="nTaxa", taxa=taxa)
 
-### Creating a Node-Age Variable
+### Edad de un nodo en específico
 
-We may be interested in a particular node in the tree and thus wish to
-save the age of that node to a log file. To do this, we can create a
-deterministic node for that node age. First, define the node by a set of
-taxa using the `clade()` function. This will not restrict this node to
-be monophyletic, but just create a node that is the MRCA of the taxa
-listed (even if that node has descendants that are not named).
+En caso de que nos interese un nodo en particular y queramos guardar la edad de ese nodo en el archivo de salida, podemos crear un nodo determinista para la edad de ese nodo. Primero, definimos el nodo usando el conjunto de taxa que son parte de ese grupo utilizando la función `clade()`. Esto no restringirá este nodo a ser monofilético, sino que simplemente creará un nodo que sea el MRCA de los taxones enumerados (incluso si ese nodo tiene descendientes que no están nombrados).
 
     clade_Ursidae <- clade("Ailuropoda_melanoleuca","Tremarctos_ornatus","Helarctos_malayanus", "Ursus_americanus","Ursus_thibetanus","Ursus_arctos","Ursus_maritimus","Melursus_ursinus")
 
-Once we have defined the node, we can create a deterministic node to
-monitor its age.
+Una vez que hemos definido el nodo, podemos crear un nodo determinista para monitorear su edad.
 
     tmrca_Ursidae := tmrca(timetree,clade_Ursidae)
 
-### Proposals on the Time Tree
+### Propuestas de movimiento en el cronograma
 
-Next, create the vector of moves. These tree moves act on node ages:
+A continuación, crea el vector de movimientos. Estos movimientos actúan sobre las edades de los nodos:
 
-    moves.append( mvNodeTimeSlideUniform(timetree, weight=30.0) ) )
+    moves.append( mvNodeTimeSlideUniform(timetree, weight=30.0) ) 
     moves.append( mvSlide(root_time, delta=2.0, tune=true, weight=10.0) )
     moves.append( mvScale(root_time, lambda=2.0, tune=true, weight=10.0) )
     moves.append( mvTreeScale(tree=timetree, rootAge=root_time, delta=1.0, tune=true, weight=3.0) )
 
-Then, we will add moves that will propose changes to the tree topology.
+Luego, agregaremos movimientos que propondrán cambios a la topología del árbol.
 
     moves.append( mvNNI(timetree, weight=8.0) )
     moves.append( mvNarrow(timetree, weight=8.0) )
     moves.append( mvFNPR(timetree, weight=8.0) )
 
-Now save and close the file. This file, with all the model
-specifications will be loaded by other `Rev` files.
+Ahora guarda y cierra este archivo. Este archivo, con todas las especificaciones del modelo, será usado por otros Rev archivos.
 
-Specifying Branch-Rate Models
+
+Especificación del modelo de tasas evolutivas en las ramas (clock models)
 -----------------------------
 {:.section}
 
-The next sections will walk you through setting up the files specifying
-different relaxed clock models. Each section will require you to create
-a separate `Rev` file for each relaxed clock model, as well as for each
-marginal-likelihood analysis.
 
-### The Global Molecular Clock Model {#globalClockSec}
+Las siguientes secciones te guiarán en la creación de los archivos que especifican diferentes modelos de reloj relajado. Cada sección requerirá que hagas un archivo Rev independiente para cada modelo de reloj, así como para cada análisis de verosimilitud marginal.
 
-The global molecular clock assumes that the rate of substitution is
-constant over the tree and over time{% comment %} (Fig. [m_GMC:fig]) {% endcomment %}
-.
+### El modelo del reloj molecular global {#globalClockSec}
 
-{% comment %} ![]( RB_Dating_Tutorial/figures/gmc_gm.eps) 
-> The graphical
-model representation of the global molecular clock model used in this
-exercise. {% endcomment %}
+El reloj molecular global supone que la tasa de sustitución es constante a lo largo del árbol y a través del tiempo.
 
-***Create the Rev File***
+***Creamos el archivo Rev***
 
-Open your text editor and create the global molecular clock model file
-called in the `scripts` directory.
+Abre tu editor de texto y crea un archivo para el modelo de reloj molecular global llamado `m_GMC_bears.Rev`en el folder `scripts`.
 
-Enter the `Rev` code provided in this section in the new model file.
-Keep in mind that we are creating modular model files that can be
-sourced by different analysis files. Thus, the `Rev` code below will
-still depend on variable initialized in different files.
+Copia el código proporcionado en esta sección en este script. Toma en cuenta que estamos código de manera modular que pueden ser utilizados por otros scripts para correr un análisis. Por lo tanto, el código que se muestra a continuación dependerá de ciertas variables inicializadas en otros archivos.
 
-***The Clock-Rate***
+***La tasa del reloj (clock rate)***
 
-The clock-rate parameter is a stochastic node from a gamma distribution.
+El parámetro que representa la tasa del reloj es un nodo estocástico que proviene de una distribución gamma.
 
     clock_rate ~ dnGamma(2.0,4.0)
     moves.append( mvScale(clock_rate,lambda=0.5,tune=true,weight=5.0) )
 
-***The Sequence Model and Phylogenetic CTMC***
+***El modelo de evolución molecular y el CTMC filogenético***
 
-Specify the parameters of the GTR model and the moves to operate on
-them.
+Especificamos los parámetros del modelo GTR y los movimientos para que operan en ellos.
+
 ```
     sf ~ dnDirichlet(v(1,1,1,1))
     er ~ dnDirichlet(v(1,1,1,1,1,1))
@@ -267,79 +246,63 @@ them.
     moves.append( mvSimplexElementScale(er, alpha=10.0, tune=true, weight=3.0) )
     moves.append( mvSimplexElementScale(sf, alpha=10.0, tune=true, weight=3.0) )
 ```
-And instantiate the phyloCTMC.
+Y creamos el nodo phyloCTMC:
 ```
     phySeq ~ dnPhyloCTMC(tree=timetree, Q=Q, branchRates=clock_rate, nSites=n_sites, type="DNA")
     phySeq.clamp(D)
 ```
-This is all we will include in the global molecular clock model file.
+Esto es todo lo que incluiremos en el archivo del modelo de reloj molecular global.
 
-Save and close the file called in the `scripts` directory.
+Guarda y cierre el archivo.
 
-***Estimate the Marginal Likelihood***
+***Estimación de la probabilidad marginal***
 
-Now we can use the model files we created and estimate the marginal
-likelihood under the global molecular clock model (and all other model
-settings). You can enter the following commands directly in the
-RevBayes console, or you can create another `Rev` script.
+Ahora podemos utilizar los archivos de modelo que creamos y estimar la probabilidad marginal según el modelo de reloj molecular global (y todas las demás configuraciones del modelo). Puedes ingresar los siguientes comandos directamente en la consola RevBayes o puedes crear otro script.
 
-Open your text editor and create the marginal-likelihood analysis file
-under the global molecular clock model. Call the file: and save it in
-the `scripts` directory.
+Abre su editor de texto y crea un archivo llamado `mlnl_GMC_bears.Rev` y guárdalo en el folder `scripts`.
 
-*Load Sequence Alignment* — Read in the sequences and initialize
-important variables.
+*Cargando los datos del alineamiento*: leemos el archivo con las secuencias e inicializamos algunas variables importantes.
 
     D <- readDiscreteCharacterData(file="data/bears_irbp.nex")
     n_sites <- D.nchar()
     mi = 1
 
-*The Calibrated Time-Tree Model* — Load the calibrated tree model from
-file using the `source()` function. Note that this file does not have
-moves that operate on the tree topology, which is helpful when you plan
-to estimate the marginal likelihoods and compare different relaxed clock
-models.
+*El modelo del cronograma:* Cargamos el modelo del árbol calibrado mediante la función `source()`. Nota que en este archivo no especificamos movimientos que operen en la topología del árbol (solo en las edades), lo que resulta útil cuando planeamos estimar las probabilidades marginales y comparar diferentes modelos de reloj relajado.
 
     source("scripts/m_BDP_bears.Rev")
 
-*Load the GMC Model File* — Source the file containing all of the
-parameters of the global molecular clock model. This file is called .
+*Cargue el archivo del modelo GMC:* Cargamos el archivo que contiene todos los parámetros del modelo de reloj molecular global. Este archivo se llama `m_GMC_bears.Rev`.
 
     source("scripts/m_GMC_bears.Rev")
 
-We can now create our workspace model variable with our fully specified
-model DAG. We will do this with the `model()` function and provide a
-single node in the graph (`er`).
+Ahora podemos crear nuestra variable del modelo completamente especificado. Lo haremos con la función `model()` y solo necesitamos proporcionarle un solo del modelo que especificamos (er).
 
     mymodel = model(er)
 
-*Run the Power-Posterior Sampler and Compute the Marginal Likelihoods* —
-With a fully specified model, we can set up the `powerPosterior()`
-analysis to create a file of 'powers' and likelihoods from which we can
-estimate the marginal likelihood using stepping-stone or path sampling.
-This method computes a vector of powers from a beta distribution, then
+*Ejecutamos el PPS (Power Posterior Sampler) y calculamos las probabilidades marginales del modelo:* con un modelo completamente especificado, podemos configurar el análisis `powerPosterior()` con el que crearemos un archivo de "potencias" y verosimilitudes a partir del cual podemos estimar la verosimilitud marginal mediante el uso de algoritmos como *stepping-stone* o *path sampling*. 
+Este método calcula un vector de potencias a partir de una distribución beta y luego ejecuta una ejecución de MCMC para cada paso de potencia mientras se aumenta la verosimilitud a esa potencia. En esta implementación, el vector de potencias comienza con 1, muestreando la verosimilitud cerca de la posterior y muestreando de manera incremental cada vez más cerca de la anterior a medida que disminuye la potencia.
+
+Primero, inicializamos un monitor que registrará las muestras MCMC para cada parámetro en cada paso de la potencia posterior.
+
+
+<!--This method computes a vector of powers from a beta distribution, then
 executes an MCMC run for each power step while raising the likelihood to
 that power. In this implementation, the vector of powers starts with 1,
 sampling the likelihood close to the posterior and incrementally
 sampling closer and closer to the prior as the power decreases.
 
 First, we initialize a monitor which will log the MCMC samples for each
-parameter at every step in the power posterior.
+parameter at every step in the power posterior.-->
 
     monitors[1] = mnModel(filename="output/GMC_posterior_pp.log",printgen=10, separator = TAB)
 
-Next, we create the variable containing the power posterior. This
-requires us to provide a model and vector of moves, as well as an output
-file name. The `cats` argument sets the number of power steps. Once we
-have specified the options for our sampler, we can then start the run
-after a burn-in/tuning period.
+A continuación, creamos la variable que contiene la potencia posterior. Para ello, debemos proporcionar un modelo y un vector de movimientos, así como el nombre del archivo de salida. El argumento `cats` establece el número de *pasos de potencia* (power steps). Una vez que hemos especificado las opciones para nuestro muestreo, podemos iniciar el análisis.
 
     pow_p = powerPosterior(mymodel, moves, monitors, "output/GMC_bears_powp.out", cats=50, sampleFreq=10) 
     pow_p.burnin(generations=5000,tuningInterval=200)
     pow_p.run(generations=1000)  
 
-Compute the marginal likelihood using two different methods,
-stepping-stone sampling and path sampling.
+Calculamos la probailidad marginal utilizando dos métodos diferentes: muestreo escalonado y muestreo de ruta.
 
     ss = steppingStoneSampler(file="output/GMC_bears_powp.out", powerColumnName="power", likelihoodColumnName="likelihood")
     ss.marginal() 
@@ -348,100 +311,56 @@ stepping-stone sampling and path sampling.
     ps = pathSampler(file="output/GMC_bears_powp.out", powerColumnName="power", likelihoodColumnName="likelihood")
     ps.marginal() 
 
-If you have entered all of this directly in the RevBayes console, you
-will see the marginal likelihoods under each method printed to screen.
-Otherwise, if you have created the separate `Rev` file in the `scripts`
-directory, you now have to directly source this file in RevBayes
-(after saving the up-to-date content).
-
-Begin by running the RevBayes executable. In Unix systems, type the
-following in your terminal (if the RevBayes binary is in your path):
-
-Now load your RevBayes analysis:
+Si has ingresado todo esto directamente en la consola de RevBayes, verás las probabilidades marginales de cada método impresas en la pantalla. De lo contrario, si has creado el script llamado `mlnl_GMC_bears.Rev` guárdalo y ejecútalo, para ello, escribe lo siguiente en su terminal:
 
     source("scripts/mlnl_GMC_bears.Rev")
 
-Once you have completed this analysis, record the marginal likelihoods
-under the global molecular clock model in Table {% ref ssTable %}.
+Una vez que hayas completado este análisis, registra las probabilidades marginales del modelo de reloj molecular global en la Tabla. {% ref ssTable %}.
 
-### The Uncorrelated Lognormal Rates Model {#UCLNModelSec}
+### El modelo de tasas log-normal no correlacionadas (UCLN) {#UCLNModelSec}
 
-The uncorrelated lognormal (UCLN) model relaxes the assumption of a
-single-rate molecular clock. Under this model, the rate associated with
-each branch in the tree is a stochastic node. Each branch-rate variable
-is drawn from the same lognormal distribution{% comment %} (Fig. [m_UCLN:fig]){% endcomment %}
-.
+El modelo lognormal no correlacionado (UCLN) relaja el supuesto de que existe una tasa global para el reloj molecular. En este modelo, la tasa asociada con cada rama del árbol es un nodo estocástico. Cada uno de los cuáles se obtiene de una misma distribución lognormal.
 
-Given that we might not have prior information on the parameters of the
-lognormal distribution, we can assign hyper priors to these variables.
-Generally, it is more straightforward to construct a hyperprior on the
-expectation (i.e., the mean) of a lognormal density rather than the
-location parameter $\mu$. Here, we will assume that the mean branch rate
-is exponentially distributed and as is the stochastic node representing
-the standard deviation. With these two parameters, we can get the
-location parameter of the lognormal by:
-$$\mu = \log(M) - \frac{\sigma^2}{2}.$$ Thus, $\mu$ is a deterministic
-node, which is a function of $M$ and $\sigma$. {% comment %}In Figure
-[m_UCLN:fig], {% endcomment %}We can represent the vector of $N$ branch rates using
-the plate notation.
+Dado que quizás no tengamos información previa sobre los parámetros de esta distribución lognormal, podemos asignar hiperpriors a estas variables. En general, es más sencillo construir un hiperprior para la media de una densidad lognormal, en lugar de para el parámetro de ubicación mu. Aquí, supondremos que tanto la tasa de ramificación promedio, como su desviación estándar, se distribuyen exponencialmente. Con estos dos parámetros, podemos obtener el parámetro de ubicación de la distribución lognormal mediante: `μ = log(M) − σ^2`. De este modo, mu es un nodo determinista, definido en función de M y σ. Podemos representar el vector denortetasas de ramificación utilizando la notación de placa.
 
-{% comment %}![]( RB_Dating_Tutorial/figures/ucln_gm.eps) 
-> The graphical
-model representation of the UCLN model used in this exercise.{% endcomment %}
+***Crear el script de Rev***
 
-***Create the Rev File***
+Abre tu editor de texto y crea un archivo nuevo para el modelo de reloj relajado lognormal no correlacionado llamado `m_UCLN_bears.Rev` en el directorio `scripts`.
 
-Open your text editor and create the uncorrelated-lognormal
-relaxed-clock model file called in the `scripts` directory.
+Copia el código proporcionado en esta sección. Tome en cuenta que estamos creando archivos de modelo modulares que pueden obtenerse de diferentes archivos de análisis. Por lo tanto, el Rev código que se muestra a continuación seguirá dependiendo de la variable inicializada en diferentes archivos.
 
-Enter the `Rev` code provided in this section in the new model file.
-Keep in mind that we are creating modular model files that can be
-sourced by different analysis files. Thus, the `Rev` code below will
-still depend on variable initialized in different files.
+***Tasas de cambio de ramas independientes***
 
-***Independent Branch Rates***
-
-Before we can set up the variable of the branch-rate model, we must know
-how many branches exist in the tree.
+Antes de poder configurar la variable para las tasas independientes, debemos saber cuántas ramas existen en el árbol.
 
     n_branches <- 2 * n_taxa - 2
 
-We will start with the mean of the lognormal distribution{% comment %}, $M$ in Figure
-[m_UCLN:fig] {% endcomment %}
-.
+Comenzaremos con especificar la media de la distribución lognormal a partir de una distribución exponencial.
 
     ucln_mean ~ dnExponential(2.0)
 
-And the exponentially distributed node representing the standard
-deviation. We will also create a deterministic node, which is the
-variance, $\sigma^2$.
+Después especificamos el nodo de la desviación estándar a partir de una distribución exponencial. distribuido. Y también crearemos un nodo determinista, que es la varianza, σ^2.
 
     ucln_sigma ~ dnExponential(3.0)
     ucln_var := ucln_sigma * ucln_sigma
 
-Now we can declare the function that gives us the $\mu$ parameter of the
-lognormal distribution on branch rates.
+Ahora podemos declarar la función que nos da el parámetro mu de la distribución lognormal para las tasas del modelo UCLN.
 
     ucln_mu := ln(ucln_mean) - (ucln_var * 0.5)
 
-The only stochastic nodes we need to operate on for this part of the
-model are the lognormal mean ($M$ or `ucln_mean`) and the standard
-deviation ($\sigma$ or `ucln_sigma`).
+Los únicos nodos estocásticos para los que necesitamos agregar propuestas de movimiento para esta parte del modelo son la media lognormal (ucln_mean) y la desviación estándar (ucln_sigma).
 
     moves.append( mvScale(ucln_mean, lambda=1.0, tune=true, weight=4.0))
     moves.append( mvScale(ucln_sigma, lambda=0.5, tune=true, weight=4.0))
 
-With our nodes representing the $\mu$ and $\sigma$ of the lognormal
-distribution, we can create the vector of stochastic nodes for each of
-the branch rates using a `for` loop. Within this loop, we also add the
-move for each branch-rate stochastic node to our moves vector.
+Ahora podemos crear el vector de nodos estocásticos para la tasa de cambio de cada una de las ramas utilizando un for-loop. Dentro de este loop, también agregamos el movimiento para cada nodo estocástico de cada rama.
 
     for(i in 1:n_branches){
        branch_rates[i] ~ dnLnorm(ucln_mu, ucln_sigma)
        moves.append( mvScale(branch_rates[i], lambda=1, tune=true, weight=2.))
     }
 
-***Sidebar: Other Uncorrelated-Rates Models***
+<!--***Sidebar: Other Uncorrelated-Rates Models***
 
 The choice in the branch-rate prior does not necessarily have to be a
 lognormal distribution. Depending on your prior beliefs about how branch
@@ -456,22 +375,20 @@ variation using Bayes factors, and it may also be important to consider
 alternative priors on branch rates using these approaches. Importantly,
 RevBayes is flexible enough to make the process of comparing these
 models very straightforward. **For the purposes of this exercise,
-specify a lognormal prior on the branch rates.**
+specify a lognormal prior on the branch rates.** -->
 
-Because we are dealing with semi-identifiable parameters, it often helps
-to apply a range of moves to the variables representing the branch rates
-and branch times. This will help to improve the mixing of our MCMC. Here
-we will add 2 additional types of moves that act on vectors.
+Dado que estamos tratando con parámetros semi-identificables, a menudo es útil aplicar una serie de movimientos a las variables que representan las tasas de cambio de las ramas y los tiempos de divergencia. Esto ayudará a mejorar la mezcla (_mixing_) de nuestra MCMC. Aquí agregaremos dos tipos adicionales que actual sobre vectores:
 
     moves.append( mvVectorScale(branch_rates,lambda=1.0,tune=true,weight=2.0) )
     moves.append( mvVectorSingleElementScale(branch_rates,lambda=30.0,tune=true,weight=1.0) )
 
-The mean of the branch rates is a convenient deterministic node to
-monitor, particularly in the screen output when conducting MCMC.
+La media de las tasas de cambio de las ramas es un nodo determinista fácil de monitorear durante una MCMC, por lo cuál le asignamos un nodo. 
 
     mean_rt := mean(branch_rates) 
 
-***The Sequence Model and Phylogenetic CTMC***
+***El modelo de evolución molecular y el CTMC***
+
+Ahora, especificamos las frecuencias estacionarias y las tasas de intercambio de la matriz GTR.
 
 Now, specify the stationary frequencies and exchangeability rates of the
 GTR matrix.
@@ -482,123 +399,93 @@ GTR matrix.
     moves.append( mvSimplexElementScale(er, alpha=10.0, tune=true, weight=3.0))
     moves.append( mvSimplexElementScale(sf, alpha=10.0, tune=true, weight=3.0))
 
-Now, we can put the whole model together in the phylogenetic CTMC and
-clamp that node with our sequence data.
+Ahora, podemos juntar todo el modelo en el CTMC filogenético y fijar nuestros datos en ese nodo con la función `.clamp()`.
 
     phySeq ~ dnPhyloCTMC(tree=timetree, Q=Q, branchRates=branch_rates, nSites=n_sites, type="DNA")
     attach the observed sequence data
     phySeq.clamp(D)
 
-Save and close the file called in the `scripts` directory.
+Guarda y cierra el archivo en el directorio `scripts`.
 
-***Estimate the Marginal Likelihood***
+***Estimar la probabilidad marginal***
 
-Just as we did for the strict clock model, we can execute a
-power-posterior analysis to compute the marginal likelihood under the
-UCLN model.
+Tal como lo hicimos para el modelo del reloj estricto, podemos correr un análisis de potencia posterior (power posterior) para calcular la probabilidad marginal del modelo UCLN.
 
-Open your text editor and create the marginal-likelihood analysis file
-under the global molecular clock model. Call the file: and save it in
-the `scripts` directory.
+Abre tu editor de texto y crea un archivo nuevo para el análisis de probabilidad marginal y guárdalo en el directorio `scripts` con el nombre `mlnl_UCLN_bears.Rev`.
 
-Refer to the section describing this process for the GMC model above.
-Write your own `Rev` language script to estimate the marginal likelihood
-under the UCLN model. Be sure to change the file names in all of the
-relevant places (e.g., your output file for the `powerPosterior()`
-function should be and be sure to `source()` the correct model file ).
+**Ejericio:** Consulta la sección que describe este proceso para el modelo de reloj global. Escribe tu propio código para estimar la probabilidad marginal para el modelo UCLN. Asegúrate de cambiar los nombres de los archivo en todos los lugares relevantes (por ejemplo, el archivo de salida para la `powerPosterior()` y asegúrate usar `source()` el archivo de modelo correcto).
 
-Once you have completed this analysis, record the marginal likelihoods
-under the UCLN model in Table {% ref ssTable %}.
+Una vez que hayas completado este análisis, registre las probabilidades marginales bajo el modelo UCLN en la Tabla de abajo.
 
-Compute Bayes Factors and Select Model
+
+Factores de Bayes y selección de modelo
 --------------------------------------
 {:.section}
 
-Now that we have estimates of the marginal likelihood under each of our
-different models, we can evaluate their relative plausibility using
-Bayes factors. Use Table {% ref ssTable %} to summarize the marginal
-log-likelihoods estimated using the stepping-stone and path-sampling
-methods.
+Ahora que tenemos las estimaciones de la probabilidad marginal bajo cada ambos modelos de reloj, podemos evaluar su plausibilidad relativa utilizando factores de Bayes. Utiliza la Tabla {% ref ssTable %} de probabilidades marginales estimadas por medio de los algoritmos *Path-Sampling* y *Stepping-Stone*.
 
 {% figure ssTable %}
 
  |                  **Model**                        |   **Path-Sampling**   |   **Stepping-Stone-Sampling**   |
   --------------------------------------------------:|:---------------------:|:-------------------------------:|
- | [Global molecular clock ($M_0$)](#globalClockSec) |                       |                                 |
- | [Uncorrelated lognormal](#UCLNModelSec)           |                       |                                 |
+ | [Reloj Molecular Global(M1)](#globalClockSec) |                       |                                 |
+ | [UCLN](#UCLNModelSec)           |                       |                                 |
  |              Supported model?                     |                       |                                 |
- 
+ {% endfigure %}
+**Tabla 1.** Probabilidades marginales del reloj molecular global y el UCLN.
+  
+
+Los programas de filogenética transforman logarítmicamente las probabilidad para evitar el [desbordamiento aritmético](https://es.wikipedia.org/wiki/Desbordamiento_aritmético), porque multiplicar probabilidades resulta en números que son demasiado pequeños para almacenarse en la memoria de la computadora. Por lo tanto, debemos calcular el factor ln-Bayes (denotaremos este valor κ):
+
+{% figure ln_BF %}
+<img src="figures/lnBF_eq.png" width="500">
 {% figcaption %}
-Marginal likelihoods of the lobal molecular clock and uncorrelated lognormal models.
 {% endfigcaption %}
 {% endfigure %}
 
-Phylogenetics software programs log-transform the likelihood to avoid
-[underflow](http://en.wikipedia.org/wiki/Arithmetic_underflow), because
-multiplying likelihoods results in numbers that are too small to be held
-in computer memory. Thus, we must calculate the ln-Bayes factor (we will
-denote this value $\mathcal{K}$): 
+donde ln[P(X∣M0)]es la probabilidad marginal logarítmica estimada para el modelo M0. El valor resultante de esta ecuación se puede convertir en un factor de Bayes en escala natural simplemente tomando el exponente de κ. 
 
-$$\begin{equation}
-\mathcal{K}=\ln[BF(M_0,M_1)] = \ln[\mathbb{P}(\mathbf X \mid M_0)]-\ln[\mathbb{P}(\mathbf X \mid M_1)],
-\label{LNbfFormula}
-\end{equation}$$
+{% figure BF %}
+<img src="figures/BF_eq.png" width="200">
+{% figcaption %}
+{% endfigcaption %}
+{% endfigure %}
 
-where $\ln[\mathbb{P}(\mathbf X \mid M_0)]$ is the *marginal lnL*
-estimate for model $M_0$. The value resulting from equation
-{% ref LNbfFormula %} can be converted to a raw Bayes factor by simply taking
-the exponent of $\cal{K}$ 
+Alternativamente, se puede interpretar directamente la evidencia a favor dedel modelo M0 en el espacio logarítmico al comparar los valores de κ la escala apropiada (Tabla, segunda columna). En este caso, evaluamos κ de modo que:
 
-$$
-\begin{equation}
-BF(M_0,M_1) = e^{\cal{K}}.
-\label{LNbfFormula2}
-\end{equation}$$ 
+{% figure kappa %}
+<img src="figures/kappa.png" width="300">
+{% figcaption %}
+{% endfigcaption %}
+{% endfigure %}
 
-Alternatively, you can directly interpret the strength of evidence in favor of $M_0$ in log
-space by comparing the values of $\cal{K}$ to the appropriate scale
-(Table {% ref bfTable %}, second column). In this case, we evaluate $\cal{K}$
-in favor of model $M_0$ against model $M_1$ so that:
+Por lo tanto, valores de κ cercanos a 0 indican que no hay preferencia por ninguno de los modelos.
 
-> if $\mathcal{K} > 1$, model $M_0$ is preferred<br>
-> if $\mathcal{K} < -1$, model $M_1$ is preferred.
-
-Thus, values of $\mathcal{K}$ around 0 indicate that there is no
-preference for either model.
-
-Using the values you entered in Table {% ref ssTable %} and equation
-{% ref LNbfFormula %}, calculate the ln-Bayes factors (using $\mathcal{K}$)
-for the different model comparisons. Enter your answers in Table
-{% ref bfTable %} using the stepping-stone and the path-sampling estimates of
-the marginal log likelihoods.
+Utilizando los valores ingresados ​​en la **Tabla 1**, calcula los ln-BF (usando κ) para los modelos que comparamos. Ingresa tus respuestas en la **Tabla 2** utilizando tanto la aproximación de *stepping stone* y de *path sampling*.
 
 {% figure bfTable %}
 
  |                  **Model**                      |   **Path-Sampling**   |   **Stepping-Stone-Sampling**   |
   ------------------------------------------------:|:---------------------:|:-------------------------------:|
- | $M_0,M_1$                                       |                       |                                 |
+ | M0,M1                                       |                       |                                 |
  |              Supported model?                   |                       |                                 |
 
 {% figcaption %}
-Marginal likelihoods of the lobal molecular clock and uncorrelated lognormal models.
+**Tabla 2.** lnBF de los dos modelos comparados utilizando dos algoritmos para calcular las probabilidades marginales.
+
 {% endfigcaption %}
 {% endfigure %}
 
-Estimate the Topology and Branch Times
+Estimación de la topología y los tiempos de divergencia
 --------------------------------------
 {:.section}
 
-After computing the Bayes factors and determining the relative support
-of each model, you can choose your favorite model among the three tested
-in this tutorial. The next step, then, is to use MCMC to jointly
-estimate the tree topology and branch times.
 
-Open your text editor and create the MCMC analysis file under the your
-favorite clock model. Call the file: and save it in the `scripts`
-directory.
+Después de calcular los factores de Bayes y determinar el soporte relativo de cada modelo, podemos elegir el modelo más adecuado entre los dos modelos que comparamos en este tutorial. El siguiente paso es utilizar una MCMC para estimar conjuntamente la topología del árbol y los tiempos de divergencia.
 
-This file will contain much of the same initial `Rev` code as the files
-you wrote for the marginal-likelihood analyses.
+Abre tu editor de texto y crea un archivo llamado `mcmc_TimeTree_bears.Rev` y guárdalo en el directorio `scripts`.
+
+Este archivo contendrá gran parte del código que utilizamos para los análisis de probabilidad marginal.
 
     ### Load the sequence alignment
     D <- readDiscreteCharacterData(file="data/bears_irbp.nex")
@@ -609,15 +496,12 @@ you wrote for the marginal-likelihood analyses.
     ### initialize an iterator for the moves vector
     mi = 1
 
-This is how you should begin your MCMC analysis file. The next step is
-to source the birth-death model.
+El siguiente paso es obtener el modelo BD (birth-death) para el árbol:
 
     ### set up the birth-death model from file
     source("scripts/m_BDP_bears.Rev")
 
-Next load the file containing your favorite model (where the wildcard
-`\*` indicates the name of the model you prefer: `GMC`, `UCLN`, or
-`ACLN`).
+A continuación, cargue el archivo que contiene su modelo favorito (donde el comodín `\*` indica el nombre del modelo preferido: `GMC`, `UCLN`).
 
     ### load the model from file 
     source("scripts/m_*_bears.Rev")
@@ -625,87 +509,61 @@ Next load the file containing your favorite model (where the wildcard
     ### workspace model wrapper ###
     mymodel = model(er)
 
-***MCMC Monitors***
+***Monitores para la MCMC***
 
-Before you instantiate the MCMC workspace object, you need to create a
-vector of “monitors” that are responsible for monitoring parameter
-values and saving those to file or printing them to the screen.
+Antes iniciar la cadena de MCMC, necesitamos crear un vector de monitores reponsables de monitorear los valores de los parámatros y guardarlos en los archivos de salida o imprimirlos en la pantalla.
 
-First, create a monitor of all the model parameters except the
-`timetree` using the model monitor: `mnModel`. This monitor takes *all*
-of the named parameters in the model DAG and saves their value to a
-file. Thus, every variable that you gave a name in your model files will
-be written to your log file. This makes it very easy to get an analysis
-going, but can generate very large files with a lot of redundant output.
+En primer lugar, creamos un monitor de todos los parámetros del modelo excepto el cronograma (`timetree`) usando la función `mnModel`. Este monitor toma *todos* los parámetros nombrados en el DAG del modelo y guarda su valor en un archivo de salida. De este modo, cada variable a la que se le haya asignado un nombre en los archivos del modelo se escribirá en el archivo de salida. Esto facilita mucho la puesta en marcha de un análisis, pero puede generar archivos muy grandes con una gran cantidad de información redundante.x
 
     monitors.append(mnModel(filename="output/TimetTree_bears_mcmc.log", printgen=10))
 
-If the model monitor is too verbose for your needs, you should use the
-file monitor instead: `mnFile`. For this monitor, you have to provide
-the names of all the parameters you’re interested in after the file name
-and print interval. (Refer to the example files for how to set up the
-file monitor for model parameters.)
+Si el monitor `mnModel` es demasiado detallado para tus necesidades, puedes utilizar en su lugar el monitor de archivos: `mnFile`. Para este monitor, se deben proporcionar los nombres de los parámetros que se quieren guardar en el archivo de salida y el intervalo de impresión. (Consulta los archivos ejemplo para saber cómo configurar el monitor de archivos para los parámetros del modelo).
 
-In fact, we use the file monitor for saving the sampled chronograms to
-file. It is important that you *do not* save the sampled trees in the
-same file with other numerical parameters you would like to summarize.
-That is because tools for reading MCMC log files—like
-[Tracer](http://tree.bio.ed.ac.uk/software/tracer/) {% cite Rambaut2011 %} —cannot
-load files with non-numerical states. Therefore, you must save the
-sampled trees to a different file.
+De hecho, utilizamos el `mnFile` para guardar los cronogramas muestreados en un archivo. Es importante que **no** se guarden los árboles muestreados en el mismo archivo que el resto de los parámetros numéricos. Esto se debe a que las herramientas para leer archivos de salida de MCMCs, como [Tracer](http://tree.bio.ed.ac.uk/software/tracer/) {% cite Rambaut2011 %} , no pueden cargar archivos con estados no numéricos. Por lo tanto, se deben guardar los árboles muestreados en un archivo diferente.
 
     monitors.append(mnFile(filename="output/TimeTree_bears_mcmc.trees", printgen=10, timetree))
 
-Finally, we will create a monitor in charge of writing information to
-the screen: `mnScreen`. We will report the root age and the age of the
-MRCA of all Ursidae to the screen. If there is anything else you’d like
-to see in your screen output (e.g., the mean rate of the UCLN or ACLN
-model), feel free to add them to the list of parameters give to this
-model.
+Finalmente, crearemos un monitor encargado de mostrar información en la pantalla con la función `mnScreen`. Reportaremos la edad de la raíz (`root_time`) y la edad del MRCA de todos los Ursidae (`tmrca_Ursidae`) en la pantalla. Si hay algo más que te gustaría ver en la pantalla, no dudes en agregarlo a la lista de parámetros.
 
     monitors.append(mnScreen(printgen=10, root_time, tmrca_Ursidae))
 
-***Setting-Up & Executing the MCMC***
+***Configuración y ejecución de la MCMC***
 
-Now everything is in place to create the MCMC object in the workspace.
-This object allows you to perform a burn-in, execute a run of a given
-length, continue an analysis that might not have reached stationarity,
-and summarize the performance of the various proposals.
+Ahora todo está listo para crear el objeto MCMC en el espacio de trabajo. Este objeto permite realizar un *burn-in*, correr una cadena por una duración determinada, continuar un análisis que podría no haber alcanzado la estacionariedad, y resumir el performance de las propuestas de movimiento que especificamos.
 
     mymcmc = mcmc(mymodel, monitors, moves)
 
-With this object instantiated, specify a burn-in period that will sample
-parameter space while re-tuning the proposals (only for the moves with
-`tune=true`). The monitors do not sample the states of the chain during
-burn-in.
+Con este objeto inicializado, especificamos un período de *burn-in* que tomará muestras del espacio de parámetros mientras reajusta las propuestas (solo para los movimientos con `tune=true`). Los monitores no guardan los estados de la cadena durante el *burn-in*.
 
     mymcmc.burnin(generations=2000,tuningInterval=100)
 
-Once the burn-in is complete, we want the analysis to run the full MCMC.
-Specify the length of the chain.
+Una vez que se complete el proceso de *burn-in*, especificamos la longitud de la cadena para que se ejecute el MCMC completo.
 
     mymcmc.run(generations=5000)
 
-When the MCMC run has completed, it’s often good to evaluate the
-acceptance rates of the various proposal mechanisms. The
-`.operatorSummary()` member method of the MCMC object prints a table
-summarizing each of the parameter moves to the screen.
+Cuando se ha completado la ejecución de la MCMC, es conveniente evaluar las tasas de aceptación de las distintos propuestas de movimiento. El método `.operatorSummary()` aplicado al objeto MCMC imprime una tabla que resume cada uno de los movimientos de parámetros en la pantalla.
 
     mymcmc.operatorSummary()
 
-***Summarize the Sampled Time-Trees***
+***Resumir los cronogramas muestreados***
 
-During the MCMC, the sampled trees will be written to a file that we
-will summarize using the `mapTree` function in RevBayes. This first
-requires that you add the code for reading in the tree-trace file and
-performing an analysis of those trees.
+Durante el MCMC, los árboles muestreados se escribirán en un archivo que resumiremos utilizando la función `mapTree` en RevBayes. Para ello, primero leemos el archivo de los árboles (*tree trace*) y después analizamos esos árboles.
 
     tt = readTreeTrace("output/TimeTree_bears_mcmc.trees", "clock")
     tt.summarize()
 
-    ### write MAP tree to file
+    ### exportamos el MAP tree a un archivo
     mapTree(tt, "output/TimeTree_bears_mcmc_MAP.tre")
 
-Save and close the file called in the `scripts` directory. Then, execute
-the MCMC analysis using:
+Guarda y cierre el archivo. Luego, ejecute el análisis MCMC usando:
 
+    source("scripts/mcmc_TimeTree_bears.Rev")
+
+## References 
+Höhna S., Landis M.J., Heath T.A., Boussau B., Lartillot N., Moore B.R., Huelsenbeck J.P., Ronquist F. 2016. RevBayes: Bayesian Phylogenetic Inference Using Graphical Models and an Interactive Model-Specification Language. Systematic Biology. 65:726–736. 10.1093/sysbio/syw021
+
+Höhna S., Heath T.A., Boussau B., Landis M.J., Ronquist F., Huelsenbeck J.P. 2014. Probabilistic Graphical Model Representation in Phylogenetics. Systematic Biology. 63:753–771. 10.1093/sysbio/syu039
+
+Rambaut A., Drummond A.J. 2011. Tracer v1.5. . http://tree.bio.ed.ac.uk/software/tracer/
+
+dos Reis M., Inoue J., Hasegawa M., Asher R.J., Donoghue P.C.J., Yang Z. 2012. Phylogenomic datasets provide both precision and accuracy in estimating the timescale of placental mammal phylogeny. Proceedings of the Royal Society B: Biological Sciences. 279:3491–3500. 10.1098/rspb.2012.0683

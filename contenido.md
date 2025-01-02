@@ -13,7 +13,7 @@ redirect: false
 
 1. **Actividad:** Presentaciones utilizando diapositivas.
     1. Participantes. Nombre, pasatiempo, organismo que estudian, motivación para tomar el taller --- diapositivas preparadas [aquí](https://docs.google.com/presentation/d/1QWYTvWLIaphzv4Gt7aecXojmANxDsKb0RfyULq_C-u4/edit?usp=sharing)
-    2. Presentación del taller
+    2. Presentación del taller - [Diapositivas](https://docs.google.com/presentation/d/1NSYXXhtQSPCVNwtigfPzb_UkxwMZDnMkeQ_8FHIalz0/edit?usp=sharing)
 
 2. Introducción al pensamiento bayesiano 
     1. [Tutorial para la clase](/docs/intro_bayesian/intro_bayesiana_pre)
