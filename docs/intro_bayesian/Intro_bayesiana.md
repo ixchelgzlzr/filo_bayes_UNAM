@@ -5,6 +5,7 @@ nav_order: 2
 index: true
 redirect: false
 parent: Temario
+math: katex
 ---
 Este tutorial fue creado por Rosana Zenil-Ferguson (Deciembre 2025)
 
@@ -31,7 +32,7 @@ En Biología, escogemos hacer inferencia bayesiana porque es una herramienta com
 
 ## Conceptos bayesianos importantes
 
-La estadística bayesiana deriva su nombre del Teorema de Bayes del estudio de la probabilidad. Dados dos eventos $A$ and $B$, la probabilidad condicional de  $A$ **dado** $B$ se define como
+La estadística bayesiana deriva su nombre del Teorema de Bayes del estudio de la probabilidad. Dados dos eventos $$A$$ and $$B$$, la probabilidad condicional de  $$A$$ **dado** $$B$$ se define como
 
 $$P(A|B)=\frac{P(AB)}{P(B)}$$
 y aplicando dos veces el teorema de Bayes obtenemos que 
@@ -46,39 +47,39 @@ Las citas en línea o a ciegas son difíciles, especialmente si tu personalidad 
 
 Defininamos dos eventos a los que les vamos a medir la probabilidad
 
-1. $A$ = Es el evento que representa que Silvia es muy carismática
+1. $$A$$ = Es el evento que representa que Silvia es muy carismática
 
-2. $B$  = Es el evento que representa cuantas de las citas a ciegas de Silvia salieron bien.
+2. $$B$$  = Es el evento que representa cuantas de las citas a ciegas de Silvia salieron bien.
 
 ### Definición de probabilidad a priori
 
 Con estos dos eventos se puede caracterizar este reality show. Como expectadores y estadísticos nosotros podemos definir de entrada algunas probabilidades. Por ejemplo, en el primer capítulo, se hace la introducción de Silvia y de entrada no sabemos mucho de Silvia. Dos decisiones que podemos tomar
 
-1.$P(A)=0.5$ representa la probabilidad de que Silva es carismática o no con la misma probabilidad
+1. $$P(A)=0.5$$ representa la probabilidad de que Silva es carismática o no con la misma probabilidad
 
-2. $P(A)=0.1$ porque Silvia dijo en su introducción "no me gustan los perros" y entonces decidimos que Silvia tiene una probabilidad bajita de ser carismática 
+2. $$P(A)=0.1$$ porque Silvia dijo en su introducción "no me gustan los perros" y entonces decidimos que Silvia tiene una probabilidad bajita de ser carismática 
 
 Estos ejemplos de decisiones sin antes de ver el resultado de ninguna de las citas se llama **probabilidad *a priori*. ** La probabilidad a priori es un paso necesario de la estadística bayesiana que refleja nuestras creencias y es subjetiva, puede ser informativa (conoces a Silvia y sabes que es buena persona), o no informativa (50-50 a que Silvia es buena persona). 
 
-### El objetivo final: $P(A|B)$
+### El objetivo final: $$P(A|B)$$
 
-En realidad lo que nos interesa como estadísticos bayesianos es saber el resultado final para Silvia ¿acabará enamorandose?, en términos de probabilidad nos interesa lo que llamamos la probabilidad a posteriori, es decir  $P(A|B)$ = la probabilidad del carisma de Silvia dadas las citas exitosas durante el reality show. En algunos contextos la probabilidad a posteriori se le conoce como la actualización de las probabilidades porque conocemos más del carisma de Silvia cada vez que tiene una cita en el reality. 
+En realidad lo que nos interesa como estadísticos bayesianos es saber el resultado final para Silvia ¿acabará enamorandose?, en términos de probabilidad nos interesa lo que llamamos la probabilidad a posteriori, es decir  $$P(A|B)$$ = la probabilidad del carisma de Silvia dadas las citas exitosas durante el reality show. En algunos contextos la probabilidad a posteriori se le conoce como la actualización de las probabilidades porque conocemos más del carisma de Silvia cada vez que tiene una cita en el reality. 
 
-### $P(A|B)$ es difícil de estimar
+### $$P(A|B)$$ es difícil de estimar
 
-¿Cómo obtenemos esta probabilidad posterior? Si lo pensamos bien $P(A|B)$ es una probabilidad difícil, ¿cómo cambia el carisma de Silvia después de las citas exitosas? es algo raro de describir, pero es lo que queremos saber, entonces ¿cómo empezamos a calcular esta probabilidad posterior?
+¿Cómo obtenemos esta probabilidad posterior? Si lo pensamos bien $$P(A|B)$$ es una probabilidad difícil, ¿cómo cambia el carisma de Silvia después de las citas exitosas? es algo raro de describir, pero es lo que queremos saber, entonces ¿cómo empezamos a calcular esta probabilidad posterior?
 
 Lo más sencillo es pensar el probabilidad siguiente:
 
-$P(B|A)$: Dado que conocemos el carisma de Silvia, la probabilidad de la cita es...
+$$P(B|A)$$: Dado que conocemos el carisma de Silvia, la probabilidad de la cita es...
 
-Esta segunda probabilidad condicional $P(B|A)$ es muchísimo más sencilla de entender y de pensar. Afortunadamente el teorema de Bayes liga esta probabilidad más sencilla a la más difícil 
+Esta segunda probabilidad condicional $$P(B|A)$$ es muchísimo más sencilla de entender y de pensar. Afortunadamente el teorema de Bayes liga esta probabilidad más sencilla a la más difícil 
 
 $$ P(A|B)=\frac{P(B|A)P(A)}{P(B)}$$
 
 ## Conceptos bayesianos (parte 2) 
 
-1. La estadística bayesiana define las probabilidades a través de un proceso de apuestas. No hay forma clara de decidir una propbabilidad a priori para el carima de Silvia $P(A)$. Recuerda que las distribución a priori es subjetiva y por esta razón queremos tener mucho cuidado al decidir. El proceso de decisión se llama en estadística bayesiana  **elicitar** y no debe usar nada de la información de las citas.
+1. La estadística bayesiana define las probabilidades a través de un proceso de apuestas. No hay forma clara de decidir una propbabilidad a priori para el carima de Silvia $$P(A)$$. Recuerda que las distribución a priori es subjetiva y por esta razón queremos tener mucho cuidado al decidir. El proceso de decisión se llama en estadística bayesiana  **elicitar** y no debe usar nada de la información de las citas.
 
 Hagamos entonces el proceso de elicitar la a priori del carisma de Silvia a través de una variable aletoria
 
@@ -86,18 +87,18 @@ Hagamos entonces el proceso de elicitar la a priori del carisma de Silvia a trav
 
 Para definir una probabilidad de manera correcta necesitamos aprender un concepto nuevo   **variables aleatorias**. Las variables aleatorias son una **función matemática**  que nos lleva del espacio de eventos al espacio de los números.
 
-$A$: El carísma de Silvia.
+$$A$$: El carísma de Silvia.
 
-$X$: variable aleatoria (una función) que se define como
+$$X$$: variable aleatoria (una función) que se define como
 
 $$X= \begin{cases}
       0 & \textrm{cuando } A^C  \textrm{ Silvia no tiene carisma}\\
       1 & \textrm{cuando } A  \textrm{ Silvia tiene carisma}
     \end{cases}$$
 
-En lugar de utilizar $P(A)$ utilizamos $P(X=1)$ y las dos cosas significan lo mismo.
+En lugar de utilizar $$P(A)$$ utilizamos $$P(X=1)$$ y las dos cosas significan lo mismo.
 
-Ahora asumimos que  $P(X=1)$ es un valor llamado $\theta$ entre 0 and 1, esto también significa que $P(X=0)=1-\theta$. Si Silvia no es carismática escogimos $\theta=0.1$ y puede ser que esto esté bien, pero en el mundo real el carísma de una persona fluctua dependiendo de muchos factores. Entonces una mejor aproximación para medir el carisma de Silvia es asumir que $\theta$ (parameter) es incierto y lo vamos a modelar.
+Ahora asumimos que  $$P(X=1)$$ es un valor llamado $$\theta$$ entre 0 and 1, esto también significa que $$P(X=0)=1-\theta$$. Si Silvia no es carismática escogimos $$\theta=0.1$$ y puede ser que esto esté bien, pero en el mundo real el carísma de una persona fluctua dependiendo de muchos factores. Entonces una mejor aproximación para medir el carisma de Silvia es asumir que $$\theta$$ (parameter) es incierto y lo vamos a modelar.
 
 Para modelar este parametro vamos a utilizar una distribución de probabilidad llamada **Beta** (busca en Wikipedia la distribución Beta).Esta distribución de probabilidad es conveniente porque toma valores en el intervalo (0, 1) y tiene muchas formas. Exploremos como se ve una distribución beta
 
@@ -164,16 +165,16 @@ Con estas distribuciones mostramos el segundo punto esencial de la estadística 
 
 **2. Los parametros son desconocidos pero inciertos, necesitan una distribución de probabilidad.**
 
-Logramos esto a través de $\theta$ con la **distribución a priori** $Beta(a,b)$.
+Logramos esto a través de $$\theta$$ con la **distribución a priori** $$Beta(a,b)$$.
 
 ## Los datos, las citas a ciegas
 
-En el reality show, Silvia tiene tres citas completamente a ciegas  con la misma persona (ninguno se ve solo se escuchan el uno al otro). En nuestros términos estadísticos $N=3$ es el número total de citas con la misma persona. ¿Cómo modelamos los resultados de estas tres citas, sabiendo el carisma de Silvia? Si recordamos el evento $B$ es el número de citas que fueron bien, pero necesitamos llevar el evento B al espacio de los números reales. 
+En el reality show, Silvia tiene tres citas completamente a ciegas  con la misma persona (ninguno se ve solo se escuchan el uno al otro). En nuestros términos estadísticos $$N=3$$ es el número total de citas con la misma persona. ¿Cómo modelamos los resultados de estas tres citas, sabiendo el carisma de Silvia? Si recordamos el evento $$B$$ es el número de citas que fueron bien, pero necesitamos llevar el evento B al espacio de los números reales. 
 
-Proponemos la varialbe aleatoria $Y$ donde 
+Proponemos la varialbe aleatoria $$Y$$ donde 
 
-$$Y=0,1,2,3 \textrm{  son el número de citas que salieron bien}$$
-La probabilidad del número de citas que salieron bien va a ser dependiente del carisma de Silvia, recordemos que ese carisma se mide a través de $\theta$. Vamos a proponer una nueva distribución para el resultado de las citas
+$$Y=0,1,2,3$$  son el número de citas que salieron bien
+La probabilidad del número de citas que salieron bien va a ser dependiente del carisma de Silvia, recordemos que ese carisma se mide a través de $$\theta$$. Vamos a proponer una nueva distribución para el resultado de las citas
 
 $$P(Y=k|\theta)= {N\choose k} \theta^k (1-\theta)^{N-k}$$
 Exploremos esta distribución de probabilidad
@@ -198,18 +199,19 @@ p1
 Hay una segunda persona en el show para Silvia. Por el momento pensemos que con la primera persona dos de las tres citas salieron bien. La probabilidad de que dos citas salieron bien dado que sabemos el carisma de Silvia es 
 
 $$P(Y=2|\theta)= {3\choose 2} \theta^2 (1-\theta)^1$$
-Si $\theta=0.1$ entonces $P(Y=2|\theta=0.1)= {3\choose 2} 0.1^2 (0.9)^1=0.027$. Quiere decir que si Silvia no es carismática entonces la probabilidad de tener dos citas buenas es 2.7%. Este es un escenario **inverosímil**. Esta es la palabra correcta en este contexto, vamos a empezar a introducir el concepto de la **función de verosimilitud**. 
+Si $$\theta=0.1$$ entonces $$P(Y=2|\theta=0.1)= {3\choose 2} 0.1^2 (0.9)^1=0.027$$. Quiere decir que si Silvia no es carismática entonces la probabilidad de tener dos citas buenas es 2.7%. Este es un escenario **inverosímil**. Esta es la palabra correcta en este contexto, vamos a empezar a introducir el concepto de la **función de verosimilitud**. 
 
 
-Lo que acabamos de hacer es observar un resultado de la distribución binomial  $y_1=2$ y cuando Silvia salga con la segunda persona vamos a observar que $y_2=1$ y así hasta que Silvia haya salido con todos los candidatos. 
+Lo que acabamos de hacer es observar un resultado de la distribución binomial  $$y_1=2$$ y cuando Silvia salga con la segunda persona vamos a observar que $$y_2=1$$ y así hasta que Silvia haya salido con todos los candidatos. 
 
 ### La función de verosimilitud (likelihood function)
 
 $$P(Y=y_1|\theta)\times P(Y=y_2|\theta) = {3\choose 2} \theta^2 (1-\theta)^{1}\times {3\choose 1} \theta^1 (1-\theta)^{2} \approx \theta^{2+1}(1-\theta)^{1+2}=\theta^3(1-\theta)^3$$
-**La función de verosimilitud** se define como la probabilidad de los datos dado el modelo. El modelo en este caso es $\theta$, el carisma de Silvia. La probabilidad de los datos es la multiplicación de los resultados de las citas con cada persona, es una multiplicación porque lo que pase con una persona es independiente de lo que pase con la otra. 
+
+**La función de verosimilitud** se define como la probabilidad de los datos dado el modelo. El modelo en este caso es $$\theta$$, el carisma de Silvia. La probabilidad de los datos es la multiplicación de los resultados de las citas con cada persona, es una multiplicación porque lo que pase con una persona es independiente de lo que pase con la otra. 
 
 $$P(Datos|\theta)= \prod_{y_i=1}^{2}P(Y=y_i|\theta)\approx \theta^3(1-\theta)^3$$
-Si no tenemos información a priori sobre  $\theta$, ¿qué diriamos sobre el carisma de Silvia si ya observamos 2 de 3 con la primera persona, y 1 de 3 con la segunda?
+Si no tenemos información a priori sobre  $$\theta$$, ¿qué diriamos sobre el carisma de Silvia si ya observamos 2 de 3 con la primera persona, y 1 de 3 con la segunda?
 
 ```{r}
 binomial_likelihood <- function(theta, data,n) {
@@ -233,16 +235,18 @@ La verosimilitud es muchas veces criticada o confundida como frecuentista. Esto 
 
 ## Inferencia bayesiana: La distribución posterior
 
-Finalmente vamos a calcular $P(A|B)$ o en el nuevo lenguaje de nuestras variables aleatorias $P(\theta|Datos)$ es la distribución posterior del carisma de Silvia
+Finalmente vamos a calcular $$P(A|B)$$ o en el nuevo lenguaje de nuestras variables aleatorias $$P(\theta|Datos)$$ es la distribución posterior del carisma de Silvia
 
 La distribución posterior es **proporcional** a la verosimilitud multiplicada por la distribución a priori
+
 $$\underbrace{P(\theta|Data)}_{Posterior}\propto \underbrace{P(Data|\theta)}_{Likelihood}\times \underbrace{P(\theta)}_{Prior}$$
-La parte proporcional viene de ignoral el denominador del teorema de Bayes porque no contiene nada de información sobre $\theta$.
+
+La parte proporcional viene de ignoral el denominador del teorema de Bayes porque no contiene nada de información sobre $$\theta$$.
 
 $$P(\theta|Datos)\propto \underbrace{\theta^k(1-\theta)^{n-k}}_{\textrm{Verosimilitud (producto de las binomiales)}} \times \underbrace{\theta^{a-1}(1-\theta)^{b-1}}_{\textrm{prior Beta distribution}}$$
+
 Esto se ve feo en ecuación, pero veamos las gráficas.
 
-\tiny
 ```{r}
 # En este gráfico vamos a comparar la a priori, la verosimilitud, y la posterior. 
 trial_data <- c(1,2)
@@ -282,13 +286,13 @@ Perfecto, pero ¿cómo calculo la posterior?
 
 ## Inferencia Bayesiana utilizando el algoritmo MCMC
 
-El algoritmo MCMC (Markov Chain Monte Carlo) nos permite optimizar la distribución posterior. En este tutorial vamos a hacer un tipo de MCMC llamado Metropolis-Hastings que es un algoritmo de rechazo. El algoritmo va a proponer un valor para el carisma de Silvia $\theta$ y se pregunta: el valor que propuse ¿incrementa el valor de la probabilidad posterior?- si la respuesta es positiva, nos quedamos este valor, y si es negativa lo rechazamos. 
+El algoritmo MCMC (Markov Chain Monte Carlo) nos permite optimizar la distribución posterior. En este tutorial vamos a hacer un tipo de MCMC llamado Metropolis-Hastings que es un algoritmo de rechazo. El algoritmo va a proponer un valor para el carisma de Silvia $$\theta$$ y se pregunta: el valor que propuse ¿incrementa el valor de la probabilidad posterior?- si la respuesta es positiva, nos quedamos este valor, y si es negativa lo rechazamos. 
 
 Manos a la obra
 
 ### La propuesta
 
-Vamos a proponer un nuevo parámetro $\theta_{new}$ utilizando una distribución uniforme entre 0 y uno
+Vamos a proponer un nuevo parámetro $$\theta_{new}$$ utilizando una distribución uniforme entre 0 y uno
 
 ```{r}
 proposalfunction <- function(nvals=1){
@@ -302,18 +306,18 @@ proposalfunction <- function(nvals=1){
 
 En resúmen el algoritmo de Metropolis-Hastings sigue los siguientes pasos:
 
-1. Empieza con un valor para $\theta$ (``startvalue``) llamado $\theta_0$ 
-2. Haz $\theta_{old}=\theta_0$
-3. Calcula la distribución posterior $P(\theta_{old}|Datos)$
-4. Proponer una distribución aleatoria $g(\theta)$ para obtener un nuevo valor $\theta_new$
-5. Calcula la distribución posterior $P(\theta_{new}|Datos)$
-6. Calcula los momios $momios=\frac{P(\theta_{new}|Datos)}{P(\theta_{old}|Datos)}$
-7. Calcula un valor aleatorio $u$ entre 0 y 1
-8. Si $u< momios$ entonces acepta $\theta_{new}$, guárdalo, sino rechaza y no lo guardes.
-9. Si lo aceptas haz $\theta_{old}=\theta_{new}$ y vuelve al paso dos hasta acabar las iteraciones. Sino continua al paso dos con el mismo $\theta_{old}$ hasta acabar las iteraciones. 
+1. Empieza con un valor para $$\theta$$ (``startvalue``) llamado $$\theta_0$$ 
+2. Haz $$\theta_{old}=\theta_0$$
+3. Calcula la distribución posterior $$P(\theta_{old}|Datos)$$
+4. Proponer una distribución aleatoria $$g(\theta)$$ para obtener un nuevo valor $$\theta_new$$
+5. Calcula la distribución posterior $$P(\theta_{new}|Datos)$$
+6. Calcula los momios $$momios=\frac{P(\theta_{new}|Datos)}{P(\theta_{old}|Datos)}$$
+7. Calcula un valor aleatorio $$u$$ entre 0 y 1
+8. Si $$u< momios$$ entonces acepta $$\theta_{new}$$, guárdalo, sino rechaza y no lo guardes.
+9. Si lo aceptas haz $$\theta_{old}=\theta_{new}$$ y vuelve al paso dos hasta acabar las iteraciones. Sino continua al paso dos con el mismo $$\theta_{old}$$ hasta acabar las iteraciones. 
 
 
-Vamos a seleccionar un valor para $\theta$ de entrada que lo llamamos  ``startvalue``  y el número de veces que vamos a buscar se llama ``iterations``. El número de iteraciones va a depender de un criterio de convergencia en los pasos 5-7.
+Vamos a seleccionar un valor para $$\theta$$ de entrada que lo llamamos  ``startvalue``  y el número de veces que vamos a buscar se llama ``iterations``. El número de iteraciones va a depender de un criterio de convergencia en los pasos 5-7.
 
 ```{r}
 a<-2
@@ -356,12 +360,12 @@ head(chain)
 
 ### Criterio de aceptación
 
-Para aceptar $\theta_{new}$ necesitamos calcular una estadística llamad momios (odds en inglés). Los momios es una razón entre dos probabilidades
+Para aceptar $$\theta_{new}$$ necesitamos calcular una estadística llamad momios (odds en inglés). Los momios es una razón entre dos probabilidades
 
 $$momios=\frac{P(\theta_{new}|Datos)}{P(\theta_{old}|Datos)}$$
-Si $\theta_{new}$ resulta en un valor mejor para la posterior los momios son grandes, pero si resulta en una posterior peor que con el valor de  $\theta_{old}$ que tenemos actualmente entonces los momios resultan en algo muy pequeño. 
+Si $$\theta_{new}$$ resulta en un valor mejor para la posterior los momios son grandes, pero si resulta en una posterior peor que con el valor de  $$\theta_{old}$$ que tenemos actualmente entonces los momios resultan en algo muy pequeño. 
 
-Hay un paso extra después de calcular estos momios, no vamos a aceptar automáticamente todo (esto se debe a otro problema que discutiremos cuando veamos los resultados del MCMC en nuestros ejemplos siguiente). Vamos a proponer un valor aleatorio entre 0 y 1 llamado $u$. Si $u< momios$ entonces aceptamos  $\theta_{new}$ y si no entonces rechazamos $\theta_{new}$.
+Hay un paso extra después de calcular estos momios, no vamos a aceptar automáticamente todo (esto se debe a otro problema que discutiremos cuando veamos los resultados del MCMC en nuestros ejemplos siguiente). Vamos a proponer un valor aleatorio entre 0 y 1 llamado $$u$$. Si $$u< momios$$ entonces aceptamos  $$\theta_{new}$$ y si no entonces rechazamos $$\theta_{new}$$.
 
 ### Visualizando el resultado del MCMC para encontrar la convergencia
 
@@ -386,7 +390,7 @@ Un MCMC lo debemos correr un minimo de dos veces para asegurarnos de que el milp
 
 ## Ejercicio extra: Cambiando la propuesta
 
-Las propuestas para encontrar nuevos valores del parámetro $\theta_new$ pueden ser buenas o malas. Como en cualquier experimento de laboratorio, cambiar estas propuestas, o agregar nuevas es necesario para poder mejorar el MCMC. 
+Las propuestas para encontrar nuevos valores del parámetro $$\theta_new$$ pueden ser buenas o malas. Como en cualquier experimento de laboratorio, cambiar estas propuestas, o agregar nuevas es necesario para poder mejorar el MCMC. 
 
 
 ```{r}

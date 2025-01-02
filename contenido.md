@@ -16,8 +16,8 @@ redirect: false
     2. Presentación del taller - [Diapositivas](https://docs.google.com/presentation/d/1NSYXXhtQSPCVNwtigfPzb_UkxwMZDnMkeQ_8FHIalz0/edit?usp=sharing)
 
 2. Introducción al pensamiento bayesiano 
-    1. [Tutorial para la clase](/docs/intro_bayesian/intro_bayesiana_pre)
-    2. [Notas completas](/docs/intro_bayesian/intro_bayesiana_pre)
+    1. [Tutorial para la clase](./docs/intro_bayesian/intro_bayesiana_pre)
+    2. [Notas completas](./docs/intro_bayesian/intro_bayesiana_pre)
 
 ### Bloque 2 [11:30–14:00, 2.5 hrs]
 
