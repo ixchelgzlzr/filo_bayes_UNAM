@@ -1,33 +1,29 @@
 ---
 title: Relojes moleculares y cronogramas
-subtitle: Comparing relaxed clock models & estimating rooted time trees
 layout: home
 nav_order: 4
 index: true
 redirect: false
 parent: Temario
+math: katex
 ---
-
-<!-- category: Standard -->
-
 
 Este tutorial fue traducido y modificado a partir del tutorial "Relaxed Clocks & Time Trees" disponible [aquí](https://revbayes.github.io/tutorials/clocks/) y escrito por Tracy A. Heath. 
 
 [DESCARGA LOS DATOS PARA ESTE TUTORIAL](https://downgit.github.io/#/home?url=https://github.com/ixchelgzlzr/filo_bayes_UNAM/blob/main/docs/clocks/files.zip).  
 
-Introducción
-------------
-{:.section}
+****
 
+# Introducción
+------------
 
 Entre las cuestiones centrales que se exploran en biología, se encuentran aquellas que buscan comprender el ritmo y la velocidad de los procesos evolutivos. Obtener estimaciones precisas de los tiempos de divergencia de las especies es vital para comprender la biogeografía histórica, estimar las tasas de divergencia e identificar las causas de la variación en las tasas de evolución molecular.  
 
-Este tutorial te proporcionorá una descripción general de cómo se estiman tiempos de divergencia utilizando calibración con fósiles y comparando modelos de reloj en un marco bayesiano. El ejercicio te guiará a través de los pasos necesarios para estimar las relaciones filogenéticas y datar las divergencias entre las especies utilizando el programa [RevBayes](http://revbayes.github.io/) {% cite Hoehna2014b Hoehna2016b %}.
+Este tutorial te proporcionorá una descripción general de cómo se estiman tiempos de divergencia utilizando calibración con fósiles y comparando modelos de reloj en un marco bayesiano. El ejercicio te guiará a través de los pasos necesarios para estimar las relaciones filogenéticas y datar las divergencias entre las especies utilizando el programa [RevBayes](http://revbayes.github.io/) (Hoehna2014b, Hoehna2016b).
 
 
-Para empezar
+## Para empezar
 ---------------
-{:.section}
 
 Los distintos ejercicios de este tutorial te guiarán por los pasos necesarios para hacer un análisis filogenético de los datos que se proporcionan como ejemplo. Además, te proporcionamos el *output* de cada ejercicio para que puedas verificar tus resultados. (Ten en cuenta que, dado que las MCMC que realices empezarán en valores diferentes, obtenidos de *semillas* (seeds) generadas aleatoriamente, el output de tus análisis no será idéntico a los que le proporcionamos).
 
@@ -36,9 +32,8 @@ El alineamiento en el archivo `data/bears_irbp.nex` contiene secuencias de prote
 En este ejercicio, compararemos diferentes modelos de reloj relajado y estimaremos una distribución posterior de cronogramas. El conjunto de datos que utilizaremos es una alineación de 10 secuencias de caniformes, que incluye 8 osos, 1 foca moteada y 1 lobo gris. Además, utilizaremos el tiempo de aparición del fósil de caniforme _Hesperocyon gregarius_ para informar nuestro prior sobre la edad de la raíz del árbol (es decir, el ancestro común más reciente de los caniformes).
 
 
-Preparación de los scripts
+## Preparación de los scripts
 ------------------
-{:.section}
 
 En este tutorial implementaremos tres modelos diferentes de reloj relajado y un modelo de nacimiento-muerte (birth-death model, BD, BD tree) para el árbol. Debido a la complejidad de estos modelos, la mejor manera de realizar este ejercicio es especificar cada uno de ellos en un script diferente. Al comienzo de cada sección, te sugeriremos un nombre para cada script; estos nombres corresponden a los scripts proporcionados en los archivos del tutorial que descrgaste al inicio. 
 
@@ -72,18 +67,15 @@ Por último, necesitaremos un directorio para todos los archivos que nuestros an
 
 
 
-El modelo BD (*Birth-death*)
+## El modelo BD (*Birth-death*)
 ---------------------
-{:.section}
 
-El proceso BD que utilizaremos es un proceso de tasas constantes condicionado por la edad de la raíz del árbol ({% ref bdgm %}).
+El proceso BD que utilizaremos es un proceso de tasas constantes condicionado por la edad de la raíz del árbol.
 
-{% figure bdgm %}
-<img src="figures/BDPR_gm.png" width="500">
-{% figcaption %}
+
+![fig 1](figures/BDPR_gm.png) 
 **Fig. 1.** Modelo gráfico que representa el proceso BD condicionado por la edad de la raín en RevBayes
-{% endfigcaption %}
-{% endfigure %}
+
 
 ***Crear el archivo Rev***
 >Abre tu editor de texto y crea el archivo del modelo BD llamado `m_BDP_bears.Rev` en el directorio `scripts`.
@@ -93,7 +85,7 @@ El proceso BD que utilizaremos es un proceso de tasas constantes condicionado po
 
 ***Leer en un árbol a partir de un estudio anterior***
 
-A veces resulta conveniente cargar un árbol de un estudio anterior, el cual se puede utilizar como árbol de partida. Leeremos el árbol estimado por {% cite DosReis2012 %}.
+A veces resulta conveniente cargar un árbol de un estudio anterior, el cual se puede utilizar como árbol de partida. Leeremos el árbol estimado por (DosReis 2012).
 
 ```
 T <- readTrees("data/bears_dosReis.tre")[1]
@@ -162,7 +154,7 @@ Primero especificamos la edad de aparición del fósil.
 tHesperocyon <- 38.0
 ```
 Asumiremos una distribución log normal para el prior de la raíz, con un desfase (offset) correspondiente 
-a la edad del fosil _Hesperocyon gregarius_. También, podemos utilizar el análisis de {% cite DosReis2012 %} para parametrizar dicha distribución. La edad que ellos reportan para el MRCA de los caniformes es 49 millones de años. Por lo tanto, podemos especificar la media de nuestra distribución para que se encuentre en medio de su estimación y la edad del fósil, 49 − 38 = 11. 
+a la edad del fosil _Hesperocyon gregarius_. También, podemos utilizar el análisis de (Dos Reis 2012) para parametrizar dicha distribución. La edad que ellos reportan para el MRCA de los caniformes es 49 millones de años. Por lo tanto, podemos especificar la media de nuestra distribución para que se encuentre en medio de su estimación y la edad del fósil, 49 − 38 = 11. 
 Dados los valores esperados para la media (mean_ra) y la desviación estándar (stdv_ra), calculamos el valor de la media en la escala logarítmica (mu_ra).
 
     mean_ra <- 11.0
@@ -211,9 +203,8 @@ Luego, agregaremos movimientos que propondrán cambios a la topología del árbo
 Ahora guarda y cierra este archivo. Este archivo, con todas las especificaciones del modelo, será usado por otros Rev archivos.
 
 
-Especificación del modelo de tasas evolutivas en las ramas (clock models)
+## Especificación del modelo de tasas evolutivas en las ramas (clock models)
 -----------------------------
-{:.section}
 
 
 Las siguientes secciones te guiarán en la creación de los archivos que especifican diferentes modelos de reloj relajado. Cada sección requerirá que hagas un archivo Rev independiente para cada modelo de reloj, así como para cada análisis de verosimilitud marginal.
@@ -315,7 +306,7 @@ Si has ingresado todo esto directamente en la consola de RevBayes, verás las pr
 
     source("scripts/mlnl_GMC_bears.Rev")
 
-Una vez que hayas completado este análisis, registra las probabilidades marginales del modelo de reloj molecular global en la Tabla. {% ref ssTable %}.
+Una vez que hayas completado este análisis, registra las probabilidades marginales del modelo de reloj molecular global en la Tabla 1.
 
 ### El modelo de tasas log-normal no correlacionadas (UCLN) {#UCLNModelSec}
 
@@ -339,7 +330,7 @@ Comenzaremos con especificar la media de la distribución lognormal a partir de 
 
     ucln_mean ~ dnExponential(2.0)
 
-Después especificamos el nodo de la desviación estándar a partir de una distribución exponencial. distribuido. Y también crearemos un nodo determinista, que es la varianza, σ^2.
+Después especificamos el nodo de la desviación estándar a partir de una distribución exponencial. distribuido. Y también crearemos un nodo determinista, que es la varianza, $σ^2$.
 
     ucln_sigma ~ dnExponential(3.0)
     ucln_var := ucln_sigma * ucln_sigma
@@ -418,67 +409,64 @@ Abre tu editor de texto y crea un archivo nuevo para el análisis de probabilida
 Una vez que hayas completado este análisis, registre las probabilidades marginales bajo el modelo UCLN en la Tabla de abajo.
 
 
-Factores de Bayes y selección de modelo
+## Factores de Bayes y selección de modelo
 --------------------------------------
-{:.section}
 
-Ahora que tenemos las estimaciones de la probabilidad marginal bajo cada ambos modelos de reloj, podemos evaluar su plausibilidad relativa utilizando factores de Bayes. Utiliza la Tabla {% ref ssTable %} de probabilidades marginales estimadas por medio de los algoritmos *Path-Sampling* y *Stepping-Stone*.
+Ahora que tenemos las estimaciones de la probabilidad marginal bajo cada ambos modelos de reloj, podemos evaluar su plausibilidad relativa utilizando factores de Bayes. Utiliza la **Tabla 1** de probabilidades marginales estimadas por medio de los algoritmos *Path-Sampling* y *Stepping-Stone*.
 
-{% figure ssTable %}
+
 
  |                  **Model**                        |   **Path-Sampling**   |   **Stepping-Stone-Sampling**   |
   --------------------------------------------------:|:---------------------:|:-------------------------------:|
- | [Reloj Molecular Global(M1)](#globalClockSec) |                       |                                 |
- | [UCLN](#UCLNModelSec)           |                       |                                 |
+ | [Reloj Molecular Global ($$M_0$$)](#globalClockSec) |                       |                                 |
+ | [UCLN ($$M_1$$)](#UCLNModelSec)           |                       |                                 |
  |              Supported model?                     |                       |                                 |
- {% endfigure %}
+
 **Tabla 1.** Probabilidades marginales del reloj molecular global y el UCLN.
   
 
-Los programas de filogenética transforman logarítmicamente las probabilidad para evitar el [desbordamiento aritmético](https://es.wikipedia.org/wiki/Desbordamiento_aritmético), porque multiplicar probabilidades resulta en números que son demasiado pequeños para almacenarse en la memoria de la computadora. Por lo tanto, debemos calcular el factor ln-Bayes (denotaremos este valor κ):
+Los programas de filogenética transforman logarítmicamente las probabilidad para evitar el [desbordamiento aritmético](https://es.wikipedia.org/wiki/Desbordamiento_aritmético), porque multiplicar probabilidades resulta en números que son demasiado pequeños para almacenarse en la memoria de la computadora. Por lo tanto, debemos calcular el factor ln-Bayes (denotaremos este valor $$\mathcal{K}$$):
 
-{% figure ln_BF %}
-<img src="figures/lnBF_eq.png" width="500">
-{% figcaption %}
-{% endfigcaption %}
-{% endfigure %}
 
-donde ln[P(X∣M0)]es la probabilidad marginal logarítmica estimada para el modelo M0. El valor resultante de esta ecuación se puede convertir en un factor de Bayes en escala natural simplemente tomando el exponente de κ. 
 
-{% figure BF %}
-<img src="figures/BF_eq.png" width="200">
-{% figcaption %}
-{% endfigcaption %}
-{% endfigure %}
+$$\begin{aligned}
+\mathcal{K}=\ln[BF(M_0,M_1)] = \ln[\mathbb{P}(\mathbf X \mid M_0)]-\ln[\mathbb{P}(\mathbf X \mid M_1)],
+\end{aligned}$$
 
-Alternativamente, se puede interpretar directamente la evidencia a favor dedel modelo M0 en el espacio logarítmico al comparar los valores de κ la escala apropiada (Tabla, segunda columna). En este caso, evaluamos κ de modo que:
 
-{% figure kappa %}
-<img src="figures/kappa.png" width="300">
-{% figcaption %}
-{% endfigcaption %}
-{% endfigure %}
+donde $\ln[\mathbb{P}(\mathbf X \mid M_0)]$ es la probabilidad marginal logarítmica estimada para el modelo $M_0$. El valor resultante de esta ecuación se puede convertir en un factor de Bayes en escala natural simplemente tomando el exponente de $$\mathcal{K}$$. 
 
-Por lo tanto, valores de κ cercanos a 0 indican que no hay preferencia por ninguno de los modelos.
+$$\begin{aligned}
+BF(M_0,M_1) = e^{\cal{K}}.
+\end{aligned}$$ 
+
+
+Alternativamente, se puede interpretar directamente la evidencia a favor dedel modelo $M_0$ en el espacio logarítmico al comparar los valores de κ en la escala apropiada (Tabla 1, segunda columna). En este caso, evaluamos $$\mathcal{K}$$ de modo que:
+
+
+if $$\mathcal{K} > 1$$, model $$M_0$$ is preferred
+
+
+if $$\mathcal{K} < -1$$, model $$M_1$$ is preferred.
+
+
+Por lo tanto, valores de $$\mathcal{K}$$ cercanos a 0 indican que no hay preferencia por ninguno de los modelos.
 
 Utilizando los valores ingresados ​​en la **Tabla 1**, calcula los ln-BF (usando κ) para los modelos que comparamos. Ingresa tus respuestas en la **Tabla 2** utilizando tanto la aproximación de *stepping stone* y de *path sampling*.
 
-{% figure bfTable %}
+
 
  |                  **Model**                      |   **Path-Sampling**   |   **Stepping-Stone-Sampling**   |
   ------------------------------------------------:|:---------------------:|:-------------------------------:|
- | M0,M1                                       |                       |                                 |
+ | $$M_0$$,$$M_1$$                                       |                       |                                 |
  |              Supported model?                   |                       |                                 |
 
-{% figcaption %}
+
 **Tabla 2.** lnBF de los dos modelos comparados utilizando dos algoritmos para calcular las probabilidades marginales.
 
-{% endfigcaption %}
-{% endfigure %}
 
-Estimación de la topología y los tiempos de divergencia
+## Estimación de la topología y los tiempos de divergencia
 --------------------------------------
-{:.section}
 
 
 Después de calcular los factores de Bayes y determinar el soporte relativo de cada modelo, podemos elegir el modelo más adecuado entre los dos modelos que comparamos en este tutorial. El siguiente paso es utilizar una MCMC para estimar conjuntamente la topología del árbol y los tiempos de divergencia.
@@ -519,7 +507,7 @@ En primer lugar, creamos un monitor de todos los parámetros del modelo excepto 
 
 Si el monitor `mnModel` es demasiado detallado para tus necesidades, puedes utilizar en su lugar el monitor de archivos: `mnFile`. Para este monitor, se deben proporcionar los nombres de los parámetros que se quieren guardar en el archivo de salida y el intervalo de impresión. (Consulta los archivos ejemplo para saber cómo configurar el monitor de archivos para los parámetros del modelo).
 
-De hecho, utilizamos el `mnFile` para guardar los cronogramas muestreados en un archivo. Es importante que **no** se guarden los árboles muestreados en el mismo archivo que el resto de los parámetros numéricos. Esto se debe a que las herramientas para leer archivos de salida de MCMCs, como [Tracer](http://tree.bio.ed.ac.uk/software/tracer/) {% cite Rambaut2011 %} , no pueden cargar archivos con estados no numéricos. Por lo tanto, se deben guardar los árboles muestreados en un archivo diferente.
+De hecho, utilizamos el `mnFile` para guardar los cronogramas muestreados en un archivo. Es importante que **no** se guarden los árboles muestreados en el mismo archivo que el resto de los parámetros numéricos. Esto se debe a que las herramientas para leer archivos de salida de MCMCs, como [Tracer](http://tree.bio.ed.ac.uk/software/tracer/) (Rambaut 2011), no pueden cargar archivos con estados no numéricos. Por lo tanto, se deben guardar los árboles muestreados en un archivo diferente.
 
     monitors.append(mnFile(filename="output/TimeTree_bears_mcmc.trees", printgen=10, timetree))
 
