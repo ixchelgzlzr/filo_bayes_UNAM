@@ -52,7 +52,7 @@ redirect: false
 ### Bloque 3 [15:30–18:00, 2.5 hrs]
 4. Evolución de caracteres discretos
     1. Clase
-    2. Tutorial
+    2. [Tutorial: Evolución de carateres discretos](./docs/discrete/ctmc)
 
 ***
 
