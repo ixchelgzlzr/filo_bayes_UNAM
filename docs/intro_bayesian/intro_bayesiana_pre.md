@@ -36,9 +36,9 @@ Defininamos dos eventos a los que les vamos a medir la probabilidad
 ### Definición de probabilidad a priori
 
 
-### El objetivo final: $$P(A|B)$$
+### El objetivo final: $$P(A\|B)$$
 
-En realidad lo que nos interesa como estadísticos bayesianos es saber el resultado final para Silvia ¿acabará enamorandose?, en términos de probabilidad nos interesa lo que llamamos la probabilidad a posteriori, es decir  $$P(A|B)$$ = la probabilidad del carisma de Silvia dadas las citas exitosas durante el reality show. En algunos contextos la probabilidad a posteriori se le conoce como la actualización de las probabilidades porque conocemos más del carisma de Silvia cada vez que tiene una cita en el reality. 
+En realidad lo que nos interesa como estadísticos bayesianos es saber el resultado final para Silvia ¿acabará enamorandose?, en términos de probabilidad nos interesa lo que llamamos la probabilidad a posteriori, es decir  $$P(A\|B)$$ = la probabilidad del carisma de Silvia dadas las citas exitosas durante el reality show. En algunos contextos la probabilidad a posteriori se le conoce como la actualización de las probabilidades porque conocemos más del carisma de Silvia cada vez que tiene una cita en el reality. 
 
 ### Elicitación de la distribución a priori
 
@@ -134,8 +134,8 @@ p1
 
 Hay una segunda persona en el show para Silvia. Por el momento pensemos que con la primera persona dos de las tres citas salieron bien.
 
-$$P(Y=2|\theta)= {3\choose 2} \theta^2 (1-\theta)^1$$
-Si $$\theta=0.1$$ entonces $$P(Y=2|\theta=0.1)= {3\choose 2} 0.1^2 (0.9)^1=0.027$$. Quiere decir que si Silvia no es carismática entonces la probabilidad de tener dos citas buenas es 2.7%. Este es un escenario **inverosímil**. Esta es la palabra correcta en este contexto, vamos a empezar a introducir el concepto de la **función de verosimilitud**. 
+$$P(Y=2\|\theta)= {3\choose 2} \theta^2 (1-\theta)^1$$
+Si $$\theta=0.1$$ entonces $$P(Y=2\|\theta=0.1)= {3\choose 2} 0.1^2 (0.9)^1=0.027$$. Quiere decir que si Silvia no es carismática entonces la probabilidad de tener dos citas buenas es 2.7%. Este es un escenario **inverosímil**. Esta es la palabra correcta en este contexto, vamos a empezar a introducir el concepto de la **función de verosimilitud**. 
 
 
 Lo que acabamos de hacer es observar un resultado de la distribución binomial  $$y_1=2$$ y cuando Silvia salga con la segunda persona vamos a observar que $$y_2=1$$ y así hasta que Silvia haya salido con todos los candidatos. 
@@ -168,7 +168,7 @@ La verosimilitud es muchas veces criticada o confundida como frecuentista. Esto 
 
 ## Inferencia bayesiana: La distribución posterior
 
-Finalmente vamos a calcular $$P(A|B)$$ o en el nuevo lenguaje de nuestras variables aleatorias $$P(\theta|Datos)$$ es la distribución posterior del carisma de Silvia
+Finalmente vamos a calcular $$P(A\|B)$$ o en el nuevo lenguaje de nuestras variables aleatorias $$P(\theta\|Datos)$$ es la distribución posterior del carisma de Silvia
 
 La distribución posterior es **proporcional** a la verosimilitud multiplicada por la distribución a priori
 
@@ -233,10 +233,10 @@ En resúmen el algoritmo de Metropolis-Hastings sigue los siguientes pasos:
 
 1. Empieza con un valor para $$\theta$$ (``startvalue``) llamado $$\theta_0$$ 
 2. Haz $$\theta_{old}=\theta_0$$
-3. Calcula la distribución posterior $$P(\theta_{old}|Datos)$$
+3. Calcula la distribución posterior $$P(\theta_{old}\|Datos)$$
 4. Proponer una distribución aleatoria $$g(\theta)$$ para obtener un nuevo valor $$\theta_new$$
-5. Calcula la distribución posterior $$P(\theta_{new}|Datos)$$
-6. Calcula los momios $$momios=\frac{P(\theta_{new}|Datos)}{P(\theta_{old}|Datos)}$$
+5. Calcula la distribución posterior $$P(\theta_{new}\|Datos)$$
+6. Calcula los momios $$momios=\frac{P(\theta_{new}\|Datos)}{P(\theta_{old}\|Datos)}$$
 7. Calcula un valor aleatorio $$u$$ entre 0 y 1
 8. Si $$u< momios$$ entonces acepta $$\theta_{new}$$, guárdalo, sino rechaza y no lo guardes.
 9. Si lo aceptas haz $$\theta_{old}=\theta_{new}$$ y vuelve al paso dos hasta acabar las iteraciones. Sino continua al paso dos con el mismo $$\theta_{old}$$ hasta acabar las iteraciones. 
