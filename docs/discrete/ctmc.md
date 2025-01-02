@@ -1,5 +1,5 @@
 ---
-title: "Introducción a la estadística Bayesiana"
+title: "Cadenas de Markov en Tiempo Continuo (CTMC)"
 layout: home
 nav_order: 5
 index: true
@@ -7,8 +7,6 @@ redirect: false
 parent: Temario
 math: katex
 ---
-
-#  Cadenas de Markov en Tiempo Continuo (CTMC)
 
 Las cadenas de Markov en tiempo continuo (CTMC' Continuous-time Markov chains) son procesos estocásticos que nos permiten seguir la evolución de las tasas evolutivas para caracteres discretos y continuos en macroevolución. En este ejemplo, estamos interesados en la evolución entre dos estados azul y rojo, pero si piensan en biogeografía, puedes pensar en las transiciones entre dos regiones A y B. 
 
