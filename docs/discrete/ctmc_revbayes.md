@@ -215,4 +215,6 @@ anc_state_trace = readAncestralStateTrace("output/stochmap_mk2_polinizador_run_1
 characterMapTree(observed_phylogeny, anc_state_trace, character_file="output/stochmap_mk2_polinizador.tree", posterior_file="output/posteriorpole.tree", burnin=1000, reconstruction="marginal")
 
 ```
+### Código Revbayes
 
+El código completo lo puedes encontrar [aquí](files/Mk2.Rev) 
