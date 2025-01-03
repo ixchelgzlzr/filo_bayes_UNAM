@@ -51,8 +51,8 @@ redirect: false
 
 ### Bloque 3 [15:30–18:00, 2.5 hrs]
 4. Evolución de caracteres discretos
-    1. Clase
-    2. [Tutorial: Evolución de carateres discretos](./docs/discrete/ctmc)
+    1. [Evolución de carateres discretos](./docs/discrete/ctmc)
+    2. [Tutorial RevBayes Mk2] (/docs/discrete/cmtc_revbayes)
 
 ***
 
