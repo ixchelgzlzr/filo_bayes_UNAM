@@ -26,7 +26,7 @@ redirect: false
     2. [CTMC-notas](./docs/discrete/ctmc)
 
 4. Introducción a RevBayes
-    1. Clase
+    1. [Clase](https://docs.google.com/presentation/d/1wcRMaFKA-cfzOrbq-oF_HUyFt0uoeZvAV4C_bZI4p-I/edit?usp=sharing)
     2. [Tutorial RevBayes Mk2](./docs/discrete/ctmc_revbayes)
     3. [Visualización resultados Mk2](./docs/discrete/mk2_visualizacion)
 
