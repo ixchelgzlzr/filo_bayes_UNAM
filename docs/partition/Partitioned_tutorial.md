@@ -9,7 +9,7 @@ parent: Temario
 
 ---
 
-Este tutorial fue traducido y modificado a partir del tutorial "Partitioned data analysis" disponible [aquí](https://revbayes.github.io/tutorials/partition/) y escrito por Sebastian Höhna, Michael J. Landis and Tracy A. Heath. 
+Este tutorial fue traducido y modificado por Ixchel S. González Ramírez a partir del tutorial "Partitioned data analysis" disponible [aquí](https://revbayes.github.io/tutorials/partition/) y escrito por Sebastian Höhna, Michael J. Landis and Tracy A. Heath. 
 
 [DESCARGA LOS DATOS PARA ESTE TUTORIAL](https://downgit.github.io/#/home?url=https://github.com/ixchelgzlzr/filo_bayes_UNAM/blob/main/docs/partition/files.zip).  
 
@@ -515,3 +515,49 @@ Ahora tenemos un vector `data` que contiene cada partición. Enseguida podemos e
 
 ¡No olvides cambiar el nombre de los archivos!
 
+# Ejercicios
+
+## Observa tus resultados
+
+1. ¿Qué diferencias esperas observar en los archivos de salida? ¿Las observas?
+
+2. Contrasta los valores de parámetros y las topologías que obtienes en cada modelo. ¿Observas diferencias en la topología? ¿Hay diferencia en los valores de soporte? 
+
+
+## Ejercicio con el código Rev
+
+Observa el código que especificaste
+
+1. Localiza tres priors three priors - and on what parameter.
+2. Localiza lineas que den instrucciones a RevBayes, sin especificar parámetros del modelo.
+3. Identifica ejemplos de los distintos tipos de nodos discutidos en clase
+4. Encuentra una sección de código que no entiendas y pregunta a tus instructores.
+
+
+
+# Extra
+
+**Partitioned model selection.** Los factores de Bayes se calculan como la proporción de probabilidades marginales entre pares de modelos. Para calcular estas probabilidades marginales utilizamos la función `powerPosterior()`.
+
+Copia el código del archivo `mcmc_Partition_uniform.Rev` en un nuevo archivo llamado  `ml_Partition_uniform.Rev`. En este nuevo archivo, ubica la línea donde llamamos la función `model()` y borra las líneas siguientes de manera que no corramos una MCMC.
+
+En lugar de ello agrega las siguientes líneas.
+
+Primero configuramos la función `powerPosterior()`
+```
+pow_p = powerPosterior(mymodel, moves, monitors, "output/model_uniform.out", cats=127)
+pow_p.burnin(generations=5000,tuningInterval=200)
+pow_p.run(generations=2000)
+```
+después calculamos la probabilidad marginal utilizando el algoritmo *stepping stone*:
+
+```
+ss = steppingStoneSampler(file="output/model_uniform.out", powerColumnName="power", likelihoodColumnName="likelihood")
+ss.marginal()
+```
+y depués utilizando el algoritmo *path sampler*:
+
+```
+ps = pathSampler(file="model_uniform.out", powerColumnName="power", likelihoodColumnName="likelihood")
+ps.marginal()
+```
