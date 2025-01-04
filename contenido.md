@@ -28,6 +28,7 @@ redirect: false
 4. Introducción a RevBayes
     1. Clase
     2. [Tutorial RevBayes Mk2](./docs/discrete/ctmc_revbayes)
+    3. [Visualización resultados Mk2](./docs/discrete/mk2_visualizacion)
 
 
 ### Bloque 3 [15:30–18:00, 2.5 hrs]

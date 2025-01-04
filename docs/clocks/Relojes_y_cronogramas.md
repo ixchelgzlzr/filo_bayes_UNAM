@@ -1,7 +1,7 @@
 ---
 title: Relojes moleculares y cronogramas
 layout: home
-nav_order: 5
+nav_order: 6
 index: true
 redirect: false
 parent: Temario
