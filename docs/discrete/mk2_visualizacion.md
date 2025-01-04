@@ -31,8 +31,8 @@ library(ggplot2)
 Revisemos la convergencia básica
 
 Baja estos archivos
-+ [Primera corrida del MCMC](files/mk2_polinizador_run_1.log)
-+ [Segunda corrida del MCMC](files/mk2_polinizador_run_2.log)
++ [Primera corrida del MCMC](https://github.com/ixchelgzlzr/filo_bayes_UNAM/blob/main/docs/discrete/files/mk2_polinizador_run_1.log)
++ [Segunda corrida del MCMC](https://github.com/ixchelgzlzr/filo_bayes_UNAM/blob/main/docs/discrete/files/mk2_polinizador_run_2.log)
 
 ```
 # Agrega tu directorio de trabajo
@@ -172,7 +172,7 @@ plotAncStatesMAP(t = anc_states, tree_layout="rectangular",
 2. Mapas estocásticos: Esta reconstrucción se enfoca en describir que es lo que pudo suceder en las ramas del árbol. Bajo una serie de simulaciones que va de la raíz a la punta bajo nuestro modelo (en este caso Mk2), se simula lo que sucedio en las ramas y se grafica el MAP de las simulaciones en pedacitos de las ramas que son divididos de manera igual. 
 
 + [Árbol filogenético en Nexus](files/poliniza_arbol.nex)
-+ [Mapas estocásticos](files/stochmap_mk2_polinizador_run_1.log)
++ [Mapas estocásticos](https://github.com/ixchelgzlzr/filo_bayes_UNAM/blob/main/docs/discrete/files/stochmap_mk2_polinizador_run_1.log)
 
 ```
 #Todo esto funciona con la rama en desarrollo de RevGadgets
