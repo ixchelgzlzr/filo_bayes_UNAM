@@ -17,7 +17,7 @@ redirect: false
 
 2. Introducción al pensamiento bayesiano 
     1. Clase
-    2. [Bayesiana-notas](./docs/intro_bayesian/intro_bayesiana)
+    2. [Bayesiana-notas](./docs/intro_bayesian/Intro_bayesiana)
 
 ### Bloque 2 [11:30–14:00, 2.5 hrs]
 
