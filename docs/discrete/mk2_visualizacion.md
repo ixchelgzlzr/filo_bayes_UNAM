@@ -14,7 +14,7 @@ Creado por Rosana Zenil-Ferguson (Enero 2025)
 
 Para este tutorial necesitaremos los siguientes paquetes. **Importante**: El paquete RevGadgets esta disponible directamente con ``install.packages("RevGadgets")`` pero vamos a revisar una versión especial que es la que grafica mapas estocásticos. Por esa razón vamos a bajar la versión que se indica aquí, así que. sigue las instrucciones como se indican abajo. 
 
-```{r, eval=FALSE}
+```
 # install.packages("devtools")
 # install.packages("coda")
 # install.packages("phytools")
@@ -34,7 +34,7 @@ Baja estos archivos
 + [Primera corrida del MCMC](files/mk2_polinizador_run_1.log)
 + [Segunda corrida del MCMC](files/mk2_polinizador_run_2.log)
 
-```{r, eval=FALSE}
+```
 # Agrega tu directorio de trabajo
 # Por ejemplo mi directorio donde tengo los resultados
 # setwd("~/Teaching/Workshops/UNAM2025/discrete_trait/files")
@@ -49,7 +49,7 @@ effectiveSize(trace_quant_MCMC)
 
 Ahora hagamos un mejor trabajo con los gráficos de convergencia
 
-```{r, eval=FALSE}
+```
 # Esta parte se hace con ggplot2 y con RevGadgets
 mcmc_run1 <- readTrace(path ="mk2_polinizador_run_1.log", burnin = 0.1)
 mcmc_run1<-data.frame(mcmc_run1)
@@ -76,7 +76,7 @@ Queremos graficar y obtener estadísticas resumen de los parametros de interés.
 + $$q_{10}$$
 + Frecuencias de la raíz
 
-```{r, eval=FALSE}
+```
 # Esta parte se hace con RevGadgets
 
 mcmc_run1 <- readTrace(path ="mk2_polinizador_run_1.log", burnin = 0.1)
@@ -94,7 +94,7 @@ plotTrace(trace = trace_quant, vars = c("root_frequencies[1]","root_frequencies[
 
 En lo personal prefiero graficar violines, y tener más control en los colores especialmente cuando hay muchos parámetros que comparar (veremos en el ejercicio de HiSSE que esto es super útil),
 
-```{r, eval=FALSE}
+```
 # Esta parte se hace con ggplot2
 
 traitcols<-c("#7678ED","#F35B04")
@@ -118,7 +118,7 @@ violin_transitions
 Una de las ventajas más importante de las distribuciones posteriores es que rápidamente podemos concluir si dos parámetros son iguales y distintos. Pero en general, si queremos publicar estos resultados debemos dar una estadística formal (como un p-valor) para que acepten nuestro trabajo para publicación. ¿Cómo formalizamos esta idea con Bayesiana?
 
 Construimos una estadística de resumen llamémosla $$D= q_{01}-q_{01}$$ y grafiquemos
-```{r, eval=FALSE}
+```
 # Esta parte se hace con ggplot2
 
 D<- data.frame(dens=(mk2$q_01-mk2$q_10),rate=rep(c("Difference"),length(mk2$q_01)))
@@ -137,7 +137,8 @@ violin_difference
 
 Formalizando la prueba de hipótesis
 $$ H_0: D=0$$
-```{r, eval=FALSE}
+
+```
 
 cuantiles <-quantile(D$dens, probs=c(0.025,0.975))
 cuantiles
@@ -153,7 +154,7 @@ Hay dos tipos de reconstrucciones ancestrales
 
 + [Árbol con reconstruccion ancestral](files/asr_mk2.tree)
 
-``` {r}
+```
 # Esta parte se hace con RevGadgets
 
 anc_states <- processAncStates(path ="asr_mk2.tree",state_labels=c("0"="insecto","1"="viento"))
@@ -173,7 +174,7 @@ plotAncStatesMAP(t = anc_states, tree_layout="rectangular",
 + [Árbol filogenético en Nexus](files/poliniza_arbol.nex)
 + [Mapas estocásticos](files/stochmap_mk2_polinizador_run_1.log)
 
-```{r}
+```
 #Todo esto funciona con la rama en desarrollo de RevGadgets
 
 mycolors= setNames(c("blue","darkorange"),c("0","1"))
