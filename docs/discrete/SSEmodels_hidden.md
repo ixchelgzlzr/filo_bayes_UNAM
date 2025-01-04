@@ -39,6 +39,7 @@ Definiendo el modelo HiSSE requiere entonces las siguientes consideraciones
 5. Definimos tasas de transición entre los estados escondidos. Lo podemos hacer de varias maneras pero por el momento hagamos $$q_{AB}=\alpha$$ y $$q_{BA}=\beta$$
 
 ![](images/hisse.png)
+
 *Figura 1. Modelo HiSSE con un caracter principal con dos estados y asociando dos estados escondidos*
 
 ## La nueva hipótesis nula y la ventaja de un HiSSE bayesiano
@@ -53,7 +54,7 @@ En inferencia con verosimilitud, ajustaríamos este modelo y compararíamos este
 
 Afortunadamente, en estadística Bayesiana, no tenemos que hacer una selección de modelos, ni siquiera ajustar BiSSE, ni el CID. Es suficiente, ajustar el HiSSE como se muestra en nuestra figura 1 y después interpretar las distribuciones posteriores, y transformarlas para probar nuestras hipótesis de interés. Incluso, con estadística Bayesiana, podemos encontrar historias de diversificación mucho más interesantes que con el criterio de información AIC. 
 
-![](images/sse-workflow.png)
+![](images/sse_workflow.png)
 *Figura 2. Flujo de trabajo de los modelos de diversificación. En la izquierda el flujo de trabajo con la función de verosimilitud y el criterio de información AIC requiere que de entrada se ajusten múltiples modelos. La razón por la cual esto sucede es porque la bajo la verosimilitud solamente obtenemos un estimador puntual para los parámetros llamado el máximo verosímil. En la derecha el flujo de trabajo con estadística bayesiana y el MCMC. Sólo necesitamos ajustar el modelo HiSSE y obtener las distribuciones posteriores de los parámetros. Después transformaremos las muestras de las posteriores para probar nuestras hipótesis de diversificación*
 
 ## Probando las hipótesis de diversificación con estadística bayesiana
@@ -83,7 +84,7 @@ Para probar esta hipótesis vamos a seguir los siguientes pasos:
  3. Formalmente calculamos el cuantil 0 de las distribuciones posteriores de $T_A$ y $T_B$. Es decir calculamos $$P(T_A>0)$$, si esta probabilidad es mayor a 0.05 esto significa que 0 y 1 no son diferentes en el estado A, y lo mismo para B.
  
  
-![](images/CID-1.png)
+![](images/CID1.png)
 *Figura 3. Observa el resultado de este HiSSe para la el caracter de las anteras de las flores (no-poricidal y poricidal) en (A) tenemos las distribuciones posteriores de las diversificaciones netas para los cuatro estados. En  (B) tenemos las estadísticas $$T_A$$ y $$T_B$$, donde claramente el cero cruza las distribuciones, mostrando que los estados 0 y 1 no son distintos en la diversificación. Esto equivale a ajustar el modelo CID. Resultado de Russell, Zenil-Ferguson, et al. 2024.*
 
 
