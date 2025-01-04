@@ -16,15 +16,18 @@ redirect: false
     2. Presentación del taller - [Diapositivas](https://docs.google.com/presentation/d/1NSYXXhtQSPCVNwtigfPzb_UkxwMZDnMkeQ_8FHIalz0/edit?usp=sharing)
 
 2. Introducción al pensamiento bayesiano 
-    1. [Tutorial para la clase](./docs/intro_bayesian/intro_bayesiana_pre)
-    2. [Notas completas](./docs/intro_bayesian/intro_bayesiana_pre)
+    1. Clase
+    2. [Bayesiana-notas](./docs/intro_bayesian/intro_bayesiana_pre)
 
 ### Bloque 2 [11:30–14:00, 2.5 hrs]
 
-3. Pensamiento bayesiano aplicado a inferencia filogenética
+3. Modelación e inferencia filogenética
+    1. Clase- Ejemplo con un caracter discreto
+    2. [CTMC-notas](./docs/discrete/ctmc)
 
 4. Introducción a RevBayes
-
+    1. Clase
+    2. [Tutorial RevBayes Mk2](./docs/discrete/ctmc_revbayes)
 
 
 ### Bloque 3 [15:30–18:00, 2.5 hrs]
@@ -50,9 +53,10 @@ redirect: false
     2. [Tutorial: Relojes moleculares & cronogramas](./docs/clocks/Relojes_y_cronogramas)
 
 ### Bloque 3 [15:30–18:00, 2.5 hrs]
-4. Evolución de caracteres discretos
-    1. [Evolución de carateres discretos](./docs/discrete/ctmc)
-    2. [Tutorial RevBayes Mk2] (./docs/discrete/ctmc_revbayes)
+4. Diversificación dependiente de estados
+    1.[Introducción a BiSSE](./docs/discrete/SSEmodels) 
+    2.Visualización de BiSSE
+   
 
 ***
 
@@ -64,7 +68,10 @@ redirect: false
     2. Tutorial
 
 ### Bloque 2 [11:30–14:00, 2.5 hrs]
-2. Diversificación
+2. Diversificación dependiente de estados 
+    1. [Introducción a HiSSE y pruebas de hipótesis](./docs/discrete/SSEmodels_hidden)
+    2. Visualización HiSSE e hipótesis
+
 
 
 ### Bloque 3 [15:30–18:00, 2.5 hrs]

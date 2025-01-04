@@ -1,14 +1,15 @@
 ---
 title: "Cadenas de Markov en Tiempo Continuo (CTMC)"
 layout: home
-nav_order: 5
+nav_order: 2
 index: true
 redirect: false
 parent: Temario
 math: katex
 ---
+Creado por Rosana Zenil-Ferguson (Diciembre 2024)
 
-Las cadenas de Markov en tiempo continuo (CTMC' Continuous-time Markov chains) son procesos estocásticos que nos permiten seguir la evolución de las tasas evolutivas para caracteres discretos y continuos en macroevolución. En este ejemplo, estamos interesados en la evolución entre dos estados azul y rojo, pero si piensan en biogeografía, puedes pensar en las transiciones entre dos regiones A y B. 
+Las cadenas de Markov en tiempo continuo (CTMC- Continuous-time Markov chains) son procesos estocásticos que nos permiten seguir la evolución de las tasas evolutivas para caracteres discretos y continuos en macroevolución. En este ejemplo, estamos interesados en la evolución entre dos estados azul y rojo, pero si piensan en biogeografía, puedes pensar en las transiciones entre dos regiones A y B. 
 
 Las cadenas de Markov usualmente se denotan utilizando la siguiente notación matemática $$\{X(t), t\geq 0 \}$$. En esta notación el proceso estocástico $$X(t)$$ denota el valor de estado o caracter en el tiempo $$t$$ y el tiempo es medido en millones de años. El tiempo es continue y se mide en las longitudes de ramas. El proceso estocástico $$X(t)$$ toma valores en los números naturales $$0,1,2,...$$.  Las CTMC tienen muchas propiedades interesantes, pero la más importante para nosotros en biología es la propiedad Markoviana de la pérdida de memoria, esta propiedad es fácil de entender en palabras "El futuro, sólo depende del presente pero no del pasado". En el uso de las filogenias esto nos ayuda para definir la función de verosimilitud porque para saber que pasa con un clado, lo único que necesitamos conocer es el ancestro común del clado pero ninguno de los otros ancestros. 
 
@@ -45,7 +46,7 @@ $$P(t)=\frac{1}{q_{01}+q_{10}}
       q_{10}-q_{10}e^{-(q_{01}+q_{10})t} & q_{01}+q_{10}e^{-(q_{01}+q_{10})t} \\
   \end{array} } \right)$$
 
-``` r
+```
 prob.mat<-function(q_01,q_10,t){
 exp.val<-exp(-(q_01+q_10)*t)
 probabilities<-1/(q_01+q_10)*matrix(c(q_10+q_01*exp.val, q_10-q_10*exp.val, q_01-q_01*exp.val, q_01+q_10*exp.val),nrow=2)
@@ -65,7 +66,7 @@ Las matrices Q pueden ser tan grandes como las imaginamos! Por ejemplo, para un 
 
 En general calcular la matriz de probabilidades $$P(t)$$ no es tan sencillo como en el caso de una matrix $$Q$$ de 2x2. En general se resuelven numéricamente como se muestra en el siguiente código. 
 
-``` r
+```
 #install.package("expm")
 library("expm")
 (Q.mat<-matrix(c(-0.2,0.3,0.2,-0.3), nrow=2))

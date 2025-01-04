@@ -1,13 +1,13 @@
 ---
 title: "Introducción a la estadística Bayesiana"
 layout: home
-nav_order: 2
+nav_order: 1
 index: true
 redirect: false
 parent: Temario
 math: katex
 ---
-Este tutorial fue creado por Rosana Zenil-Ferguson (Deciembre 2025)
+Este tutorial fue creado por Rosana Zenil-Ferguson (Diciembre 2024) y utiliza [R y Rstudio](https://posit.co/download/rstudio-desktop/). Por favor sigue los pasos para descargar estos software.
 
 # ¿Qué es la estadística Bayesiana?
 
@@ -102,7 +102,7 @@ Ahora asumimos que  $$P(X=1)$$ es un valor llamado $$\theta$$ entre 0 and 1, est
 
 Para modelar este parametro vamos a utilizar una distribución de probabilidad llamada **Beta** (busca en Wikipedia la distribución Beta).Esta distribución de probabilidad es conveniente porque toma valores en el intervalo (0, 1) y tiene muchas formas. Exploremos como se ve una distribución beta
 
-```r
+```
 theta <- .1 # Silvia no es carismática
 # Beta tiene dos parametros a y b. La media de una distribución beta es a/(a+b)
 
@@ -116,7 +116,7 @@ b     <- 5
 prior_distribution (0.1, a, b)
 ```
 
-``` r
+``` 
 # Tidyverse es un paquete que crea y oraniza "tibbles" tablas con un formato más sencillo de organizar
 
 # install.packages(tidyverse) #Instala estos paquetes si no los tienes 
@@ -178,7 +178,8 @@ La probabilidad del número de citas que salieron bien va a ser dependiente del 
 
 $$P(Y=k\lvert \theta)= {N\choose k} \theta^k (1-\theta)^{N-k}$$
 Exploremos esta distribución de probabilidad
-``` r
+
+```
 # install.packages(grid) # Installa esto si no lo tienes.
 library(grid)
 
@@ -213,7 +214,7 @@ $$P(Y=y_1\lvert \theta)\times P(Y=y_2\lvert \theta) = {3\choose 2} \theta^2 (1-\
 $$P(Datos\lvert \theta)= \prod_{y_i=1}^{2}P(Y=y_i\lvert \theta)\approx \theta^3(1-\theta)^3$$
 Si no tenemos información a priori sobre  $$\theta$$, ¿qué diriamos sobre el carisma de Silvia si ya observamos 2 de 3 con la primera persona, y 1 de 3 con la segunda?
 
-``` r
+```
 binomial_likelihood <- function(theta, data,n) {
   
 # `theta` = Probabilidad de que Silvia sea carismática
@@ -247,7 +248,7 @@ $$P(\theta\lvert Datos)\propto \underbrace{\theta^k(1-\theta)^{n-k}}_{\textrm{Ve
 
 Esto se ve feo en ecuación, pero veamos las gráficas.
 
-``` r
+```
 # En este gráfico vamos a comparar la a priori, la verosimilitud, y la posterior. 
 trial_data <- c(1,2)
 number_dates<-3
@@ -294,7 +295,7 @@ Manos a la obra
 
 Vamos a proponer un nuevo parámetro $$\theta_{new}$$ utilizando una distribución uniforme entre 0 y uno
 
-``` r 
+```
 proposalfunction <- function(nvals=1){
   unif_val<-runif(nvals,min=0, max=1)
   return(unif_val)}
@@ -319,7 +320,7 @@ En resúmen el algoritmo de Metropolis-Hastings sigue los siguientes pasos:
 
 Vamos a seleccionar un valor para $$\theta$$ de entrada que lo llamamos  ``startvalue``  y el número de veces que vamos a buscar se llama ``iterations``. El número de iteraciones va a depender de un criterio de convergencia en los pasos 5-7.
 
-``` r 
+```
 a<-2
 b<-5
 
@@ -371,7 +372,7 @@ Hay un paso extra después de calcular estos momios, no vamos a aceptar automát
 
 Para saber si el MCMC llegó al máximo de la distribución posterior, después de varias iteraciones el resultado de las muestras que se aceptan se debe ver como un milpies en un plano (una función que sube y baja todo el tiempo pero se queda horizontal). Si tiene alguna tendencia o si se ve como el perfil de una ciudad, el MCMC no esta muestreando la distribución posterior correctamente.  
 
-``` r
+```
 mcmc <- data.frame(iterations=seq(1,iter+1,1),chain)
 
 # Plot
@@ -393,7 +394,7 @@ Un MCMC lo debemos correr un minimo de dos veces para asegurarnos de que el milp
 Las propuestas para encontrar nuevos valores del parámetro $$\theta_new$$ pueden ser buenas o malas. Como en cualquier experimento de laboratorio, cambiar estas propuestas, o agregar nuevas es necesario para poder mejorar el MCMC. 
 
 
-``` r 
+```
 ## Una nueva propuesta bajo una distribución beta que se ve como U
 proposalfunction2 <- function(nvals=1){
   beta_val<-rbeta(nvals,shape1=0.1 ,shape2=0.1) # 

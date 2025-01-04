@@ -1,7 +1,7 @@
 ---
 title: "Modelos para caracteres discreto en RevBayes"
 layout: home
-nav_order: 6
+nav_order: 3
 index: true
 redirect: false
 parent: Temario
@@ -30,7 +30,7 @@ Vamos a implementar este modelo que es una CMTC como lo describimos en la secci�
  
  1. Empecemos con el número de estados y dos vectores ``moves`` guarda toda las propuestas para mover los parámetros. El vector ``monitors`` guarda las inferencia resultante del MCMC, principalmente la distribución posterior de todos los parámetros.
  
-``` revbayes
+```
 # Numero de estados
 NUM_STATES=2
 
@@ -41,7 +41,7 @@ monitors = VectorMonitors()
 
 2. Lectura de los datos y la filogenia
 
-``` revbayes
+```
 ### Filogenia
 observed_phylogeny <- readTrees("poliniza_arbol.tre")[1]
 
@@ -62,7 +62,7 @@ taxa <- observed_phylogeny.taxa()
 
 Utilizaremos la distribución Gama como *a priori* para los parámetros de transición. 
 
-``` revbayes
+```
 
 shape_pr := 0.5
 rate_pr = observed_phylogeny.treeLength()/50
@@ -81,7 +81,7 @@ Lo que acabamos de hacer se representa en el modelo gráfico de RevBayes como lo
 
 4. Construye correctamente el modelo matemático a través de la Q-matriz
 
-``` revbayes
+```
 
 ### Modelo Mk2 empieza con una matriz llena de zeros
 for (i in 1:2){
@@ -106,7 +106,7 @@ rate_matrix := fnFreeK(q, rescaled=false, matrixExponentialMethod="scalingAndSqu
 
 No conocemos si la raíz es 0 o 1 (insecto o viento) así que necesitamos estimarla. Como estamos en un contexto Bayesiano necesitaremo asumir que las frecuencias de un estado u otro son aleatorias y les asignaremos una distribución *a priori* Dirichlet, que es una distribución multivariada de probabilidad (dos estados con dos frequencias necesitan una distribución que considere los dos valores simultáneamente).
 
-``` revbayes
+```
 root_frequencies ~ dnDirichlet(rep(1,NUM_STATES))
 
 # Agregamos dos propuestas para la el valor de la raiz
@@ -121,7 +121,7 @@ moves.append(mvElementSwapSimplex(root_frequencies, weight=3))
 
 Como lo muestra la imagen anterior por el momento tenemos un gráfico desconectados. Para conectarlos tenemos que unirlos bajo una distribución de probabilidad que se defina en el árbol filogenético. Esta distribución de probabilidad es la que va a calcular internamente la función de verosimilitud incorporando la información de la filogenia.
 
-``` revbayes
+```
 # El modelo Mk2 en la filogenia se llama PhyloCTMC (phylogenetic continuous time markov chain)
 
 ctmc ~ dnPhyloCTMC(Q= rate_matrix, tree=observed_phylogeny, nSites=1, rootFreq=root_frequencies, type="NaturalNumbers")
@@ -133,7 +133,7 @@ ctmc ~ dnPhyloCTMC(Q= rate_matrix, tree=observed_phylogeny, nSites=1, rootFreq=r
 
 Hasta este punto no hemos tomado en cuenta para nada los datos en las puntas del árbol. Pero por supuesto, necesitamos los datos para calcular la verosimilitud. En RevBayes, hacemos esto a través de una función que se llama ``clamp()`` , o en español pinzar. Esto quiere decir que a la distribución de probabilidad ``dnPhyloctmc()`` le vamos a pinzar en un valor observado que son nuestros estados del caracter para cada uno de los taxones observados. 
 
-``` revbayes
+```
 # Pinzamos nuestros datos a la distribucion de probabilidad dnPhyloCTMC
 ctmc.clamp(data)
 ```
@@ -159,7 +159,7 @@ Así como lo describimos en la clase del MCMC, en cada una de estas propuestas s
 
 Este es un paso simple pero importante en RevBayes. En este paso jalamos todo el modelo gráfico y lo ponemos en una "cajita" para utilizarlo en el MCMC
 
-``` revbayes
+```
 # Mymodel es como una caja que guarda todo el objeto que es el modelo.
 mymodel = model(rate_matrix)
 ```
@@ -168,7 +168,7 @@ mymodel = model(rate_matrix)
 
 Los monitores ``monitors`` guardan toda nuestra inferencia, y son la parte importante que necesitamos para analizar los resultados
 
-``` revbayes
+```
 # Los monitores, como su nombre lo dice van dando seguimiento a lo que esta pasando durante el MCMC
 
 # Este monitor va guardando la posterior (el mas importante)
@@ -195,7 +195,7 @@ monitors.append( mnStochasticCharacterMap(ctmc=ctmc,printgen=100,filename="outpu
 4. Corriendo el MCMC
 
 Recuerda siempre correr dos cadenas para comparar la convergencia
-``` revbayes
+```
 #### Corramos el MCMC dos veces
 
 mymcmc = mcmc(mymodel, monitors, moves, nruns=2, moveschedule="random")
@@ -204,7 +204,7 @@ mymcmc.run(50000)
 
 5. Creando resúmenes para mapas estocásticos y reconstrucciones ancestrales
 
-```revbayes
+```
 
 # Con los resultatos ya guardados generemos la reconstruccion ancestral en los nodos
 anc_state_trace = readAncestralStateTrace("output/asr_mk2_polinizador_run_1.log")
