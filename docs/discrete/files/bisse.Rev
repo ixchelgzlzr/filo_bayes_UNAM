@@ -1,0 +1,160 @@
+##############################################################################
+#
+# BiSSE
+#
+# Authors: Rosana Zenil-Ferguson modified from the BiSSE tutorial @RevBayes for Workshop UNAM2025
+# last modified: 01/03/2025
+###############################################################################
+
+
+# Numero de estados
+NUM_STATES=2
+
+# Propuestas (moves), monitores (lo que resulta del MCMC)
+moves = VectorMoves()
+monitors = VectorMonitors()
+
+#########################
+# Leamos la filogenia y los datos
+#########################
+### Filogenia
+observed_phylogeny <- readTrees("poliniza_arbol.tre")[1]
+
+
+## Datos
+## 0 = Insecto
+## 1 = Viento
+data <- readCharacterDataDelimited("poliniza_datos.csv",
+stateLabels=2,
+type="NaturalNumbers",
+delimiter=",",
+header=TRUE)
+
+# Cuantos taxones tenemos?
+taxa <- observed_phylogeny.taxa()
+
+### Cual es la edad de la filogenia?
+root_age <- observed_phylogeny.rootAge()
+
+####################
+# Definiendo todos los parametros #
+####################
+
+#########################################################
+# Tasas de transicion#
+#########################################################
+shape_pr := 0.5
+rate_pr := observed_phylogeny.treeLength()/5 ## Cuantos cambios esperamos?
+
+q_01 ~ dnGamma(shape=shape_pr, rate=rate_pr)
+q_10 ~ dnGamma(shape=shape_pr, rate=rate_pr)
+
+moves.append(mvScale( q_01 weight=2 ))
+moves.append(mvScale( q_10, weight=2 ))
+
+### Modelo Mk2 empieza con una matriz llena de zeros
+for (i in 1:2){
+for (j in 1:2){
+        q[i][j]:= 0.0
+    }
+}
+####
+q[1][2] := q_01
+q[2][1] := q_10
+
+
+# Definir la Q-matriz infinitesimal (la derivada de la probabilidad)
+
+rate_matrix := fnFreeK(q, rescaled=false, matrixExponentialMethod="scalingAndSquaring")
+
+####################
+# Tasas de especiacion y extincion #
+####################
+
+
+### Definimos una a priori log normal donde la media es ln(#especies//2)/edad de la filogenia. Con una varianza H que es amplia
+H = 0.587405
+rate_mean <- ln( ln(103/2.0) / observed_phylogeny.rootAge() )
+rate_sd <- 2*H
+
+for (i in 1:NUM_STATES) {
+    #lognormales de las especiaciones
+log_speciation[i] ~ dnNormal(mean=rate_mean,sd=rate_sd)
+speciation[i] := exp( log_speciation[i] )
+moves.append(mvSlide(log_speciation[i],delta=0.20,tune=true,weight=3.0))
+
+### lognormales de las extinciones
+log_extinction[i] ~ dnNormal(mean=rate_mean,sd=rate_sd)
+extinction[i] := exp( log_extinction[i] )
+moves.append(mvSlide(log_extinction[i],delta=0.20,tune=true,weight=3))
+
+net_diversification[i] := speciation[i] - extinction[i]
+}
+
+#####################################
+# Definiendo las a priori de la raiz
+#####################################
+
+root_frequencies ~ dnDirichlet( rep(1,NUM_STATES) )
+moves.append(mvDirichletSimplex(rate_category_prior,tune=true,weight=2))
+
+### Fraccion del muestreo (menos de 0.5- ser mas critico con los resultados)
+
+rho <- taxa/200
+
+
+####################################################################
+# dnCDBDP= El modelo
+###################################################################
+
+### Here is where I tie speciation, extinction, and Q using a Birth-Death with categories
+bisse ~ dnCDBDP( rootAge = root_age,
+speciationRates   = speciation,
+extinctionRates   = extinction,
+Q                 = rate_matrix,
+pi                = root_frequencies,
+rho               = rho,
+delta             = 1.0,
+condition         = "time" )
+
+### Pinzando los datos- en este caso la filogenia y los datos
+bisse.clamp(observed_phylogeny)
+bisse.clampCharData( data )
+
+
+
+#############
+# Inferencia Bayesiana #
+#############
+
+
+### Guardando todo en una caja ###
+mymodel = model(rate_matrix)
+
+### set up the monitors that will output parameter values to file and screen
+monitors.append(mnModel(filename="output/bisse_pollination.log", printgen=1))
+monitors.append(mnJointConditionalAncestralState(tree=bisse cdbdp=timetree, type="NaturalNumbers", printgen=1000, withTips=true, withStartStates=false, filename="output/anc_states_bisse_pollination.log"))
+monitors.append(mnScreen(printgen=10, q_01, q_10, speciation, extinction))
+
+
+################
+# El MCMC #
+################
+
+### Creando el MCMC
+mymcmc = mcmc(mymodel, monitors, moves, nruns=2, moveschedule="random")
+
+### pre-burnin to tune the proposals 20% of the sample
+#mymcmc.burnin(generations=2000,tuningInterval=100)
+
+### run the MCMC
+mymcmc.run(generations=50000)
+
+
+
+### Opcional reconstruccion ancestral
+###anc_state_trace = readAncestralStateTrace("output/anc_states_bisse_pollination_run_1.log")
+###ancestralStateTree(tree=observed_phylogeny, ancestral_state_trace_vector=anc_state_trace, include_start_states=false, file="output/asr_bisse_polinizador.tree", summary_statistic="MAP", reconstruction="marginal")
+q()
+
+

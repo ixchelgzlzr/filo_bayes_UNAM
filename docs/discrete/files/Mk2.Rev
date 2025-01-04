@@ -112,7 +112,8 @@ mymcmc.run(50000)
 
 # Con los resultatos ya guardados generemos la reconstruccion ancestral en los nodos
 anc_state_trace = readAncestralStateTrace("output/asr_mk2_polinizador_run_1.log")
-ancestralStateTree(observed_phylogeny, anc_state_trace, "output/asr_mk2_polinizador.tree",summary_statistic="mean", reconstruction="marginal")
+
+ancestralStateTree(tree=observed_phylogeny,ancestral_state_trace_vector=anc_state_trace, include_start_states=false, file="output/sr_mk2_polinizador.tree", summary_statistic="MAP", reconstruction="marginal")
 
 # Y un resumen de los mapas estocasticos.
 anc_state_trace = readAncestralStateTrace("output/stochmap_mk2_polinizador_run_1.log")
