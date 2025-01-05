@@ -34,7 +34,7 @@ redirect: false
 ### Bloque 3 [15:30–18:00, 2.5 hrs]
 
 5. Inferencia filogenética a partir de marcadores genéticos
-    1. Clase
+    1. [Diapositivas](https://docs.google.com/presentation/d/17OZ0YG86c8JAAoKvpLAqTq9A3suoe5WjylORK9-jaRw/edit?usp=sharing)
     2. [Tutorial: Análisis estándar con particiones](./docs/partition/Partitioned_tutorial)
 
 
