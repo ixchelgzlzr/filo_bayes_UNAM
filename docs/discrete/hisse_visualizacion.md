@@ -50,7 +50,8 @@ Baja los siguientes archivos
 + [Primera corrida del MCMC](files/hisse_pollination_run_1.log)
 + [Segunda corrida del MCMC](files/hisse_pollination_run_2.log)
 
-```{r, eval=FALSE}
+
+```
 # Agrega to directorio de trabajo
 setwd("~/Dropbox/Teaching/Workshops/UNAM2025/discrete_trait/files")
 
@@ -125,7 +126,6 @@ violin_hidden<- ggplot(hidden_rates,aes(x=rate,y=dens, fill=rate))+
   scale_fill_manual( values = traitcols[1:2])+
   theme_classic()
 violin_hidden
-
 ```
 
 ## Graficando tasas de diversificación
@@ -175,7 +175,6 @@ violin_difference<- ggplot(T_diferencias,aes(x=diferencia,y=dens, fill=diferenci
 
 # Observemos que 0 cruza la diferencia entre las tasas lo que quiere decir que pueden ser iguales
 violin_difference
-
 ```
 
 Formalizando la prueba de hipótesis
@@ -199,6 +198,7 @@ Construimos dos estadísticas de resumen que son las diferencias entre la divers
 
 Si estas diferencias son 0 con alta probabilidad esto significa que hay cambios en el tempo de la diversificación pero se deben a algo más que nosotros no medimos en la filogenia.
 
+
 ```
 # Esta parte se hace con ggplot2
 
@@ -220,14 +220,15 @@ violin_difference
 Formalizando la prueba de hipótesis
 $$ H_0: T_0=0 \textrm{ y } T_1=0$$
 
-```{
+
+```
 # Esta parte se hace con dplyr
 
 cuantiles <- T_diferencias %>% group_by(diferencia)%>%reframe(res=quantile(dens,probs=c(0.025,0.975)))
 cuantiles
 ```
 
-Observamos que el intervalo de credibilidad del 95% de la distribución de $$T_0$$ es (-0.488, -0.214) y el intervalo de credibilidad del 95% de la distribución de $$T_1$$ es (-0.989, -0.321). Cómo 0 **no** pertenece a estos intervalo entonces $$P(H_0\lvert Datos) < 0.05$$ lo que significa que el tempo de la diversificación para A y B es diferente. Este resultado unido al resultado anterior indican que el tempo cambia debido a algo más que nosotros no medimos pero se manifiesta en el árbol. Estos resultados son equivalentes ajustar el modelo de caracter independiente CID y seleccionarlo, indicando que la diversificación es independiente del caracter de interés. 
+Observamos que el intervalo de credibilidad del 95% de la distribución de $$T_0$$ es (-0.488, -0.214) y el intervalo de credibilidad del 95% de la distribución de $$T_1$$ es (-0.989, -0.321). Cómo 0 **no** pertenece a estos intervalo entonces $$P(H_0\lvert Datos)<0.05$$ lo que significa que el tempo de la diversificación para A y B es diferente. Este resultado unido al resultado anterior indican que el tempo cambia debido a algo más que nosotros no medimos pero se manifiesta en el árbol. Estos resultados son equivalentes ajustar el modelo de caracter independiente CID y seleccionarlo, indicando que la diversificación es independiente del caracter de interés. 
 
 
 
@@ -258,7 +259,8 @@ violin_diversification
 ```
 
 Prueba estadística
-```{r, eval=FALSE}
+
+```
 difcols<-c("#1DB32C","#BFEEC3")
 T_diferencia<- data.frame(dens=(bisse$net_diversification.1.-bisse$net_diversification.2.),diferencia=rep("T",each=length(bisse$net_diversification.1.)))
 
@@ -275,4 +277,5 @@ violin_difference
 ## 0 no esta en el intervalo de probabilidad del 95%
 quantile ((bisse$net_diversification.1.-bisse$net_diversification.2.),probs=c(0.025,0.975))
 ```
+
 **¿Què hubieras concluido para BiSSE? ¿Cuál es la mayor falla de este modelo?**
