@@ -44,8 +44,8 @@ library(ggplot2)
 Revisemos la convergencia básica
 
 Baja estos archivos
-+ [Primera corrida del MCMC](files/mk2_polinizador_run_1.log)
-+ [Segunda corrida del MCMC](files/mk2_polinizador_run_2.log)
++ [Primera corrida del MCMC](https://ixchelgzlzr.github.io/filo_bayes_UNAM/docs/discrete/files/mk2_polinizador_run_1.log)
++ [Segunda corrida del MCMC](https://github.com/ixchelgzlzr/filo_bayes_UNAM/blob/main/docs/discrete/files/mk2_polinizador_run_2.log)
 
 ```
 # Agrega to directorio de trabajo
