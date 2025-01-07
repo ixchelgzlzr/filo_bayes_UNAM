@@ -148,73 +148,72 @@ Ya sabemos como calcular la distribución posterior pero ahora necesitamos enfoc
 Si observamos bien, durante la codificación del modelo también especificamos los ``moves`` o propuestas de cómo cambia cada parámetro. 
 
 1. Descripción de las propuestas para los movimientos del MCMC
-
-+ ``mvScale( q_01, weight=2 )`` esta propuesta rescala el valor original de $$q_{01}$$ dos veces durante una iteración
-+ ``mvBetaSimplex(root_frequencies, alpha=0.5, weight=2)`` esta propuesta propone dos valores entre 0 y 1 que suman 1 que representan la frequencia en la que encotraríamos 0 o 1 como valor de la raìz respectivamente. Propone dos veces durante una iteración del MCMC
-+ ``mvElementSwapSimplex(root_frequencies, weight=3)`` esta propuesta intercambia lo que teniamos como frequencias para la raíz. Por ejemplo, si empezamos con frecuencias (0.4, 0.6), elementswap intercambia a (0.6,0.4) representando las frecuencias de los estados 0 y 1 respectivamente.
-
-Así como lo describimos en la clase del MCMC, en cada una de estas propuestas se evaluan los momios, y si estos mejoran y si son mayores que un valor aleatorio entre 0 y 1 se aceptan las propuestas de valores de los parámetros $$q_{01}, q_{10}, root_frequencies$$
-
+    + ``mvScale( q_01, weight=2 )`` esta propuesta rescala el valor original de $$q_{01}$$ dos veces durante una iteración
+    + ``mvBetaSimplex(root_frequencies, alpha=0.5, weight=2)`` esta propuesta propone dos valores entre 0 y 1 que suman 1 que representan la frequencia en la que encotraríamos 0 o 1 como valor de la raìz respectivamente. Propone dos veces durante una iteración del MCMC
+    + ``mvElementSwapSimplex(root_frequencies, weight=3)`` esta propuesta intercambia lo que teniamos como frequencias para la raíz. Por ejemplo, si empezamos con frecuencias (0.4, 0.6), elementswap intercambia a (0.6,0.4) representando las frecuencias de los estados 0 y 1 respectivamente.
+    
+    Así como lo describimos en la clase del MCMC, en cada una de estas propuestas se evaluan los momios, y si estos mejoran y si son mayores que un valor aleatorio entre 0 y 1 se aceptan las propuestas de valores de los parámetros $$q_{01}, q_{10}, root_frequencies$$
+    
 2. Guarda el modelo en una cajita para poderlo utilizar
 
-Este es un paso simple pero importante en RevBayes. En este paso jalamos todo el modelo gráfico y lo ponemos en una "cajita" para utilizarlo en el MCMC
-
-```
-# Mymodel es como una caja que guarda todo el objeto que es el modelo.
-mymodel = model(rate_matrix)
-```
+    Este es un paso simple pero importante en RevBayes. En este paso jalamos todo el modelo gráfico y lo ponemos en una "cajita" para utilizarlo en el MCMC
+    
+    ```
+    # Mymodel es como una caja que guarda todo el objeto que es el modelo.
+    mymodel = model(rate_matrix)
+    ```
 
 3. Creando la inferencia- Los monitores
 
-Los monitores ``monitors`` guardan toda nuestra inferencia, y son la parte importante que necesitamos para analizar los resultados
+    Los monitores ``monitors`` guardan toda nuestra inferencia, y son la parte importante que necesitamos para analizar los resultados
 
-```
-# Los monitores, como su nombre lo dice van dando seguimiento a lo que esta pasando durante el MCMC
+    ```
+    # Los monitores, como su nombre lo dice van dando seguimiento a lo que esta pasando durante el MCMC
 
-# Este monitor va guardando la posterior (el mas importante)
-monitors.append(mnModel(filename="output/mk2_polinizador.log", printgen=1))
+    # Este monitor va guardando la posterior (el mas importante)
+    monitors.append(mnModel(filename="output/mk2_polinizador.log", printgen=1))
 
-##Este monitor imprime en pantalla
-monitors.append(mnScreen(printgen=10,q_01))
+    ##Este monitor imprime en pantalla
+    monitors.append(mnScreen(printgen=10,q_01))
 
-## Este monitor va guardando lo que ocurre en los nodos- la reconstruccion ancestral
-monitors.append(mnJointConditionalAncestralState(filename="output/asr_mk2_polinizador.log",printgen=100,tree=observed_phylogeny,ctmc=ctmc,type="NaturalNumbers"))
+    ## Este monitor va guardando lo que ocurre en los nodos- la reconstruccion ancestral
+    monitors.append(mnJointConditionalAncestralState(filename="output/asr_mk2_polinizador.log",printgen=100,tree=observed_phylogeny,ctmc=ctmc,type="NaturalNumbers"))
 
-## Este monitor va fuardando lo que ocurre en las ramas- el mapa estocastico
+    ## Este monitor va fuardando lo que ocurre en las ramas- el mapa estocastico
 
-monitors.append( mnStochasticCharacterMap(ctmc=ctmc,printgen=100,filename="output/stochmap_mk2_polinizador.log", include_simmap=true))
+    monitors.append( mnStochasticCharacterMap(ctmc=ctmc,printgen=100,filename="output/stochmap_mk2_polinizador.log", include_simmap=true))
 
-```
+    ```
 
-+ ``mnModel`` guarda las muestras de la distribución posterior de todos los parametros en el archivo especificado
-+ ``mnScreen`` imprime en pantalla para que podamos seguir que es lo que esta pasado
-+ ``mnJointConditionalAncestralState`` guarda lo que sucede en los nodos de la filogenia y nos ayuda a hacer la reconstrucción ancestral utilizando la probabilidad posterior marginal (esto es diferente de las reconstrucciones ancestrales en otros softwares)
-+ ``mnStochasticCharacterMap`` guarda lo que sucede en las ramas de la filogénia a traves de mapas estocásticos que se pueden resumir en los pasos siguientes.
+    + ``mnModel`` guarda las muestras de la distribución posterior de todos los parametros en el archivo especificado
+    + ``mnScreen`` imprime en pantalla para que podamos seguir que es lo que esta pasado
+    + ``mnJointConditionalAncestralState`` guarda lo que sucede en los nodos de la filogenia y nos ayuda a hacer la reconstrucción ancestral utilizando la probabilidad posterior marginal (esto es diferente de las reconstrucciones ancestrales en otros softwares)
+    + ``mnStochasticCharacterMap`` guarda lo que sucede en las ramas de la filogénia a traves de mapas estocásticos que se pueden resumir en los pasos siguientes.
 
 
 4. Corriendo el MCMC
 
-Recuerda siempre correr dos cadenas para comparar la convergencia
-```
-#### Corramos el MCMC dos veces
-
-mymcmc = mcmc(mymodel, monitors, moves, nruns=2, moveschedule="random")
-mymcmc.run(50000)
-```
+    Recuerda siempre correr dos cadenas para comparar la convergencia
+    ```
+    #### Corramos el MCMC dos veces
+    
+    mymcmc = mcmc(mymodel, monitors, moves, nruns=2, moveschedule="random")
+    mymcmc.run(50000)
+    ```
 
 5. Creando resúmenes para mapas estocásticos y reconstrucciones ancestrales
 
-```
+    ```
+    # Con los resultatos ya guardados generemos la reconstruccion ancestral en los nodos
+    anc_state_trace = readAncestralStateTrace("output/asr_mk2_polinizador_run_1.log")
+    ancestralStateTree(observed_phylogeny, anc_state_trace, "output/asr_mk2_polinizador.tree",summary_statistic="mean", reconstruction="marginal")
+    
+    # Y un resumen de los mapas estocasticos.
+    anc_state_trace = readAncestralStateTrace("output/stochmap_mk2_polinizador_run_1.log")
+    characterMapTree(observed_phylogeny, anc_state_trace, character_file="output/stochmap_mk2_polinizador.tree", posterior_file="output/posteriorpole.tree", burnin=1000, reconstruction="marginal")
+    
+    ```
 
-# Con los resultatos ya guardados generemos la reconstruccion ancestral en los nodos
-anc_state_trace = readAncestralStateTrace("output/asr_mk2_polinizador_run_1.log")
-ancestralStateTree(observed_phylogeny, anc_state_trace, "output/asr_mk2_polinizador.tree",summary_statistic="mean", reconstruction="marginal")
-
-# Y un resumen de los mapas estocasticos.
-anc_state_trace = readAncestralStateTrace("output/stochmap_mk2_polinizador_run_1.log")
-characterMapTree(observed_phylogeny, anc_state_trace, character_file="output/stochmap_mk2_polinizador.tree", posterior_file="output/posteriorpole.tree", burnin=1000, reconstruction="marginal")
-
-```
 ### Código Revbayes
 
 El código completo lo puedes encontrar [aquí](files/Mk2.Rev) 
