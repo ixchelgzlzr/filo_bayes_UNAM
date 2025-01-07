@@ -66,7 +66,7 @@ redirect: false
 ### Bloque 1 [9:00–11:00, 2 hrs]  
 1. Biogeografía
     1. Clase
-    2. Tutorial
+    2. [Intro a DEC](./docs/biogeo/biogeo_intro)
 
 ### Bloque 2 [11:30–14:00, 2.5 hrs]
 2. Diversificación dependiente de estados 

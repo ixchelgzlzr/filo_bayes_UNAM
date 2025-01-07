@@ -8,7 +8,7 @@ parent: Temario
 math: katex
 ---
 
-Este tutorial fue traducido y modificado a partir del tutorial "Relaxed Clocks & Time Trees" disponible [aquí](https://revbayes.github.io/tutorials/clocks/) y escrito por Tracy A. Heath. 
+Este tutorial fue traducido y modificado por Ixchel González-Ramírez a partir del tutorial "Relaxed Clocks & Time Trees" disponible [aquí](https://revbayes.github.io/tutorials/clocks/) y escrito por **Tracy A. Heath**. 
 
 [DESCARGA LOS DATOS PARA ESTE TUTORIAL](https://downgit.github.io/#/home?url=https://github.com/ixchelgzlzr/filo_bayes_UNAM/blob/main/docs/clocks/files.zip).  
 
