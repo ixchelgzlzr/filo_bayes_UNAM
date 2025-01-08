@@ -1,6 +1,6 @@
 ---
-title: Taller de Filogenética Bayesiana en RevBayes
-subtitle: Impartido en la UNAM - Enero 2025
+title: Filo-Bayes
+subtitle: Un taller de Filogenética Bayesiana en RevBayes - Impartido en la UNAM - Enero 2025
 layout: home
 nav_order: 1
 ---
