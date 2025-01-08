@@ -62,50 +62,11 @@ Y esta variación es una característica generalizada en los datos que incluyen 
 Cuando hacemos inferencias filogenéticas a partir de conjuntos de datos como estos, es necesario que utilicemos 
 modelos que toman en cuenta esta heterogeneidad en la evolución de los sitios. El no hacerlo, puede arrojar estimaciones sesgadas de árboles filogenéticos y otros parámetros de interés.
 
-<!--
-Variation in the evolutionary process across the sites of nucleotide
-sequence alignments is well established, and is an increasingly
-pervasive feature of datasets composed of gene regions sampled from
-multiple loci and/or different genomes. Inference of phylogeny from
-these data demands that we adequately model the underlying process
-heterogeneity; failure to do so can lead to biased estimates of
-phylogeny and other parameters {% cite Brown2007 %}. -->
-
 Para tomar en cuenta la heterogeneidad en los procesos evolutivos necesitamos dividir (_partition_ en inglés) nuestros datos. A esto también se le conoce como "modelos mixtos" o _mixed-models_ ({% cite Ronquist2003 %}), en los que los caracteres (e.g.alineamientos de DNA o caracteres morfológicos) primero se separan en subgrupos que buscan representar la hetereogenidad del proceso que genero tales datos.
 El esquema de división (_partitioning scheme_) es guíado por consideraciones biologicas específicas de los datos que estamos utilizando. Por ejemplo, podríamos querer evaluar la variación en la evolución de dentro de un mismo gen (e.g., entre la región del tallo y del bucle de una sequencia del ribosoma), o entre distintos genes de un alineamiento concatenado (e.g., un alineamiento que incluse multiples loci de distintos genomas). La elección de cómo dividir los datos está a consideración del investigador y varios esquemas de división pueden ser considerados para los datos típicamente usados en inferencia filogenética.
 
-
-<!--Accounting for process heterogeneity involves adopting a partitioned
-data approach (sometimes also called a ‘mixed-model’ approach
-{% cite Ronquist2003 %}), in which the sequence alignment is first parsed into a
-number of data subsets that are intended to capture plausible process
-heterogeneity within the data. The determination of the partitioning
-scheme is guided by biological considerations regarding the dataset at
-hand. For example, we might wish to evaluate possible variation in the
-evolutionary process within a single gene region
-(e.g., between stem and loop regions of
-ribosomal sequences), or among gene regions in a concatenated alignment
-(e.g., comprising multiple nuclear loci
-and/or gene regions sampled from different genomes). The choice of
-partitioning scheme is up to the investigator and many possible
-partitions might be considered for a typical dataset.--> 
-
 En este ejercicio asumiremos que cada subconjunto de datos evolucionó independientemente bajo un modelo GTR + Γ (modelo general de tiempo reversible con variación entre sitios distribuidas de acuerdo a una función Gamma). En este modelo, los datos observados son condicionalmente dependientes de las tasas de sustitución (θ), las frecuencias estacionarias de los nucleotidos (π), y el grado de variación de la distribución Gamma que define las variación entre sitios (α), así como el árbol enraizado en el que evolucionaron (Ψ) incluyendo la longitud de sus ramas.
 Cuando asumimos distintos modelos GTR + Γ para cada subgrupo de datos, estamos utilizando un modelo compuesto, en el que asumimos que todos los sitions tienen una topología en común, así como longitudes de ramas proporcionales, pero a la vez asumimos que cada subgrupo de sitios tiene parámetros del modelo de substitución independientes. Finalmente, llevamos a cabo una simulación de MCMC para aproximar la probabilidad posterior (PP) conjunta de la filogenia y los otros parámetros.
-
-<!--In this exercise, we assume that each data subset evolved under an
-independent general-time reversible model with gamma-distributed rates
-across sites (GTR+$\Gamma$). Under this model the observed data are
-conditionally dependent on the exchangeability rates ($\theta$),
-stationary base frequencies ($\pi$), and the degree of gamma-distributed
-among-site rate variation ($\alpha$), as well as the rooted tree
-($\Psi$) and branch lengths. When we assume different GTR+$\Gamma$
-models for each data subset, this results in a composite model, in which
-all sites are assumed to share a common, rooted tree topology and
-proportional branch lengths, but subsets of sites are assumed to have
-independent substitution model parameters. Finally, we perform a
-separate MCMC simulation to approximate the joint posterior probability
-density of the phylogeny and other parameters.--> 
 
 Para la mayoría de los alineamientos de secuencias de DNA, existen varios (incluso muchos) esquemas de partición de distintos niveles de complejidad que resultan plausibles *a priori*, por lo que es necesario que tengamos una manera objetiva de identificar el esquema de partición que tenga el mejor balance entre obtener una estimación sesgada (cuando se usan modelos sub-parametrizados o simplistas) y el error en la variación de los parámetros (asociado con la sobre-parametrizazion) de los modelos mixtos. Cada vez más, la selección del modelo de partición se basa en factores de Bayes (*Bayes factors*), lo que implica primero calcular la probabilidad marginal bajo cada esquema de partición y luego comparar el cociente de las probabilidades marginales obtenidos para cada partición. La secuencia de análisis que utilizaremos en este tutorial se representa en la Figura 1.
 
@@ -121,13 +82,13 @@ Nuestro primer ejercicio consiste en un análisis multigénico donde todos los g
 
 #### Cargar y preparar los datos
 
-Para comenzar, cargaremos las secuencias utilizando la función 'readDiscreteCharacterData()'.
+Para comenzar, cargaremos las secuencias utilizando la función `readDiscreteCharacterData()`.
 
 ```
 data_cox2 = readDiscreteCharacterData("data/primates_and_galeopterus_cox2.nex")
 data_cytb = readDiscreteCharacterData("data/primates_and_galeopterus_cytb.nex")
 ```
-Dado que estamos asumiendo el mismo modelo para todos los genes, necesitamos combinar los dos conjuntos de datos usando 'concatenar()'
+Dado que estamos asumiendo el mismo modelo para todos los genes, necesitamos combinar los dos conjuntos de datos usando `concatenate()`.
 ```
 data = concatenate( data_cox2, data_cytb )
 ```
