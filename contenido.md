@@ -27,7 +27,6 @@ redirect: false
 
 4. Introducción a RevBayes
     1. [Clase](https://docs.google.com/presentation/d/1wcRMaFKA-cfzOrbq-oF_HUyFt0uoeZvAV4C_bZI4p-I/edit?usp=sharing)
-    2. [Tutorial RevBayes Mk2](./docs/discrete/ctmc_revbayes)
 
 
 ### Bloque 3 [15:30–18:00, 2.5 hrs]
@@ -54,8 +53,9 @@ redirect: false
 
 ### Bloque 3 [15:30–18:00, 2.5 hrs]
 4. Modelos para caracteres discretos y diversificación
-    1. [Visualización resultados Mk2](./docs/discrete/mk2_visualizacion)
-    2. [Introducción a BiSSE](./docs/discrete/SSEmodels) 
+    1. [Tutorial RevBayes Mk2](./docs/discrete/ctmc_revbayes)
+    2. [Visualización resultados Mk2](./docs/discrete/mk2_visualizacion)
+
    
 
 ***
@@ -69,8 +69,9 @@ redirect: false
 
 ### Bloque 2 [11:30–14:00, 2.5 hrs]
 2. Diversificación dependiente de estados 
-    1. [Introducción a HiSSE y pruebas de hipótesis](./docs/discrete/SSEmodels_hidden)
-    2. [Visualización HiSSE e hipótesis](./docs/discrete/hisse_visualizacion)
+    1. [Introducción a BiSSE](./docs/discrete/SSEmodels) 
+    2. [Introducción a HiSSE y pruebas de hipótesis](./docs/discrete/SSEmodels_hidden)
+    3. [Visualización HiSSE e hipótesis](./docs/discrete/hisse_visualizacion)
 
 
 
