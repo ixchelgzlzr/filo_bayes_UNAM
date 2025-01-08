@@ -1,0 +1,303 @@
+---
+title: "Introduccion a estadistica Bayesiana"
+output:
+  html_document: default
+date: "2025-01-07"
+editor_options: 
+  chunk_output_type: console
+---
+Este tutorial fue creado por Rosana Zenil-Ferguson (Diciembre 2024) y utiliza [R y Rstudio](https://posit.co/download/rstudio-desktop/). Por favor sigue los pasos para descargar estos software.
+
+# ¿Qué es la estadística Bayesiana?
+
+La estadística bayesiana es una rama del estudio de la Estadística que se enfoca en la inferencia y pronóstico de la probabilidades de eventos inciertos. El objetivo más importante de la estadística bayesiana es siempre proporcionar una medida de la incertidumbre y no solamente un estimador. Esta idea la discutiremos una y otra vez a través de los ejercicios del taller. 
+
+Existen dos diferencias centrales de la estadística Bayesiana cuando la comparamos con la forma de hacer estadística tradicional (ya sea frecuentista o bajo el método de verosimilitud). Estas diferencias son las siguientes:
+
+
+1. Cómo se miden las probabilidades en Bayesiana es distinto a cómo se define la probabilidad en estadística tradicional.
+
+2.  Los parámetros en estadística Bayesiana son desconocidos pero también son **variables aleatorias**. En estadística tradicional, los parámetros son desconocidos pero son variables fijas. Esta diferencia es esencial. 
+
+
+## Conceptos bayesianos importantes
+
+La estadística bayesiana deriva su nombre del Teorema de Bayes del estudio de la probabilidad. Dados dos eventos $$A$$ and $$B$$, la probabilidad condicional de  $$A$$ **dado** $$B$$ se define como
+
+$$P(A\lvert B)=\frac{P(AB)}{P(B)}$$
+y aplicando dos veces el teorema de Bayes obtenemos que 
+
+$$ P(A\lvert B)=\frac{P(B\lvert A)P(A)}{P(B)}$$
+
+## Ejemplo: El experimento de un reality show "El amor es ciego"
+
+Las citas en línea o a ciegas son difíciles, especialmente si tu personalidad es reservada. Estas citas son especialmente difíciles para los estadísticos bayesianos porque entienden sus probabilidades muy bien. Imaginemos por un momento que vamos a ver un reality show que se llama "El amor es ciego", como estadísticos bayesianos vamos es estimar la probabilidad de que uno de los participantes se enamore y se case. El experimento consiste en poner a una persona, llamada Silvia, en una serie de citas a ciegas hasta que encuentre al amor de su vida y se case. Para lograrlo Silvia debe tener un indice alto de carisma. Como estadísticos, vamos a estimar la probabilidad de que una persona tenga gran carisma. 
+
+
+### Elicitación de la distribución a priori
+
+```{r}
+theta <- .1 # Silvia no es carismática
+# Beta tiene dos parametros a y b. La media de una distribución beta es a/(a+b)
+
+
+prior_distribution<-function(theta, a, b){
+beta_val<-dbeta(theta, a, b)
+return(beta_val)}# Por qué es más grande que uno?
+
+a     <- 2
+b     <- 5
+prior_distribution (0.1, a, b)
+```
+
+``` {r}
+# Tidyverse es un paquete que crea y oraniza "tibbles" tablas con un formato más sencillo de organizar
+
+# install.packages(tidyverse) #Instala estos paquetes si no los tienes 
+
+# ggplot2 paquete para visualizar las figuras
+
+# install.packages(ggplot2) # Instala estos paquetes si no los tienes.
+# install.packages(dplyr) # Instala estos paquetes si no los tienes.
+
+library(tidyverse,quietly=TRUE)
+library(ggplot2,quietly=TRUE)
+library(dplyr,quietly=TRUE)
+
+length <- 1e4
+
+# Creando una tabla de valores a y b para que podamos ver las diferentes formas que crea la distribución Beta
+
+d <-
+  crossing(shape1 = c(.1, 1:4),    
+           shape2 = c(.1, 1:4)) %>%
+  expand(nesting(shape1, shape2), 
+         x = seq(from = 0, to = 1, length.out = length)) %>% 
+  mutate(a     = str_c("a =", shape1),
+         b     = str_c("b =", shape2),
+         group = rep(1:length, each = 25))
+
+head(d) #you can see what is in the table
+
+
+# Graficando las distribuciones beta
+d %>% 
+  ggplot(aes(x = x, group = group)) +
+  
+  geom_line(aes(y = dbeta(x, shape1 = shape1, shape2 = shape2)),
+            color = "hotpink", size = 1.25) +
+  scale_x_continuous(breaks = c(0, .5, 1)) +coord_cartesian(ylim = c(0,3))+
+  labs(x = expression(theta),
+       y = expression(paste("P(",expression(theta)))) +
+  theme(panel.grid = element_blank()) +
+  facet_grid(b~a)
+```
+
+### La función de verosimilitud (likelihood function)
+
+```{r}
+binomial_likelihood <- function(theta, data,n) {
+  
+# `theta` = Probabilidad de que Silvia sea carismática
+# `data`  = Datos como resultaron las citas de Silvia
+  long<-length(theta)
+  z<-rep(0,long)
+  for(i in 1:long){
+  prob.vect<-sapply(data,FUN=dbinom, size=n, prob=theta[i])
+  z[i]<- prod(prob.vect)
+  }
+  return(z)
+}
+
+observed_dates<- c(2,1)
+binomial_likelihood(theta=c(0.1,0.3), data=observed_dates,n=3)
+```
+
+## Inferencia bayesiana: La distribución posterior
+
+
+```{r}
+# En este gráfico vamos a comparar la a priori, la verosimilitud, y la posterior. 
+trial_data <- c(1,2)
+number_dates<-3
+a<-2
+b<-5
+
+d <-
+  tibble(theta0 = seq(from = 0, to = 1, length.out = 100)) %>% 
+  mutate(`Prior (beta)`           = dbeta(theta0, 
+                                          shape1 = a, 
+                                          shape2 = b),
+         `Likelihood (Binomial)` = binomial_likelihood(theta = theta0,                                                      data=trial_data,n=number_dates),
+         `Posterior (beta)`       = dbeta(theta0, 
+                                          shape1 = 4, 
+                                          shape2 = 7))
+
+glimpse(d)
+
+d %>% 
+  gather(key, value, -theta0) %>% 
+  mutate(key = factor(key, levels = c("Prior (beta)", "Likelihood (Binomial)", "Posterior (beta)"))) %>% 
+  
+  ggplot(aes(x = theta0)) +
+  # densities
+  geom_ribbon(aes(ymin = 0, ymax = value),
+              fill = "hotpink") +
+  labs(x = expression(theta),
+       y = NULL) +
+  facet_wrap(~key, scales = "free_y", ncol = 1) +
+  theme(panel.grid = element_blank())
+
+```
+
+
+
+## Inferencia Bayesiana utilizando el algoritmo MCMC
+
+### La propuesta
+
+
+```{r}
+proposalfunction <- function(nvals=1){
+  unif_val<-runif(nvals,min=0, max=1)
+  return(unif_val)}
+# Esta es una propuesta de una distribución uniforme. Selecciona valores aleatorios entre 0 y 1
+```
+
+
+### El algoritmo de Metropolis-Hastings
+
+En resúmen el algoritmo de Metropolis-Hastings sigue los siguientes pasos:
+
+1. Empieza con un valor para $$\theta$$ (``startvalue``) llamado $$\theta_0$$ 
+2. Haz $$\theta_{old}=\theta_0$$
+3. Calcula la distribución posterior $$P(\theta_{old}\lvert Datos)$$
+4. Proponer una distribución aleatoria $$g(\theta)$$ para obtener un nuevo valor $$\theta_new$$
+5. Calcula la distribución posterior $$P(\theta_{new}\lvert Datos)$$
+6. Calcula los momios $$momios=\frac{P(\theta_{new}\lvert Datos)}{P(\theta_{old}\lvert Datos)}$$
+7. Calcula un valor aleatorio $$u$$ entre 0 y 1
+8. Si $$u< momios$$ entonces acepta $$\theta_{new}$$, guárdalo, sino rechaza y no lo guardes.
+9. Si lo aceptas haz $$\theta_{old}=\theta_{new}$$ y vuelve al paso dos hasta acabar las iteraciones. Sino continua al paso dos con el mismo $$\theta_{old}$$ hasta acabar las iteraciones. 
+
+
+```{r}
+a<-2
+b<-5
+
+run_metropolis_MCMC <- function(startvalue, iterations){
+    chain = rep (0,iterations+1)
+    # Empezamos un un startvalue
+    chain[1] = startvalue 
+    for (i in 1:iterations){
+        theta_old<-chain[i]
+# Llamamos a la propuesta, por favor danos un valor de theta nuevo
+        theta_new = proposalfunction(1)
+
+#Calculamos los momios (odds)
+odds = (binomial_likelihood(theta_new,observed_dates,n=3)*prior_distribution(theta_new, a,b))/
+(binomial_likelihood(theta_old,observed_dates,n=3)*prior_distribution(theta_old, a,b)) 
+        
+        if (runif(1) < odds){  # runif(1) genera una uniforme entre 0 y 1, si este valor es más pequeño que los momios entonces vamos a aceptar el nuevo theta
+            chain[i+1] = theta_new
+        }else{ 
+  # Si no rechazamos y nos quedamos con el theta viejo
+            chain[i+1] = theta_old
+        }
+    }
+    return(chain)
+}
+
+
+# Hagamos una corrida y comparemos con tus compañeros
+startvalue = 0.3 # Valor inicial 
+chain = run_metropolis_MCMC(startvalue, 1) # ¿Qué pasó en una iteración?
+chain
+
+startvalue = 0.3 # Ahora corramos 1000 iteraciones
+iter=1000
+chain = run_metropolis_MCMC(startvalue, iter) # 
+head(chain)
+```
+
+### Criterio de aceptación
+
+Para aceptar $$\theta_{new}$$ necesitamos calcular una estadística llamad momios (odds en inglés). Los momios es una razón entre dos probabilidades
+
+$$momios=\frac{P(\theta_{new}\lvert Datos)}{P(\theta_{old}\lvert Datos)}$$
+Si $$\theta_{new}$$ resulta en un valor mejor para la posterior los momios son grandes, pero si resulta en una posterior peor que con el valor de  $$\theta_{old}$$ que tenemos actualmente entonces los momios resultan en algo muy pequeño. 
+
+Hay un paso extra después de calcular estos momios, no vamos a aceptar automáticamente todo (esto se debe a otro problema que discutiremos cuando veamos los resultados del MCMC en nuestros ejemplos siguiente). Vamos a proponer un valor aleatorio entre 0 y 1 llamado $$u$$. Si $$u< momios$$ entonces aceptamos  $$\theta_{new}$$ y si no entonces rechazamos $$\theta_{new}$$.
+
+### Visualizando el resultado del MCMC para encontrar la convergencia
+
+
+```{r}
+mcmc <- data.frame(iterations=seq(1,iter+1,1),chain)
+
+# Plot
+ggplot(mcmc, aes(x=iterations, y=chain)) +
+  geom_line(color="hotpink")+
+  labs(title="MCMC run",x="Iterations", y="Posterior distribution")
+
+hist(chain,col="hotpink")
+
+acceptance = 1-mean(duplicated(chain)) # La proporción de los theta que si fueron aceptados, lo hicimos bien o no?
+acceptance
+```
+
+## Ejercicio extra: Cambiando la propuesta
+
+Las propuestas para encontrar nuevos valores del parámetro $$\theta_new$$ pueden ser buenas o malas. Como en cualquier experimento de laboratorio, cambiar estas propuestas, o agregar nuevas es necesario para poder mejorar el MCMC. 
+
+
+```{r}
+## Una nueva propuesta bajo una distribución beta que se ve como U
+proposalfunction2 <- function(nvals=1){
+  beta_val<-rbeta(nvals,shape1=0.1 ,shape2=0.1) # 
+  return(beta_val)}
+  
+a<-2
+b<-5
+
+run_metropolis_MCMC2 <- function(startvalue, iterations){
+    chain = rep (0,iterations+1)
+    chain[1] = startvalue # Valor inicial del parametro
+    for (i in 1:iterations){
+        theta_old<-chain[i]
+        theta_new = proposalfunction2(1) # Nueva propuesta de una beta
+      
+        odds = (binomial_likelihood(theta_new,observed_dates,n=3)*prior_distribution(theta_new, a,b))/(binomial_likelihood(theta_old,observed_dates,n=3)*prior_distribution(theta_old, a,b)) 
+        
+        if (runif(1) < odds){  # La parte de la aceptación 
+            chain[i+1] = theta_new
+        }else{ # La parte del rechazo
+            chain[i+1] = theta_old
+        }
+    }
+    return(chain)
+}
+
+startvalue = 0.3 # Valor inicial 
+iter=1000
+chain = run_metropolis_MCMC2(startvalue, iter) # Do 10,000 steps
+
+mcmc <- data.frame(iterations=seq(1,iter+1,1),chain)
+
+# Plot
+ggplot(mcmc, aes(x=iterations, y=chain)) +
+  geom_line(color="hotpink")+
+  labs(title="MCMC run",x="Iterations", y="Posterior distribution")
+
+hist(chain,col="hotpink")
+acceptance = 1-mean(duplicated(chain)) # Proporción de aceptación. Cómo lo hicimos_
+acceptance
+```
+
+## Referencias
+
+Muchas de estas ideas y código proviene de los siguientes recursos
+
+1. Doing Bayesian Data Analysis in brms and the tidyverse by A Solomon Kurz https://bookdown.org/ajkurz/DBDA_recoded/
+
+2. Dating for Bayesians: Here's How To Use Statistics To Improve Your Love Life by
+Andy Kiersz https://www.businessinsider.com/dating-for-bayesians-heres-how-to-use-statistics-to-improve-your-love-life-2013-11
