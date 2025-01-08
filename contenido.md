@@ -22,7 +22,7 @@ redirect: false
 ### Bloque 2 [11:30–14:00, 2.5 hrs]
 
 3. Modelación e inferencia filogenética
-    1. [Diapositivas clase](https://github.com/ixchelgzlzr/filo_bayes_UNAM/blob/main/docs/discrete/files/ctmc_diapositivas.pdf)
+    1. [Diapositivas clase](https://github.com/ixchelgzlzr/filo_bayes_UNAM/blob/main/docs/discrete/files/ctmc_diapositivasv2.pdf)
     2. [CTMC-notas](./docs/discrete/ctmc)
 
 4. Introducción a RevBayes
