@@ -42,7 +42,7 @@ redirect: false
 
 ### Bloque 1 [9:00–11:00, 2 hrs]  
 
-1. **Actividad**: Diapositivas sobre preguntas de investigación que se pueden abordar en contexto filogenético.
+1. Continuación del tutorial o **Actividad**: Diapositivas sobre preguntas de investigación que se pueden abordar en contexto filogenético. (El dia 1 fue largo entonces vamos a continuar con contenido).
 
 2. Panel
 
