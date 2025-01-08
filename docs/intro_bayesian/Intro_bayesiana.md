@@ -47,11 +47,11 @@ Las citas en línea o a ciegas son difíciles, especialmente si tu personalidad 
 
 Defininamos dos eventos a los que les vamos a medir la probabilidad
 
-1. $$A$$ = Es el evento que representa que Silvia es muy carismática
+1. $$A$$ = Es el evento que representa que Silvia es carismática
 
 2. $$B$$  = Es el evento que representa cuantas de las citas a ciegas de Silvia salieron bien.
 
-### Definición de probabilidad a priori
+### Definición de probabilidad *a priori*
 
 Con estos dos eventos se puede caracterizar este reality show. Como expectadores y estadísticos nosotros podemos definir de entrada algunas probabilidades. Por ejemplo, en el primer capítulo, se hace la introducción de Silvia y de entrada no sabemos mucho de Silvia. Dos decisiones que podemos tomar
 
@@ -59,7 +59,7 @@ Con estos dos eventos se puede caracterizar este reality show. Como expectadores
 
 2. $$P(A)=0.1$$ porque Silvia dijo en su introducción "no me gustan los perros" y entonces decidimos que Silvia tiene una probabilidad bajita de ser carismática 
 
-Estos ejemplos de decisiones sin antes de ver el resultado de ninguna de las citas se llama **probabilidad *a priori*. ** La probabilidad a priori es un paso necesario de la estadística bayesiana que refleja nuestras creencias y es subjetiva, puede ser informativa (conoces a Silvia y sabes que es buena persona), o no informativa (50-50 a que Silvia es buena persona). 
+Estos ejemplos de decisiones sin antes de ver el resultado de ninguna de las citas se llama probabilidad *a priori*. La probabilidad a priori es un paso necesario de la estadística bayesiana que refleja nuestras creencias y es subjetiva, puede ser informativa (conoces a Silvia y sabes que es buena persona), o no informativa (50-50 a que Silvia es buena persona). 
 
 ### El objetivo final: $$P(A\lvert B)$$
 
@@ -71,7 +71,7 @@ En realidad lo que nos interesa como estadísticos bayesianos es saber el result
 
 Lo más sencillo es pensar el probabilidad siguiente:
 
-$$P(B\lvert A)$$: Dado que conocemos el carisma de Silvia, la probabilidad de la cita es...
+$$P(B\lvert A)$$: La probabilidad de que las citas salgan bien **dado** que conocemos el carisma de Silvia.
 
 Esta segunda probabilidad condicional $$P(B\lvert A)$$ es muchísimo más sencilla de entender y de pensar. Afortunadamente el teorema de Bayes liga esta probabilidad más sencilla a la más difícil 
 
@@ -92,7 +92,7 @@ $$A$$: El carísma de Silvia.
 $$X$$: variable aleatoria (una función) que se define como
 
 $$X= \begin{cases}
-      0 & \textrm{cuando } A^C  \textrm{ Silvia no tiene carisma}\lvert 
+      0 & \textrm{cuando } A^C  \textrm{ Silvia no tiene carisma} \\ 
       1 & \textrm{cuando } A  \textrm{ Silvia tiene carisma}
     \end{cases}$$
 

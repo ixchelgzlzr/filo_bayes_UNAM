@@ -16,13 +16,13 @@ redirect: false
     2. Presentación del taller - [Diapositivas](https://docs.google.com/presentation/d/1NSYXXhtQSPCVNwtigfPzb_UkxwMZDnMkeQ_8FHIalz0/edit?usp=sharing)
 
 2. Introducción al pensamiento bayesiano 
-    1. Clase
+    1. [Diapositivas clase](https://github.com/ixchelgzlzr/filo_bayes_UNAM/blob/main/docs/intro_bayesian/files/Inferencia_bayesiana_slides.pdf)
     2. [Bayesiana-notas](./docs/intro_bayesian/Intro_bayesiana)
 
 ### Bloque 2 [11:30–14:00, 2.5 hrs]
 
 3. Modelación e inferencia filogenética
-    1. Clase- Ejemplo con un caracter discreto
+    1. [Diapositivas clase](https://github.com/ixchelgzlzr/filo_bayes_UNAM/blob/main/docs/discrete/files/ctmc_diapositivas.pdf)
     2. [CTMC-notas](./docs/discrete/ctmc)
 
 4. Introducción a RevBayes
