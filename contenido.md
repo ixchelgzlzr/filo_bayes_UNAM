@@ -41,8 +41,8 @@ redirect: false
 ## Día 2---Jueves 9 de enero
 
 ### Bloque 1 [9:00–11:00, 2 hrs]  
-
-1.[Tutorial: Análisis estándar con particiones](./docs/partition/Partitioned_tutorial)
+1. [Tutorial: Inferencia filogenética simple](./docs/simple/simple_molecular)
+2. [Tutorial: Análisis estándar con particiones](./docs/partition/Partitioned_tutorial)
 
 ### Bloque 2 [11:30–14:00, 2.5 hrs]
 2. Estimación de tiempos de divergencia
