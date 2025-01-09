@@ -19,128 +19,124 @@ Para este tutorial vamos a ajustar un modelo para un caracter discreto. El carac
  
  + Árbol filogenético- [Filogenia](files/poliniza_arbol.tre)
  
- ## El modelo
  
- El modelo en un gráfico de círculos y flecha se ve así
+## El modelo
+ 
+El modelo en un gráfico de círculos y flecha se ve así
 ![](images/themodel.png)
 
 Vamos a implementar este modelo que es una CMTC como lo describimos en la sección anterior utilizando estadística Bayesiana en RevBayes. Recuerda que en Bayesiana asumimos que los parámetros $$q_{01}$$ y $$q_{10}$$ son desconocidos pero son variables aleatorias, lo que nos interesa es observar su distribución posterior para poder argumentar que tan rápido o lento ha sido la evolución de la polinización y como cambio a través del árbol filogenético.
  
- ## Código de RevBayes
+
+## Código de RevBayes
  
  1. Empecemos con el número de estados y dos vectores ``moves`` guarda toda las propuestas para mover los parámetros. El vector ``monitors`` guarda las inferencia resultante del MCMC, principalmente la distribución posterior de todos los parámetros.
  
-```
-# Numero de estados
-NUM_STATES=2
-
-# Propuestas (moves), monitores (lo que resulta del MCMC)
-moves = VectorMoves()
-monitors = VectorMonitors()
-```
+    ```
+    # Numero de estados
+    NUM_STATES=2
+    
+    # Propuestas (moves), monitores (lo que resulta del MCMC)
+    moves = VectorMoves()
+    monitors = VectorMonitors()
+    ```
 
 2. Lectura de los datos y la filogenia
 
-```
-### Filogenia
-observed_phylogeny <- readTrees("poliniza_arbol.tre")[1]
+    ```
+    ### Filogenia
+    observed_phylogeny <- readTrees("poliniza_arbol.tre")[1]
 
 
-## Datos
-## 0 = Insecto
-## 1 = Viento
-data <- readCharacterDataDelimited("poliniza_datos.csv",
-stateLabels=2,
-type="NaturalNumbers",
-delimiter=",",
-header=TRUE)
-
-taxa <- observed_phylogeny.taxa()
-```
+    ## Datos
+    ## 0 = Insecto
+    ## 1 = Viento
+    data <- readCharacterDataDelimited("poliniza_datos.csv",
+    stateLabels=2,
+    type="NaturalNumbers",
+    delimiter=",",
+    header=TRUE)
+    
+    taxa <- observed_phylogeny.taxa()
+    ```
 
 3. Distribuciones *a priori* de los parámetros
 
-Utilizaremos la distribución Gama como *a priori* para los parámetros de transición. 
-
-```
-
-shape_pr := 0.5
-rate_pr = observed_phylogeny.treeLength()/50
-
-q_01 ~ dnGamma(shape=shape_pr, rate=rate_pr) ### Insecto a Viento
-q_10 ~ dnGamma(shape=shape_pr, rate=rate_pr) ### Viento a Insecto
-
-# En el vector moves vamos guardando las propuestas
-moves.append(mvScale( q_01, weight=2 ))
-moves.append(mvScale( q_10, weight=2 ))
-
-```
-Lo que acabamos de hacer se representa en el modelo gráfico de RevBayes como lo siguiente
-
-![](images/prior.png)
+   Utilizaremos la distribución Gama como *a priori* para los parámetros de transición. 
+   
+   ```
+   shape_pr := 0.5
+   rate_pr = observed_phylogeny.treeLength()/50
+   
+   q_01 ~ dnGamma(shape=shape_pr, rate=rate_pr) ### Insecto a Viento
+   q_10 ~ dnGamma(shape=shape_pr, rate=rate_pr) ### Viento a Insecto
+   
+   # En el vector moves vamos guardando las propuestas
+   moves.append(mvScale( q_01, weight=2 ))
+   moves.append(mvScale( q_10, weight=2 ))
+   ```
+   Lo que acabamos de hacer se representa en el modelo gráfico de RevBayes como lo siguiente
+    
+   ![](images/prior.png)
 
 4. Construye correctamente el modelo matemático a través de la Q-matriz
 
-```
-
-### Modelo Mk2 empieza con una matriz llena de zeros
-for (i in 1:2){
-for (j in 1:2){
-        q[i][j]:= 0.0
-    }
-}
-####
-q[1][2] := q_01
-q[2][1] := q_10
-
-
-# Definir la Q-matriz infinitesimal (la derivada de la probabilidad)
-
-rate_matrix := fnFreeK(q, rescaled=false, matrixExponentialMethod="scalingAndSquaring")
-
-```
-
-![](images/qmatrixmodel.png)
-
+   ```
+   ### Modelo Mk2 empieza con una matriz llena de zeros
+   for (i in 1:2){
+   for (j in 1:2){
+          q[i][j]:= 0.0
+      }
+   }
+   ####
+   q[1][2] := q_01
+   q[2][1] := q_10
+   
+   # Definir la Q-matriz infinitesimal (la derivada de la probabilidad)
+   
+   rate_matrix := fnFreeK(q, rescaled=false, matrixExponentialMethod="scalingAndSquaring")
+   ```
+   
+   ![](images/qmatrixmodel.png)
+   
 5. Estimación del valor de la raíz
 
-No conocemos si la raíz es 0 o 1 (insecto o viento) así que necesitamos estimarla. Como estamos en un contexto Bayesiano necesitaremo asumir que las frecuencias de un estado u otro son aleatorias y les asignaremos una distribución *a priori* Dirichlet, que es una distribución multivariada de probabilidad (dos estados con dos frequencias necesitan una distribución que considere los dos valores simultáneamente).
-
-```
-root_frequencies ~ dnDirichlet(rep(1,NUM_STATES))
-
-# Agregamos dos propuestas para la el valor de la raiz
-
-moves.append(mvBetaSimplex(root_frequencies, alpha=0.5, weight=2))
-
-moves.append(mvElementSwapSimplex(root_frequencies, weight=3))
-```
-![](images/root.png)
-
+    No conocemos si la raíz es 0 o 1 (insecto o viento) así que necesitamos estimarla. Como estamos en un contexto Bayesiano necesitaremo asumir que las frecuencias de un estado u otro son aleatorias y les asignaremos una distribución *a priori* Dirichlet, que es una distribución multivariada de probabilidad (dos estados con dos frequencias necesitan una distribución que considere los dos valores simultáneamente).
+    
+   ```
+   root_frequencies ~ dnDirichlet(rep(1,NUM_STATES))
+   
+   # Agregamos dos propuestas para la el valor de la raiz
+   
+    moves.append(mvBetaSimplex(root_frequencies, alpha=0.5, weight=2))
+    
+    moves.append(mvElementSwapSimplex(root_frequencies, weight=3))
+   ```
+   ![](images/root.png)
+   
 6. Paso final para definir el modelo Mk2
-
-Como lo muestra la imagen anterior por el momento tenemos un gráfico desconectados. Para conectarlos tenemos que unirlos bajo una distribución de probabilidad que se defina en el árbol filogenético. Esta distribución de probabilidad es la que va a calcular internamente la función de verosimilitud incorporando la información de la filogenia.
-
-```
-# El modelo Mk2 en la filogenia se llama PhyloCTMC (phylogenetic continuous time markov chain)
-
-ctmc ~ dnPhyloCTMC(Q= rate_matrix, tree=observed_phylogeny, nSites=1, rootFreq=root_frequencies, type="NaturalNumbers")
-```
-![](images/ctmc.png)
-
-
+    
+   Como lo muestra la imagen anterior por el momento tenemos un gráfico desconectados. Para conectarlos tenemos que unirlos bajo una distribución de probabilidad que se defina en el árbol filogenético. Esta distribución de probabilidad es la que va a calcular internamente la función de verosimilitud incorporando la información de la filogenia.
+   
+   ```
+   # El modelo Mk2 en la filogenia se llama PhyloCTMC (phylogenetic continuous time markov chain)
+    
+   ctmc ~ dnPhyloCTMC(Q= rate_matrix, tree=observed_phylogeny, nSites=1, rootFreq=root_frequencies, type="NaturalNumbers")
+   ```
+   ![](images/ctmc.png)
+   
 7. Cálculo de la función de verosimilitud
 
-Hasta este punto no hemos tomado en cuenta para nada los datos en las puntas del árbol. Pero por supuesto, necesitamos los datos para calcular la verosimilitud. En RevBayes, hacemos esto a través de una función que se llama ``clamp()`` , o en español pinzar. Esto quiere decir que a la distribución de probabilidad ``dnPhyloctmc()`` le vamos a pinzar en un valor observado que son nuestros estados del caracter para cada uno de los taxones observados. 
+    Hasta este punto no hemos tomado en cuenta para nada los datos en las puntas del árbol. Pero por supuesto, necesitamos los datos para calcular la verosimilitud. En RevBayes, hacemos esto a través de una función que se llama ``clamp()`` , o en español pinzar. Esto quiere decir que a la distribución de probabilidad ``dnPhyloctmc()`` le vamos a pinzar en un valor observado que son nuestros estados del caracter para cada uno de los taxones observados. 
 
-```
-# Pinzamos nuestros datos a la distribucion de probabilidad dnPhyloCTMC
-ctmc.clamp(data)
-```
-![](images/clamp.png)
-
-Una vez que hemos pinzado los datos, lo que generamos es la **distribución posterior del modelo Mk2** y podemos realizar inferencia Bayesiana sobre este objeto
-
+   ```
+    # Pinzamos nuestros datos a la distribucion de probabilidad dnPhyloCTMC
+    ctmc.clamp(data)
+    ```
+    ![](images/clamp.png)
+    
+    Una vez que hemos pinzado los datos, lo que generamos es la **distribución posterior del modelo Mk2** y podemos realizar inferencia Bayesiana sobre este objeto
+    
 ## Inferencia Bayesiana sobre el modelo
 
 Ya sabemos como calcular la distribución posterior pero ahora necesitamos enfocarnos en el MCMC para obtener muestras de la distribución posterior de nuestros parámetros. 
