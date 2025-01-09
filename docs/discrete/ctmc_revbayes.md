@@ -48,13 +48,13 @@ Vamos a implementar este modelo que es una CMTC como lo describimos en la secci√
 
     ```
     ### Filogenia
-    observed_phylogeny <- readTrees("poliniza_arbol.tre")[1]
+    observed_phylogeny <- readTrees("data/poliniza_arbol.tre")[1]
 
 
     ## Datos
     ## 0 = Insecto
     ## 1 = Viento
-    data <- readCharacterDataDelimited("poliniza_datos.csv",
+    data <- readCharacterDataDelimited("data/poliniza_datos.csv",
     stateLabels=2,
     type="NaturalNumbers",
     delimiter=",",
