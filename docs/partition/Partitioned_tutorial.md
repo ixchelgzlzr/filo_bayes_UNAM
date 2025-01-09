@@ -2,7 +2,7 @@
 title: Análisis con particiones
 layout: home
 subtitle: Inferencia estándar de un árbol filogenético con RevBayes
-nav_order: 5
+nav_order: 6
 index: true
 redirect: false
 parent: Temario

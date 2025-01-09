@@ -1,7 +1,7 @@
 ---
-title: Phylogenetic inference of nucleotide data using RevBayes
+title: Inferencia simple
 layout: home
-nav_order: 6
+nav_order: 5
 index: true
 redirect: false
 parent: Temario
@@ -12,7 +12,6 @@ Este tutorial fue traducido y modificado por Ixchel González-Ramírez a partir 
 
 ****
 
-{% section Overview %}
  
 En este tutorial vamos a demostrar como hacer análisis usando modelos de sustitución de nucleótidos comunes. Los modelos de sustitución que utilizamos en evolución molecular son modelos de tiempo continuo de Markov, los cuales se caracterizan por la matriz de tasas instantáneas, **Q**:
 
@@ -37,8 +36,7 @@ p_{TA}(t) & p_{TC}(t) & p_{TG}(t) & p_{TT}(t)
 
 Cada uno de los modelos de sustitucioen conocidos (e.g., HKY o GTR) tienen su propia matriz de tasas instantáneas, $$Q$$.
 
-En este tutorial vamos a hacer una inferencia filogenética bajo cuatro modelos comunes de evolución de DNA: JC, GTR, GTR+Gamma and
-GTR+Gamma+I. Para todos estos modelos de sustitución, configuraremos un análisis de MCMC para estimar la filogenia y otros parámetros del modelo. 
+En este tutorial vamos a hacer una inferencia filogenética bajo dos modelos comunes de evolución de DNA: JC, y GTR. Para ambos modelos de sustitución, configuraremos un análisis de MCMC para estimar la filogenia y otros parámetros del modelo. 
 
 {% table tab_subst_models %}
 {% tabcaption %}

@@ -1,7 +1,7 @@
 ---
 title: "Modelos para caracteres discreto en RevBayes"
 layout: home
-nav_order: 3
+nav_order: 8
 index: true
 redirect: false
 parent: Temario
