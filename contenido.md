@@ -42,17 +42,15 @@ redirect: false
 
 ### Bloque 1 [9:00–11:00, 2 hrs]  
 
-1. Continuación del tutorial o **Actividad**: Diapositivas sobre preguntas de investigación que se pueden abordar en contexto filogenético. (El dia 1 fue largo entonces vamos a continuar con contenido).
-
-2. Panel
+1.[Tutorial: Análisis estándar con particiones](./docs/partition/Partitioned_tutorial)
 
 ### Bloque 2 [11:30–14:00, 2.5 hrs]
-3. Estimación de tiempos de divergencia
+2. Estimación de tiempos de divergencia
     1. Clase
     2. [Tutorial: Relojes moleculares & cronogramas](./docs/clocks/Relojes_y_cronogramas)
 
 ### Bloque 3 [15:30–18:00, 2.5 hrs]
-4. Modelos para caracteres discretos y diversificación
+3. Modelos para caracteres discretos y diversificación
     1. [Tutorial RevBayes Mk2](./docs/discrete/ctmc_revbayes)
     2. [Visualización resultados Mk2](./docs/discrete/mk2_visualizacion)
 
