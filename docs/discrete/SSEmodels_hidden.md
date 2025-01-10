@@ -92,7 +92,7 @@ Para probar esta hipótesis vamos a seguir los siguientes pasos:
 
 Lo mejor de tener un enfoque bayesiano es que sólo necesitamos hacer HiSSE para concluir que modelo SSE es el correcto. 
 
-![](images/hisse_results.png)
+![](images/hisse_resultsv2.png)
 *Figura 4. Observa los posibles resultados de los parámetros de diversificación neta del HiSSE en RevBayes. El traslape de las probabilidades posteriores de los parámetros de diversificación neta graficadas como violines indican cuál modelo de diversificación siguen tus datos.(Figura creada por Dr. Jenna McCullough)*
 
 
