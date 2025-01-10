@@ -1,0 +1,88 @@
+#### Multiple extirpation rates #####
+er_base_sd <- 0.1
+er_base_mean <- ln(abs(1.0)) - 0.5 * er_base_sd^2
+
+er_base ~ dnLognormal(er_base_mean, er_base_sd)
+er_base.setValue(0.01)
+mv[mvi++] = mvScale(er_base, weight=1)
+
+for (i in 1:n_areas) {
+    for (j in 1: n_areas) {
+        er_bg[i][j] <- abs(0)
+    er_bg[i][i] := er_base
+    }
+}
+
+# clock
+clock_bg ~ dnLoguniform(min = 0.001, max=10 )
+clock_bg.setValue(1e-2)
+mv[mvi++] = mvScale(clock_bg, lambda=0.2, weight=5)
+
+ldd ~ dnBeta(1.1,20)
+ldd.setValue(0.1)
+
+if(!use_epochs) {
+for (i in 1:n_areas) {
+   for (j in 1:n_areas) {
+    if (connectivity_bg[1][i][j] == 1.0) {dr_bg[1][i][j] <- abs(1)} else {dr_bg[1][i][j] := ldd
+mv[mvi++] = mvSlide(ldd, weight=1, delta=0.2)
+        }
+    }
+}
+
+
+Q_DEC := fnDECRateMatrix(dispersalRates=dr_bg[1],
+                                extirpationRates=er_bg,
+                                maxRangeSize=max_areas,
+                                nullRange="Exclude")
+}
+##
+
+if(use_epochs) { 
+for (k in 1:n_bg_epochs) {
+    for (i in 1:n_areas) {
+        for (j in 1:n_areas) {
+            if (connectivity_bg[k][i][j] == 1.0 || use_epochs == false) {dr_bg[k][i][j] <- abs(1)} else {dr_bg[k][i][j] := ldd
+mv[mvi++] = mvSlide(ldd, weight=10, delta=0.2)}
+        }
+    }
+
+    Q_DEC[k] := fnDECRateMatrix(dispersalRates=dr_bg[k],
+                                extirpationRates=er_bg,
+                                maxRangeSize=max_areas,
+                                nullRange="Exclude")
+}
+
+bg_times[1] ~ dnUniform(140,150)
+bg_times[2] ~ dnUniform(60,70)
+bg_times[3] <- 0.0
+
+Q_DEC_epoch := fnEpoch( Q_DEC, bg_times, rep(1, n_bg_epochs) )
+}
+
+# clado probs
+clado_event_types = ["s","a"]
+p_sympatry ~ dnBeta(0.1,1)
+p_sympatry.setValue(0.15)
+mv[mvi++] = mvSlide(p_sympatry, weight=2, delta=0.2)
+p_allopatry := abs(1.0 - p_sympatry)
+clado_event_probs := simplex( p_sympatry, p_allopatry )
+P_DEC := fnDECCladoProbs(eventProbs= clado_event_probs,
+                              eventTypes=clado_event_types,
+                              numCharacters= n_areas,
+                              maxRangeSize=max_areas)
+
+# root freqs
+rf_bg_raw <- rep(1, n_states)
+rf_bg <- simplex(rf_bg_raw)
+
+# If the tree topology is not fixed, the MCMC chain will sample from the posterior sample of trees.
+if(!fixed) fbd_tree ~ dnEmpiricalTree(treetrace)
+if(!fixed) mv[mvi++] = mvEmpiricalTree(fbd_tree, weight=1, metropolisHastings=false)
+
+if(!use_epochs) m_bg ~ dnPhyloCTMCClado(tree = fbd_tree, Q = Q_DEC, rootFrequencies=rf_bg, cladoProbs=P_DEC, branchRates=clock_bg, nSites=1, type="NaturalNumbers")
+if(use_epochs)  m_bg ~ dnPhyloCTMCClado(tree = fbd_tree, Q = Q_DEC_epoch, rootFrequencies=rf_bg, cladoProbs=P_DEC, branchRates=clock_bg, nSites=1, type="NaturalNumbers")
+
+m_bg.clamp(dat_bg_n)
+
+

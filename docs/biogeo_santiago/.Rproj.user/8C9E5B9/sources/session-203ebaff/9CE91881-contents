@@ -1,0 +1,641 @@
+---
+title: Dispersión, Extinción, Cladogénesis
+layout: home
+nav_order: 6
+index: true
+redirect: false
+parent: Temario
+math: katex
+---
+
+Este tutorial fue traducido y modificado por Santiago Ramírez-Barahona e Ixchel González-Ramírez, a partir del tutorial DEC disponible [aquí](https://github.com/spiritu-santi/DEC_tutorial) y de [aquí](https://revbayes.github.io/tutorials/biogeo/biogeo_intro.html) y escrito por **Michael J. Landis** y **Sarah K. Swiston**.
+
+[DESCARGA LOS DATOS PARA ESTE TUTORIAL](https://github.com/spiritu-santi/Tutorial-DEC/tree/main/data).  
+
+****
+
+# Introducción  
+Muchos procesos evolutivos fundamentales, como la adaptación, la especiación y la extinción, operan en un contexto espacial. Cuando el aspecto histórico de este contexto espacial no se puede observar directamente, como suele ser el caso, se puede aplicar inferencia biogeográfica para estimar las áreas de distribución de las especies ancestrales. Esto funciona aprovechando la información filogenética, molecular y geográfica para modelar las distribuciones de las especies como resultado de los procesos biogeográficos. La mejor manera de modelar estos procesos requiere ciertas consideraciones especiales, como por ejemplo, cómo se heredan las áreas de distribución después de los eventos de especiación, cómo los eventos geológicos pueden influir en las tasas de dispersión y qué factores afectan las tasas de dispersión y extirpación. Un desafío técnico importante para modelar la evolución de las áreas de distribución es cómo traducir estos procesos naturales en procesos estocásticos que sigan siendo manejables para la inferencia. Este tutorial proporciona una breve introducción a algunos de estos modelos y luego describe cómo realizar inferencia bayesiana de biogeografía histórica utilizando un modelo de Dispersión-Extinción-Cladogénesis (DEC) en RevBayes.  
+
+Entre las cuestiones centrales que se exploran en biología, se encuentran aquellas que buscan contestar ¿qué crece dónde y porqué? Saber cómo es que las especies llegaron a estar donde están, y porqué no están en otro lado, es una de las preguntas centrales de la biogeografía.  Mediante la construcción y aplicación de modelos bioegográficos *REF*, podemos inferir no sólo los estados (áreas) ancestrales de los linajes vivientes (¿y extintos?), sino conocer los eventos que dieron lugar a estas áreas y a los patrones actuales de distribución.  
+
+#Descripción general del modelo de dispersión-extinción-cladogénesis
+El proceso de dispersión-extinción-cladogénesis (DEC) modela la evolución del rango de los linajes como un proceso de cambio discreto (Ree et al., 2005; Ree & Smith, 2008). Hay tres componentes clave para entender el modelo DEC: el rango como caracter, evolución anagenética del rango y evolución cladogenética del rango (Fig. 1).
+
+![fig 1](figures/fig_range_evol_events.png)
+**Figura 1.** Esquema del comportamiento del modelo DEC. Se muestran dos eventos anagenéticos (a,b) y cinco eventos cladogenéticos (c–g) para un sistema con dos áreas. Las áreas están sombreadas cuando están habitadas por un linaje determinado y se dejan en blanco cuando están deshabitadas. El tiempo avanza de izquierda a derecha. (a) Dispersión: se añade una nueva área al rango de la especie. (b) Extirpación (o extinción local): el rango de la especie pierde un área previamente habitada. (c) Simpatría estrecha: cuando el rango ancestral contiene un área, ambos linajes hijos heredan esa área. (d) Simpatría de subconjunto: cuando el rango ancestral es amplio, un linaje hijo hereda el rango ancestral y el otro hereda solo un área. (e) Alopatría (o vicarianza): cuando el rango ancestral es amplio, un linaje hijo hereda un subconjunto de las áreas ancestrales mientras que el otro linaje hijo hereda todas las áreas ancestrales restantes. (f) Simpatría generalizada: cuando el rango ancestral está muy extendido, ambos linajes hijos heredan el rango ancestral. (g) Dispersión por salto (o especiación fundadora): un linaje hijo hereda el rango ancestral mientras que el otro hereda una nueva área desocupada.  
+
+#Caracteres de rango discreto
+DEC trata los rangos de taxones como datos de presencia-ausencia, es decir, el rango es el conjunto de áreas discretas (pre-definidas) donde una especie se observa. Por ejemplo, digamos que hay tres áreas, A, B y C. Si una especie está presente en las áreas A y C, entonces su rango es igual a AC, que también se puede codificar en el vector de bits de longitud 3, 101. Los vectores de bits también se pueden transformar en un estado de valor entero, por ejemplo , el número binario 101 es igual al entero 5. Ten en cuenta que hay que agregar 1 al valor entero del estado de interés para acceder a ese estado desde un objeto RevBayes, por ejemplo , el rango AC con valor entero 5 se accede en el índice 6.
+
+ **Tabla 1**. Ejemplo de representaciones/codificaciones de información geográfica para un análisis DEC con tres áreas.  
+
+  |    Intervalo    | "01"  | Tamaño | Entero |
+  |-------------|-------|------|-------|
+  |$$\emptyset$$  |  000  |  0   |   0   |
+  |A            |  100  |  1   |   1   |
+  |B            |  010  |  1   |   2   |
+  |C            |  001  |  1   |   3   |
+  |AB           |  110  |  2   |   4   |
+  |AC           |  101  |  2   |   5   |
+  |BC           |  011  |  2   |   6   |
+  |ABC          |  111  |  3   |   7   |
+
+
+Entender como se codifica es importante a la hora de analisar y visualizar los resultados.  
+
+# Evolución anagenética del rango
+En el contexto del modelo DEC, anagénesis se refiere a la evolución del rango que ocurre entre eventos de especiación dentro de los linajes. Hay dos tipos de eventos anagenéticos, **dispersión** (a) y **extinción (local) o extirpación** (b). Debido a que DEC utiliza rangos de valores discretos, los eventos anagenéticos se modelan utilizando una cadena de Markov de tiempo continuo. Esto, a su vez, nos permite calcular la probabilidad de transición de un carácter que cambia de *i* a *j* en el tiempo *t* a través de la exponenciación matricial $$\mathbf{P}_{ij}(t) = \left[ \exp \left\lbrace \mathbf{Q}t \right\rbrace \right]_{ij}$$.    
+Los índices *i* y *j* representan diferentes rangos geográficos, cada uno de los cuales está codificado como el conjunto de áreas ocupadas por la especie en un momento *t*. La probabilidad se integra sobre todos los posibles escenarios de transiciones de caracteres que podrían ocurrir durante *t*, siempre que la cadena comience en el rango *i* y termine en el rango *j*.  
+Después podemos codificar $${\bf Q}$$ para reflejar las clases permitidas de eventos de evolución de rango con parámetros biológicamente significativos. Para tres áreas, las tasas en la matriz de tasas anagenéticas son: 
+
+$$\textbf{Q} =
+	\begin{array}{c|cccccccc}
+		& \emptyset & A & B & C & AB & AC & BC & ABC \\
+		\hline
+		\emptyset 	& - 	& 0 	& 0 	& 0 		& 0			& 0 		& 0 		& 0 \\
+		A 			& e_A 	& - 	& 0 	& 0 		& d_{AB}	& d_{AC} 	& 0 		& 0 \\
+		B 			& e_B 	& 0 	& - 	& 0 		& d_{BA}	& 0 		& d_{BC} 	& 0 \\
+		C 			& e_C 	& 0 	& 0 	& - 		& 0 		& d_{CA} 	& d_{CB} 	& 0 \\
+		AB 			& 0 	& e_B 	& e_A 	& 0 		& -			& 0 		& 0 		& d_{AC} + d_{BC} \\
+		AC 			& 0 	& e_C 	& 0 	& e_A 		& 0			& - 		& 0 		& d_{AB} + d_{CB} \\
+		BC 			& 0 	& 0 	& e_C 	& e_B 		& 0			& 0 		& - 		& d_{BA} + d_{CA} \\
+		ABC 		& 0 	& 0 	& 0 	& 0 		& e_C 		& e_B 		& e_A 		& - \\								
+	\end{array}$$
+
+Cuando la matriz de tasas de extirpación es una matriz diagonal (es decir, todas las entradas no diagonales son cero), las tasas de extirpación son mutuamente independientes como en {% cite Ree2005 %}. En otros escenarios se podrían explorar modelos más complejos que penalizan áreas de distribución extensas que abarcan áreas desconectadas.  
+
+Observa cómo la estructura de la matriz de tasas se refleja en la matriz de probabilidad de transición. Por ejemplo, los rangos que están separados por múltiples eventos de dispersión y extirpación son los más improbables: la transición de A a BC requiere un mínimo de tres eventos.  
+También observa que la probabilidad de entrar o salir del rango nulo es cero. De forma predeterminada, RevBayes condiciona el proceso de evolución del rango anagenético a nunca entrar en el rango nulo al calcular las probabilidades de transición (`nullRange="CondSurv"`). Esto permite que el modelo simule e infiera utilizando las mismas probabilidades de transición. {% citet Massana2015 %} notaron por primera vez que el rango nulo, un estado absorbente no observado, da como resultado estimaciones anormales de la tasa de extirpación y del tamaño de los rangos. Su propuesta de solución de eliminar el rango nulo del conjunto de estados se habilita con la configuración `nullRange="Exclude"`. La configuración `nullRange="Include"` no proporciona un manejo especial del rango nulo y produce las probabilidades brutas de Ree et al. (2005) .
+
+# Evolución cladogenética del rango
+El componente cladogenético del modelo DEC describe el cambio evolutivo que ocurre durante los eventos de especiación (c–g). En el contexto de la evolución de rangos, las especies hijas no necesariamente heredan su rango ancestral de manera idéntica. Para cada nodo interno del árbol reconstruido, puede ocurrir uno de varios eventos cladogenéticos, algunos de los cuales se describen a continuación.
+
+Comenzando con el caso más simple, supongamos que el rango geogáfico de una especie es *A* en el momento previo a un evento de especiación en un nodo interno. Dado que el rango de la especie es de tamaño 1, ambos ramas hijas necesariamente heredan el rango de ancestral (*A*). En el lenguaje de DEC, a esto se llama un evento de simpatría estrecha (*narrow sympatry*) (Fig, 1c) - lo mismo pasa para *simptaría amplis*. Ahora, supongamos que el rango ancestral es *ABC*.  Aquí, con la *simpatría de subconjunto*, un linaje hereda de manera idéntica el rango de la especie ancestral, *ABC*, mientras que el otro linaje hereda sólo una única área, es decir sólo *A*, solo *B* o solo *C* (Fig. 1d).  
+Bajo *alopatría*, el rango ancestral se divide de manera excluyente entre las ramas hijas, es decir, un linaje puede heredar *AB* el otro heredar *C* (Fig 1e).  
+Finalmente, suponiendo que el rango ancestral es *A* la cladogénesis por dispersión por salto da como resultado que uno de los linajes hijo herede el rango ancestral *A*, y el otro hereda una zona previamente no ocupada por el linaje ancestral, *B* or *C* (Fig. 1g). Véase Matzke (2012) para una excelente descripción de las transiciones de estados cladogenéticos descritas en la literatura (específicamente esta [figura](http://phylo.wikidot.com/biogeobears#BioGeoBEARS_supermodel_graphic)).  
+
+
+# Para empezar  
+Este tutorial te proporcionorá una descripción general de cómo llevar a cabo un análisis bioegográfico básico de 'Dispersión, Extinción, Cladogénesis", un modelo basado en el principio de que los linajes se 'mueven' en el espacio geográfico mediante tres procesos básicos: *dipsersión*, *extinción* y *especiación*. El ejercicio te guiará a través de los pasos necesarios para constriur el modelo biogeográfico, reconstruir los estados (áreas) ancestrales y llevar a cabo un mapeo estocástico utilizando el programa [RevBayes](http://revbayes.github.io/) (Hoehna2014b, Hoehna2016b).
+
+Los distintos ejercicios de este tutorial te guiarán por los pasos necesarios para hacer un análisis biogeográfico con los datos que se proporcionan como ejemplo. El tutorial está simpificado a partir de los análisis de [Ramírez-Barahona (2024)](https://doi.org/10.1093/evolut/qpae034). El alineamiento en el archivo `data/Test_aln.nex` contiene secuencias de DNA de cloroplasto para un subconjunto de especies de helechos arborescentes. El archivo `data/Test_range_pruned.nex` contiene información de la distribución geográfica de las especies en cuatro áreas geográficas. 
+
+En este ejercicio, construiremos un modelo DEC y estimaremos estados (áreas) ancestrales y eventos biogeográficos. El conjunto de datos que utilizaremos es una alineación de 75 secuencias de helechos arborescnetes, que incluye las ocho familias.
+
+
+### Preparación de los scripts
+En este tutorial implementaremos tres modelos diferentes de reloj relajado y un modelo de nacimiento-muerte (birth-death model, BD, BD tree) para el árbol. Debido a la complejidad de estos modelos, la mejor manera de realizar este ejercicio es especificar cada uno de ellos en un script diferente. Al comienzo de cada sección, te sugeriremos un nombre para cada script; estos nombres corresponden a los scripts proporcionados en los archivos del tutorial que descrgaste al inicio. 
+
+***Estructura de directorio***
+Este tutorial requiere que tengas una estructura de directorio muy específica al ejecutar RevBayes. Pero... para hacernos la vida más fácil, directamente especificaremos los nombres del sistema de carpetas al inicio de nuestro script y de paso establecemos los nombres de salida.  
+
+```
+out_fp     = "output/"
+data_fp    = "data/"
+code_fp    = "code/"
+```
+***Análisis y MCMC***  
+Antes de empezar a cargar los datos, vamos a definir las opciones globales para el análisis y para la cadena MCMC. Acá tenemos opciones para correr versiones alternativas del análisis... por el momento vamos a correr lo más sencillo.
+- pruned: ¿con o sin fósiles?
+- fixed: ¿con o sin topología fija?
+
+```
+pruned        = true
+fixed         = true
+use_stoch     = true
+use_epochs    = false
+under_prior   = false
+
+
+if (!exists("job_str")) job_str = "mi_corrida.1"
+if (under_prior) job_str += ".bajo_prior"
+if (!use_epochs) job_str += ".no_epoch"
+if (!use_stoch) job_str += ".no_stoch"
+out_fn  = job_str
+```
+```
+n_gens      = 1000
+n_burn      = 500
+tune_freq   = 10
+sample_freq = 10
+n_runs      = 1
+```
+```
+mv = VectorMoves()
+mn = VectorMonitors()
+```
+
+# Lee los datos... de varios archivos
+
+Primero la lista de taxa.  
+```
+if(!pruned) taxa_fn = "Test_taxa.tsv"
+if(pruned) taxa_fn = "Test_taxa_pruned.tsv"
+
+taxa <- readTaxonData(data_fp + taxa_fn)
+```
+Este archivo contiene los nombres escritos **exactamente** como están en el árbol filogenético, junto con la edad del taxon (no es necesario realemente aquí...).  
+
+  |taxon |age |
+  |------ |-----|
+  |Alsophila_abbottii |  0  |
+  |Alsophila_amintae |  0  |
+  |Alsophila_boivinii |  0  |
+  |Alsophila_borbonica |  0  |
+  |Alsophila_emilei |  0  |
+  |Alsophila_everta |  0  |
+
+--------
+
+Segundo el árbol filogenético.  
+```
+if(pruned) mcctree = "Test_MCC_Master_Pruned.trees"
+if(!pruned) mcctree = "Test_MCC_Master_Full.trees"
+if(fixed) fbd_tree <- readTrees(data_fp + mcctree)[1]
+```
+
+**_Opcionalmente utilizamos una muestra posterior de árboles_**  
+Necesitamos definir una fracción de burnin y, si queremos, reducir el tamaño del set con la opción 'thinning'.  
+```
+if(!pruned) tree_init_fn = "Test_Master_Full.trees"
+if(pruned) tree_init_fn = "Test_Master_Pruned.trees"
+if(!fixed) treetrace = readTreeTrace(data_fp + tree_init_fn, treetype="clock", burnin=0.0, thinning=1)
+
+```
+
+Tercero los datos de distribución.  
+En este caso codificados "01": presencia/ausencia en un área.  
+```
+if(!pruned) range_fn = "Test_range.nex"
+if(pruned) range_fn = "Test_range_pruned.nex"
+dat_bg_n = readDiscreteCharacterData(file = data_fp + range_fn)
+n_areas = 4 ##!!!!
+max_areas = 2 ##!!!
+max_areas = max_areas
+n_states  = 0
+for (k in 0:max_areas) {n_states += choose(n_areas, k)}
+```
+![fig 1](figures/range.png) 
+Establecemos el número de áreas que tenemos, así como el número máximo de áreas posibles, para determinar el número de 'estados' posibles.  
+
+**OJO: el número de estados posibles en la matriz Q aumenta rápidamente con el número máximo de áreas.**  
+Las probabilidades de cambios anagenético consideran todas las combinaciones de estados iniciales y finales. Para tres áreas, hay ocho estados y por lo tanto una matriz de $$8 \times 8 = 64$$. 
+Para cambios cladogenéticos, necesitamos todas las combinaciones de estados antes de la cladogénesis, después de la cladogénesis para el linaje izquierdo y después de la cladogénesis para el linaje derecho. Como en el caso anterior, para tres áreas, hay ocho estados y una matriz de $$8 \times 8 \times 8 = 512$$.  
+
+¿Qué sucede con el tamaño de **Q** cuando el número de áreas se vuelve grande? 
+Para tres áreas $$Q = 8 \times 8$$. 
+Para diez áreas $$Q = 2^{10} \times 2^{10} = 1024 \times 1024$$, que se aproxima a las matrices de mayor tamaño que se pueden exponenciar en un tiempo práctico.  Por lo tanto, la selección de áreas discretas para un análisis DEC debe hacerse teniendo en cuenta lo que se espera aprender a través del análisis en sí.
+```
+dat_bg_n = formatDiscreteCharacterData(dat_bg_n, "DEC", n_states)
+```
+
+Cuarto la matriz de conectividad entre áreas.  
+La manera más sencilla es definir la conectividad entre áreas como "01".  
+Esta matriz se utiliza para definir las posible transiciones entre áreas.  
+**_Opcionalmente podemos definir varias matrices de conectividad en distintos periodos._**
+
+```
+bg_times_fn = "Test.bg.times.txt"
+conn_fn = "Test.area_graph.n" + n_areas
+times_bg    = readDataDelimitedFile(file = data_fp + bg_times_fn, header=true, delimiter=",")
+n_bg_epochs = times_bg.size()
+if(!use_epochs) n_bg_epochs = 1
+for (i in 1:n_bg_epochs) {
+    connectivity_bg[i] = readDataDelimitedFile(file = data_fp + conn_fn + "." + i + ".csv", header=true, rownames=true, delimiter=",")
+}
+
+```
+
+# Parámetros del modelo DEC
+
+Primero el modelo del reloj.  
+```
+clock_bg ~ dnLoguniform(min = 0.001, max=10 )
+clock_bg.setValue(1e-2)
+mv.append(mvScale(clock_bg, lambda=0.2, weight=5))
+```
+
+
+## El modelo se llama 'Dispersión, Extinción, Cladogénesis', así que vamos a definir estos parámetros.
+
+***Tasa de extirpación***  
+Definimos un tasa de extirpación diferente para cada una de las cuatro áreas.
+
+```
+er_base_sd <- 0.1
+er_base_mean <- ln(abs(1.0)) - 0.5 * er_base_sd^2
+
+er_base ~ dnLognormal(er_base_mean, er_base_sd)
+er_base.setValue(0.01)
+mv.append(mvScale(er_base, weight=1))
+
+for (i in 1:n_areas) {
+    for (j in 1: n_areas) {
+        er_bg[i][j] <- abs(0)
+    er_bg[i][i] := er_base
+    }
+}
+```
+
+***Tasas de dispersión***  
+Definimos un tasa de dispersión diferente para cada par de áreas.
+
+```
+ldd ~ dnBeta(1.1,20)
+ldd.setValue(0.1)
+
+if(!use_epochs) {
+for (i in 1:n_areas) {
+   for (j in 1:n_areas) {
+    if (connectivity_bg[1][i][j] == 1.0) {dr_bg[1][i][j] <- abs(1)} else {dr_bg[1][i][j] := ldd
+mv.append(mvSlide(ldd, weight=1, delta=0.2))
+        }
+    }
+}
+}
+```
+
+**¡La matriz Q!**
+```
+if(!use_epochs) {
+Q_DEC := fnDECRateMatrix(dispersalRates=dr_bg[1],
+                                extirpationRates=er_bg,
+                                maxRangeSize=max_areas,
+                                nullRange="Exclude")
+}
+
+```
+
+
+*De manera opcional usando un modelo de 'épocas'.*
+
+```
+if(use_epochs) { 
+for (k in 1:n_bg_epochs) {
+    for (i in 1:n_areas) {
+        for (j in 1:n_areas) {
+            if (connectivity_bg[k][i][j] == 1.0 || use_epochs == false) {dr_bg[k][i][j] <- abs(1)} else {dr_bg[k][i][j] := ldd
+mv.append(mvSlide(ldd, weight=10, delta=0.2))}
+        }
+    }
+
+    Q_DEC[k] := fnDECRateMatrix(dispersalRates=dr_bg[k],
+                                extirpationRates=er_bg,
+                                maxRangeSize=max_areas,
+                                nullRange="Exclude")
+}
+
+bg_times[1] ~ dnUniform(140,150)
+mv.append(mvScale(bg_times[1], lambda=0.2, weight=1))
+bg_times[2] ~ dnUniform(60,70)
+mv.append(mvScale(bg_times[2], lambda=0.2, weight=1))
+bg_times[3] <- 0.0
+
+Q_DEC_epoch := fnEpoch( Q_DEC, bg_times, rep(1, n_bg_epochs) )
+}
+```
+
+***Tasas de cladogénesis***  
+Las tasas de simpatría y alopatría.  
+
+```
+clado_event_types = ["s","a"]
+p_sympatry ~ dnBeta(0.1,1)
+p_sympatry.setValue(0.15)
+mv.append(mvSlide(p_sympatry, weight=2, delta=0.2))
+p_allopatry := abs(1.0 - p_sympatry)
+clado_event_probs := simplex( p_sympatry, p_allopatry )
+P_DEC := fnDECCladoProbs(eventProbs= clado_event_probs,
+                              eventTypes=clado_event_types,
+                              numCharacters= n_areas,
+                              maxRangeSize=max_areas)
+
+```
+La matriz de probabilidad cladogenética se vuelve dispersa cuando tenemos un gran número de áreas, por lo que sólo se muestran los valores distintos de cero. Cada fila informa un triplete de estados (el estado ancestral y los dos estados hijos) con la probabilidad asociada con ese evento. Como se trata de probabilidades dado un evento de cladogénesis, la suma de las probabilidades de todos los resultados cladogenéticos posibles, para cierto estado ancestral, es igual a uno.  
+
+Las probabilidades en la raíz.  
+```
+rf_bg_raw <- rep(1, n_states)
+rf_bg <- simplex(rf_bg_raw)
+
+```
+
+*Opcionalmente cuando queremos usar una muestra posterior de árboles.*
+
+```
+if(!fixed) fbd_tree ~ dnEmpiricalTree(treetrace)
+if(!fixed) mv.append(mvEmpiricalTree(fbd_tree, weight=1, metropolisHastings=false))
+```
+
+Finalmente juntamos todo los elementos y construimos el modelo DEC.
+```
+if(!use_epochs) m_bg ~ dnPhyloCTMCClado(tree = fbd_tree, Q = Q_DEC, rootFrequencies=rf_bg, cladoProbs=P_DEC, branchRates=clock_bg, nSites=1, type="NaturalNumbers")
+if(use_epochs)  m_bg ~ dnPhyloCTMCClado(tree = fbd_tree, Q = Q_DEC_epoch, rootFrequencies=rf_bg, cladoProbs=P_DEC, branchRates=clock_bg, nSites=1, type="NaturalNumbers")
+```
+
+No se nos olvide 'clampear'
+```
+m_bg.clamp(dat_bg_n)
+```
+
+# ¡¡A CORRER!!
+
+Definimos nuestro modelo y nuestros monitores
+```
+mymodel = model(m_bg)
+mymodel.graph("Model_graph.txt")
+```
+```
+mn.append(mnModel(filename = out_fp + out_fn + ".model.log", printgen= sample_freq))
+mn.append(mnJointConditionalAncestralState(filename = out_fp + out_fn + ".bg.states.txt", printgen = sample_freq, tree = fbd_tree, ctmc = m_bg, type="NaturalNumbers"))
+mn.append(mnScreen(printgen= sample_freq))
+if (!fixed) mn.append(mnFile(filename=out_fp + out_fn + ".trees", printgen= sample_freq, fbd_tree))
+if(use_stoch) mn.append(mnStochasticCharacterMap(ctmc = m_bg, filename = out_fp + out_fn + ".bg.stoch_map.txt", printgen=sample_freq))
+```
+
+Corremos la cadena MCMC
+```
+mymcmc = mcmc(mymodel, mn, mv, nruns = n_runs)
+mymcmc.run(generations = n_gens, underPrior = under_prior, checkpointInterval = 100, checkpointFile = out_fp + out_fn + ".state")
+```
+
+# Resumen de resultados
+```
+fn = "mi_corrida.1.no_epoch" # one single run
+out_fp = "output/"
+data_fp    = "data/"
+mcctree = "Test_MCC_Master_Pruned.trees"
+f_burn = 0.10
+```
+
+Creamos el MAP con la reconstrucción de áreas
+```
+mcc_tree <- readTrees(data_fp + mcctree)[1]
+
+state_trace_bg = readAncestralStateTrace(file=out_fp +fn + ".bg.states.txt", separator="\t")
+    
+bg_tree = ancestralStateTree(tree = mcc_tree,
+                       ancestral_state_trace_vector = state_trace_bg,
+                       include_start_states = true,
+                       file = out_fp + fn + ".bg.ase.tre",
+                       summary_statistic="MAP",
+                       reconstruction="conditional",
+                       burnin= f_burn,
+                       nStates=2,
+                       site=1)
+
+```
+Leemos y resumimos las historias estocásticas.  
+```
+bg_anc_state_trace = readAncestralStateTrace(out_fp + fn + ".bg" + ".stoch_map.txt") 
+summarizeCharacterMaps(tree= mcc_tree, character_map_trace_vector=bg_anc_state_trace, out_fp + fn + ".history.tsv", burnin=f_burn,delimiter="\t")
+```
+
+# Visualización....
+La visualización de los datos es igual de (o más) importante que construir un buen modelo y tener los datos más robustos.  
+![fig 1](figures/no_good.png) 
+
+
+![fig 1](figures/DEC.png) 
+
+
+```
+library(RevGadgets)
+fn = "mi_corrida.1.no_epoch"
+file <- paste0("output/",fn,".bg.ase.tre")
+labs <- read.table("data/AreaCodes.tsv",sep="\t",header=TRUE)
+labs <- labs %>% pull(state_label) 
+names(labs) <- 1:length(labs)
+dec_example <- processAncStates(file, state_labels = labs)
+
+plotAncStatesPie(dec_example, cladogenetic = T, tip_labels_offset = 0.2)
+
+plotAncStatesMAP(dec_example, cladogenetic = T, tip_labels_offset = 0.2)
+```
+
+```
+get_bg_state_2 = function(s) {
+  if (s==1)       return(c(1))
+  else if (s==2)  return(c(2))
+  else if (s==3)  return(c(3))
+  else if (s==4)  return(c(4))
+  else if (s==5)  return(c(1,2))
+  else if (s==6) return(c(1,3))
+  else if (s==7) return(c(2,3))
+  else if (s==8) return(c(1,4))
+  else if (s==9) return(c(2,4))
+  else if (s==10) return(c(3,4))
+}
+
+calculate_ske = function(s, k, alpha=0.05, D=0.05) {
+}
+##############
+do_STT_plot <- function(stoch = "output/mi_corrida.1.no_epoch.history.tsv", 
+                        area.codes = "data/AreaCodes.tsv",
+                        n.areas = 4, 
+                        max.time = 210,
+                        burn.in = 50, 
+                        support_plot = TRUE,
+                        save = TRUE,
+                        output="output/stt_plot.RData"
+)
+{
+  bg_colors  = read.csv(area.codes,sep="\t",header=T)
+  bg_names = bg_colors$state_label[1:n.areas]
+  area_cols = as.vector( bg_colors$state_colors[1:n.areas] )
+  names(area_cols) = 1:length(area_cols)
+  bg_label_col = as.vector(bg_colors$state_colors[1:n.areas])
+  
+  n_areas   = length(bg_names)
+  n_states  = n_areas
+  bin_width = 1
+  max_time = max.time
+  n_bins    = max_time / bin_width
+  ages      = seq(0.0, max_time, by=bin_width)
+  
+  D_tol    = 0.05
+  alpha_tol = 0.025
+  
+  f_burn    = burn.in
+  thinby    = 1
+  
+  stoch_bg     = read.csv(stoch,sep="\t", stringsAsFactors=FALSE)
+  stoch_bg$transition_time[ stoch_bg$transition_type=="no_change" ] = stoch_bg$branch_start_time[ stoch_bg$transition_type=="no_change" ]
+  
+  iterations = unique(stoch_bg$iteration)
+  n_it       = length(iterations)
+  n_burn     = floor(max(1, f_burn*length(iterations)))
+  iterations = iterations[n_burn:length(iterations)]
+  iterations = iterations[ seq(1, length(iterations), by=thinby) ]
+  
+  stoch_bg_biome = stoch_bg
+  
+  n_bins = max_time / bin_width
+  n_bins = floor(n_bins)
+  state_bins = array(0, dim=c(n_areas, 1 , n_bins))
+  
+  ages = seq(0.0, max_time, by=bin_width)
+  dat_plot_colnames = c( names(stoch_bg_biome), "age", "joint_state" )
+  dat_plot = data.frame(matrix(ncol=length(dat_plot_colnames), nrow=0), stringsAsFactors=F)
+  colnames(dat_plot) = dat_plot_colnames
+  
+  dat_tmp = data.frame(matrix(ncol=length(dat_plot_colnames), nrow=1e3), stringsAsFactors=F)
+  colnames(dat_tmp) = dat_plot_colnames
+  
+  states <- lapply(stoch_bg_biome$start_state,get_bg_state_2)
+  dat_plot_tmp <- list()
+  idx_tmp = 1
+  curr_it = -1
+  for (i in 1:nrow(stoch_bg_biome)) {
+    
+    if (curr_it != stoch_bg_biome$iteration[i]) {
+      curr_it = stoch_bg_biome$iteration[i]
+      cat("Stage 2: create time-binned bg occupancies, processing iteration ",i,"    ",
+          curr_it," / ", max(stoch_bg_biome$iteration),  "---------",       
+          round(i/length(stoch_bg_biome$iteration)*100,2), "\r", sep="")
+    }
+    bg_idx = states[[i]]
+    start_age = floor(stoch_bg_biome$branch_start_time[i])
+    end_age = ceiling(stoch_bg_biome$branch_end_time[i])
+    age_bins = start_age:end_age * bin_width
+    time_idx = age_bins + 1
+    for (j in 1:length(age_bins)) {
+      for (k in 1:length(bg_idx)) {
+        joint_state = bg_idx[k]
+        dat_tmp[idx_tmp,] = c( stoch_bg[i,], age=age_bins[j], joint_state=joint_state)
+        if (idx_tmp == nrow(dat_tmp)) {
+          dat_plot_tmp[[i]] <- dat_tmp
+          idx_tmp = 1
+        } else if (idx_tmp < nrow(stoch_bg_biome)) {
+          idx_tmp = idx_tmp + 1
+        }
+      }
+    }
+    state_bins[ bg_idx,1, time_idx ] = state_bins[ bg_idx,1, time_idx ] + 1
+    
+    
+  }
+  
+  dat_plot_tmp = do.call(rbind,dat_plot_tmp)
+  dat_plot = rbind(dat_plot, dat_plot_tmp)
+  
+  # Stage 3: create plotting table
+  cat("Stage 3: plotting....... ", "\n", sep="")
+  min_sample = 1
+  ret = list()
+  # create a melted data frame with Count/Support for Area over time (Age)
+  d1 = matrix(nrow=0, ncol=6)
+  colnames(d1) = c("age","count","Area","Support","","")
+  for (i in 1:dim(state_bins)[1]) {
+    for (j in 1:dim(state_bins)[2]) {
+      for (k in 1:dim(state_bins)[3]) {
+        d1 = rbind(d1, c( ages[k], state_bins[i,j,k], i, j, paste(i, j, sep="_"), 0))
+      }
+    }
+  }
+  
+  # prepare column values
+  d2         = data.frame(d1, stringsAsFactors=FALSE)
+  d2$age     = as.numeric(d2$age)
+  d2$count   = as.numeric(d2$count)
+  d2$Support = as.numeric(d2$Support)
+  
+  # compute confidence in state for each time step using
+  # multinomial confidence metric (SK Ernst)
+  n_biomes  = 1
+  biome_conf    = t(apply( state_bins, 3, rowSums))
+  bg_conf    = t(apply( state_bins, 3, rowSums))
+  min_sample = min_sample
+  for (i in 1:n_bins) {
+    for (j in 1:n_biomes) {
+      if (biome_conf[j] > min_sample) { 
+        biome_conf[j] = 1
+      } else {
+        biome_conf[j] = 0
+      }
+    }
+    for (j in 1:n_areas) {
+      if (bg_conf[i,j] > min_sample) {
+        bg_conf[i,j] = 1
+      } else {
+        bg_conf[i,j] = 0
+      }
+    }
+  }
+  
+  # only show time-bins that contain more samples than min_sample
+  d2_ages = unique(d2$age)
+  d2_bg_trunc = d2
+  d2_biome_trunc = d2
+  
+  for (i in 1:length(d2_ages)) {
+    for (j in 1:n_areas) {
+      c_ij = d2_bg_trunc[ d2_bg_trunc$age==i & d2_bg_trunc$Area==j, ]$count
+      if (length(c_ij) == 0) { 
+        # do nothing
+      } else {
+        d2_bg_trunc[ d2_bg_trunc$age==i & d2_bg_trunc$Area==j, ]$Support = bg_conf[i,j]
+      }
+    }
+  }
+  ret$bg = d2_bg_trunc
+  
+  plot_dat = ret
+  save(plot_dat,file=output)
+  
+  
+  aver <- stoch_bg_biome %>% as_tibble() %>% slice(1:10) %>% 
+    mutate(start_age = floor(branch_start_time),end_age = ceiling(branch_end_time)) %>% 
+    rowwise() %>% 
+    mutate(age_bins = list(start_age:end_age * bin_width),.after=iteration) %>% 
+    unnest(age_bins) %>% 
+    ungroup() %>% 
+    mutate(start_state_get = lapply(start_state,get_bg_state_2),.after=start_state) %>% 
+    mutate(age_bins = age_bins + 1) %>% 
+    unnest(start_state_get) %>% 
+    group_by(age_bins, start_state_get) %>% count()
+  
+  plot_dat$bg %>% filter(age==1)
+  aver %>% filter(time_idx==1)
+  
+  
+}
+
+STT_plot_2  <- function(data_full="output/stt_plot.RData",
+                        palette="Hiroshige",
+                        n_colors=4,
+                        support=TRUE,
+                        save=TRUE,
+                        output="figures/STT_comp2.pdf",
+                        label.1 = "unknown",
+                        label.2 = "wide"
+                        ){
+  load(data_full)
+  plot_dat_full = plot_dat$bg
+
+  plot_dat_full <- plot_dat_full %>% as_tibble() %>% mutate(Dataset=label.1)
+  
+  if(support){ 
+    plot_dat_full %>% filter(Support != 0) %>% 
+      group_by(age,Dataset) %>% mutate(Percent=count/sum(count)) -> dito
+  } else {plot_dat_full %>%
+      group_by(age,Dataset) %>% mutate(Percent=count/sum(count)) -> dito }
+
+    stt <- dito %>% group_by(Dataset,age,Area) %>% 
+      ggplot( aes(x=age, y=Percent,fill=Area,color=Area)) + scale_x_continuous(limits=c(0,215)) + 
+      geom_bar(stat="identity",position="fill",na.rm=F)  +
+      scale_x_continuous("Million of years ago", trans="reverse", limits=c(215,0),expand=c(0,0)) + 
+      scale_y_continuous("Frequency",limits=c(0,1),expand=c(0,0))+
+      scale_color_manual(values= MetBrewer::met.brewer(palette,n=n_colors),name="",
+                         labels = c("America","Asia","Africa","Australasia")) +
+      scale_fill_manual(values= MetBrewer::met.brewer(palette,n=n_colors),name="",labels = c("America","Asia","Africa","Australasia")) +
+      theme(legend.position="bottom",panel.grid = element_blank(),panel.background = element_blank(),axis.line = element_line()) + 
+      labs(title="Graficas de Frecuencia de estados por tiempo",subtitle="Areas ancestrales",caption="RevBayes UNAM-Mexico 2025") +
+      NULL
+}
+  if (save==TRUE) ggsave(stt,file=output,width=14,height=8,units="in")
+}
+```
+
+

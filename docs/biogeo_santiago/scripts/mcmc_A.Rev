@@ -1,0 +1,152 @@
+out_fp     = "output/"
+data_fp    = "data/"
+code_fp    = "code/"
+
+pruned        = true
+fixed         = true
+use_stoch     = true
+use_epochs    = false
+under_prior   = false
+
+
+if (!exists("job_str")) job_str = "mi_corrida.1"
+if (under_prior) job_str += ".bajo_prior"
+if (!use_epochs) job_str += ".no_epoch"
+if (!use_stoch) job_str += ".no_stoch"
+out_fn  = job_str
+
+n_gens      = 1000
+n_burn      = 500
+tune_freq   = 10
+sample_freq = 10
+n_runs      = 1
+
+mv = VectorMoves()
+mn = VectorMonitors()
+
+if(!pruned) taxa_fn = "Test_taxa.tsv"
+if(pruned) taxa_fn = "Test_taxa_pruned.tsv"
+
+taxa <- readTaxonData(data_fp + taxa_fn)
+
+if(pruned) mcctree = "Test_MCC_Master_Pruned.trees"
+if(!pruned) mcctree = "Test_MCC_Master_Full.trees"
+if(fixed) fbd_tree <- readTrees(data_fp + mcctree)[1]
+
+if(!pruned) tree_init_fn = "Test_Master_Full.trees"
+if(pruned) tree_init_fn = "Test_Master_Pruned.trees"
+if(!fixed) treetrace = readTreeTrace(data_fp + tree_init_fn, treetype="clock", burnin=0.0, thinning=1)
+
+if(!pruned) range_fn = "Test_range.nex"
+if(pruned) range_fn = "Test_range_pruned.nex"
+dat_bg_n = readDiscreteCharacterData(file = data_fp + range_fn)
+n_areas = 4 ##!!!!
+max_areas = 2 ##!!!
+max_areas = max_areas
+n_states  = 0
+for (k in 0:max_areas) {n_states += choose(n_areas, k)}
+
+dat_bg_n = formatDiscreteCharacterData(dat_bg_n, "DEC", n_states)
+
+bg_times_fn = "Test.bg.times.txt"
+conn_fn = "Test.area_graph.n" + n_areas
+times_bg    = readDataDelimitedFile(file = data_fp + bg_times_fn, header=true, delimiter=",")
+n_bg_epochs = times_bg.size()
+if(!use_epochs) n_bg_epochs = 1
+for (i in 1:n_bg_epochs) {
+    connectivity_bg[i] = readDataDelimitedFile(file = data_fp + conn_fn + "." + i + ".csv", header=true, rownames=true, delimiter=",")
+}
+
+clock_bg ~ dnLoguniform(min = 0.001, max=10 )
+clock_bg.setValue(1e-2)
+mv.append(mvScale(clock_bg, lambda=0.2, weight=5))
+
+er_base_sd <- 0.1
+er_base_mean <- ln(abs(1.0)) - 0.5 * er_base_sd^2
+
+er_base ~ dnLognormal(er_base_mean, er_base_sd)
+er_base.setValue(0.01)
+mv.append(mvScale(er_base, weight=1))
+
+for (i in 1:n_areas) {
+    for (j in 1: n_areas) {
+        er_bg[i][j] <- abs(0)
+    er_bg[i][i] := er_base
+    }
+}
+
+ldd ~ dnBeta(1.1,20)
+ldd.setValue(0.1)
+
+if(!use_epochs) {
+for (i in 1:n_areas) {
+   for (j in 1:n_areas) {
+    if (connectivity_bg[1][i][j] == 1.0) {dr_bg[1][i][j] <- abs(1)} else {dr_bg[1][i][j] := ldd
+mv.append(mvSlide(ldd, weight=1, delta=0.2))
+        }
+    }
+}
+}
+
+if(!use_epochs) {
+Q_DEC := fnDECRateMatrix(dispersalRates=dr_bg[1],
+                                extirpationRates=er_bg,
+                                maxRangeSize=max_areas,
+                                nullRange="Exclude")
+}
+
+clado_event_types = ["s","a"]
+p_sympatry ~ dnBeta(0.1,1)
+p_sympatry.setValue(0.15)
+mv.append(mvSlide(p_sympatry, weight=2, delta=0.2))
+p_allopatry := abs(1.0 - p_sympatry)
+clado_event_probs := simplex( p_sympatry, p_allopatry )
+P_DEC := fnDECCladoProbs(eventProbs= clado_event_probs,
+                              eventTypes=clado_event_types,
+                              numCharacters= n_areas,
+                              maxRangeSize=max_areas)
+
+
+rf_bg_raw <- rep(1, n_states)
+rf_bg <- simplex(rf_bg_raw)
+
+if(!use_epochs) m_bg ~ dnPhyloCTMCClado(tree = fbd_tree, Q = Q_DEC, rootFrequencies=rf_bg, cladoProbs=P_DEC, branchRates=clock_bg, nSites=1, type="NaturalNumbers")
+if(use_epochs)  m_bg ~ dnPhyloCTMCClado(tree = fbd_tree, Q = Q_DEC_epoch, rootFrequencies=rf_bg, cladoProbs=P_DEC, branchRates=clock_bg, nSites=1, type="NaturalNumbers")
+
+m_bg.clamp(dat_bg_n)
+
+mymodel = model(m_bg)
+mymodel.graph("Model_graph.txt")
+
+mn.append(mnModel(filename = out_fp + out_fn + ".model.log", printgen= sample_freq))
+mn.append(mnJointConditionalAncestralState(filename = out_fp + out_fn + ".bg.states.txt", printgen = sample_freq, tree = fbd_tree, ctmc = m_bg, type="NaturalNumbers"))
+mn.append(mnScreen(printgen= sample_freq))
+if (!fixed) mn.append(mnFile(filename=out_fp + out_fn + ".trees", printgen= sample_freq, fbd_tree))
+if(use_stoch) mn.append(mnStochasticCharacterMap(ctmc = m_bg, filename = out_fp + out_fn + ".bg.stoch_map.txt", printgen=sample_freq))
+
+mymcmc = mcmc(mymodel, mn, mv, nruns = n_runs)
+mymcmc.run(generations = n_gens, underPrior = under_prior, checkpointInterval = 100, checkpointFile = out_fp + out_fn + ".state")
+
+
+fn = "mi_corrida.1.no_epoch" # one single run
+out_fp = "output/"
+data_fp    = "data/"
+mcctree = "Test_MCC_Master_Pruned.trees"
+f_burn = 0.10
+
+mcc_tree <- readTrees(data_fp + mcctree)[1]
+
+state_trace_bg = readAncestralStateTrace(file=out_fp +fn + ".bg.states.txt", separator="\t")
+    
+bg_tree = ancestralStateTree(tree = mcc_tree,
+                       ancestral_state_trace_vector = state_trace_bg,
+                       include_start_states = true,
+                       file = out_fp + fn + ".bg.ase.tre",
+                       summary_statistic="MAP",
+                       reconstruction="conditional",
+                       burnin= f_burn,
+                       nStates=2,
+                       site=1)
+
+bg_anc_state_trace = readAncestralStateTrace(out_fp + fn + ".bg" + ".stoch_map.txt") 
+summarizeCharacterMaps(tree= mcc_tree, character_map_trace_vector=bg_anc_state_trace, out_fp + fn + ".history.tsv", burnin=f_burn)
