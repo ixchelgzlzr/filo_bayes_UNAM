@@ -64,7 +64,7 @@ Es importante aclarar que un modelo gráfico en RevBayes no sólamente es una vi
 
 Un breve recordatorio del lenguaje Rev como se introdujo en este taller (Höhna et al. 2013).
 
-![](imagenes/revlanguage.png)
+![](images/revlanguage.png)
 *Figura 3. De Höhna et al. 2013. Lenguaje Rev y su representación gráfica*
 
 ## Datos que utilizaremos en BiSSE
@@ -73,11 +73,12 @@ Para este tutorial vamos a ajustar un modelo para un caracter discreto. El carac
 
 103 taxones en una filogenia ultramétrica. Hemos muestrado 50% de este género de plantas
 
- + Lista de especies con su polinización - [Datos](files/poliniza_datos.csv)
- 
- + Árbol filogenético- [Filogenia](files/poliniza_arbol.tre)
- 
- ## Ejercicio
++ Lista de especies con su polinización - [Datos](files/poliniza_datos.csv)
+
++ Árbol filogenético- [Filogenia](files/poliniza_arbol.tre)
+
+
+## Ejercicio 
  Corre el siguiente [código en RevBayes](files/bisse.Rev) en tu computadora. Pero mientras corre entendamos el código y dibujemos el modelo gráfico.
  
  1. ¿Cuántos parámetros hay?
@@ -87,7 +88,7 @@ Para este tutorial vamos a ajustar un modelo para un caracter discreto. El carac
  5. ¿Cómo definimos los valores en la raíz de esta filogenia?
  
 
-## Lo nuevo: las tasas de especiación y extinciónSpeciation and extinction rates**
+## Lo nuevo: las tasas de especiación y extinción
 
 Vamos a definir nuestras tasas de especiación y extinción. Esta la parte en donde pensar con modelos gráficos ayuda. Creamos cuatro parámetros nuevos $$(\lambda_0, \lambda_1, \mu_0,\mu_1)$$ para definir el desino de los linajes de nuestra filogénia. 
 
