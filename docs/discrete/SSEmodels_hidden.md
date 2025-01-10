@@ -54,7 +54,7 @@ En inferencia con verosimilitud, ajustaríamos este modelo y compararíamos este
 
 Afortunadamente, en estadística Bayesiana, no tenemos que hacer una selección de modelos, ni siquiera ajustar BiSSE, ni el CID. Es suficiente, ajustar el HiSSE como se muestra en nuestra figura 1 y después interpretar las distribuciones posteriores, y transformarlas para probar nuestras hipótesis de interés. Incluso, con estadística Bayesiana, podemos encontrar historias de diversificación mucho más interesantes que con el criterio de información AIC. 
 
-![](images/sse_workflow.png)
+![](images/sse_workflowv2.png)
 *Figura 2. Flujo de trabajo de los modelos de diversificación. En la izquierda el flujo de trabajo con la función de verosimilitud y el criterio de información AIC requiere que de entrada se ajusten múltiples modelos. La razón por la cual esto sucede es porque la bajo la verosimilitud solamente obtenemos un estimador puntual para los parámetros llamado el máximo verosímil. En la derecha el flujo de trabajo con estadística bayesiana y el MCMC. Sólo necesitamos ajustar el modelo HiSSE y obtener las distribuciones posteriores de los parámetros. Después transformaremos las muestras de las posteriores para probar nuestras hipótesis de diversificación*
 
 ## Probando las hipótesis de diversificación con estadística bayesiana
