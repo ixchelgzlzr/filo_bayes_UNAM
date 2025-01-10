@@ -18,9 +18,9 @@ El modelo BiSSE propone rechazar la hipótesis de que la diversificación neta e
 
 En términos matemáticos esta hipótesis nula se define como
 
-$$H_0: r_0=(\lambda_0-\mu_0) = r_1=(\lamba_1-\mu_1)$$
+$$H_0: r_0=(\lambda_0-\mu_0) = r_1=(\lambda_1-\mu_1)$$
 
-donde $$r_0=\lambda_0-\mu_0$$ es la diversificación neta en el estado 0 y $$r_1=\lambda_1-\mu_1$$ es la diversificación neta en el estado 1. Si rechazamos $$H_0$$ significaque estas dos diversificaciones son diferentes y podemos concluir que la variable discreta cambia el paso de la diversificación. Pero...si rechazamos más de lo esperado, entonces concluimos incorrectamente que nuestro caracter importa ¿cierto?, de ahí que la contribución de Rabosky y Goldberg es crucial en este campo. Entonces, cómo podemos arreglar este problema de la hipótesis nula?- la respuesta esta en utilizar estados escondidos como lo veremos a continuación. 
+donde $$r_0=\lambda_0-\mu_0$$ es la diversificación neta en el estado 0 y $$r_1=\lambda_1-\mu_1$$ es la diversificación neta en el estado 1. Si rechazamos $$H_0$$ significaque estas dos diversificaciones son diferentes y podemos concluir que la variable discreta cambia el paso de la diversificación. Pero si rechazamos más de lo esperado, entonces concluimos incorrectamente que nuestro caracter importa ¿cierto?, de ahí que la contribución de Rabosky y Goldberg es crucial en este campo. Entonces, cómo podemos arreglar este problema de la hipótesis nula?- la respuesta esta en utilizar estados escondidos como lo veremos a continuación. 
 
 ## La nueva hipótesis
 
@@ -55,7 +55,7 @@ En inferencia con verosimilitud, ajustaríamos este modelo y compararíamos este
 Afortunadamente, en estadística Bayesiana, no tenemos que hacer una selección de modelos, ni siquiera ajustar BiSSE, ni el CID. Es suficiente, ajustar el HiSSE como se muestra en nuestra figura 1 y después interpretar las distribuciones posteriores, y transformarlas para probar nuestras hipótesis de interés. Incluso, con estadística Bayesiana, podemos encontrar historias de diversificación mucho más interesantes que con el criterio de información AIC. 
 
 ![](images/sse_workflowv3.png)
-*Figura 2. Flujo de trabajo de los modelos de diversificación. En la izquierda el flujo de trabajo con la función de verosimilitud y el criterio de información AIC requiere que de entrada se ajusten múltiples modelos. La razón por la cual esto sucede es porque la bajo la verosimilitud solamente obtenemos un estimador puntual para los parámetros llamado el máximo verosímil. En la derecha el flujo de trabajo con estadística bayesiana y el MCMC. Sólo necesitamos ajustar el modelo HiSSE y obtener las distribuciones posteriores de los parámetros. Después transformaremos las muestras de las posteriores para probar nuestras hipótesis de diversificación*
+*Figura 2. Flujo de trabajo de los modelos de diversificación. En la izquierda el flujo de trabajo con la función de verosimilitud y el criterio de información AIC requiere que de entrada se ajusten múltiples modelos. La razón por la cual esto sucede es porque la bajo la verosimilitud solamente obtenemos un estimador puntual para los parámetros llamado el máximo verosímil. En la derecha el flujo de trabajo con estadística bayesiana y el MCMC. Sólo necesitamos ajustar el modelo HiSSE y obtener las distribuciones posteriores de los parámetros. Después transformaremos las muestras de las posteriores para probar nuestras hipótesis de diversificación (Figura creada por Dr. Jenna McCullough).*
 
 ## Probando las hipótesis de diversificación con estadística bayesiana
 
@@ -93,7 +93,7 @@ Para probar esta hipótesis vamos a seguir los siguientes pasos:
 Lo mejor de tener un enfoque bayesiano es que sólo necesitamos hacer HiSSE para concluir que modelo SSE es el correcto. 
 
 ![](images/hisse_results.png)
-*Figura 4. Observa los posibles resultados de los parámetros de diversificación neta del HiSSE en RevBayes. El traslape de las probabilidades posteriores de los parámetros de diversificación neta graficadas como violines indican cuál modelo de diversificación siguen tus datos.*
+*Figura 4. Observa los posibles resultados de los parámetros de diversificación neta del HiSSE en RevBayes. El traslape de las probabilidades posteriores de los parámetros de diversificación neta graficadas como violines indican cuál modelo de diversificación siguen tus datos.(Figura creada por Dr. Jenna McCullough)*
 
 
 ### Artículos importantes
