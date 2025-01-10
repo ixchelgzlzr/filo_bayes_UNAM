@@ -134,14 +134,16 @@ violin_hidden
 ```
 # Esta parte se hace con ggplot2
 
-divcols<-c("#E63946","#F3A5AB","#1D3557", "#457B9D")
+divcols<-c("#E63946","#1D3557","#F3A5AB", "#457B9D")
 
 # Recuerda de RevBayes 1=0A, 2=1A, 3=0B, and 4=1B
 netdiversification_rates<- data.frame(dens=c(hisse$speciation.1.-hisse$extinction.1.,hisse$speciation.2.-hisse$extinction.2., hisse$speciation.3.-hisse$extinction.3.,hisse$speciation.4.-hisse$extinction.4.) ,rate=rep(c("net_div_0A","net_div_1A","net_div_0B","net_div_1B"),each=length(hisse$speciation.1.)))
 
+netdiversification_rates$rate<- factor(netdiversification_rate$rate,levels=c("net_div_0A","net_div_1A","net_div_0B","net_div_1B"))
+
 violin_diversification<- ggplot(netdiversification_rates,aes(x=rate,y=dens, fill=rate))+
   geom_violin(trim=FALSE)+
-  labs(title="Tasas de transicion")+
+  labs(title="Tasas de diversificación neta")+
   scale_fill_manual( values = divcols)+
   theme_classic()
 violin_diversification
@@ -155,8 +157,8 @@ Una de las ventajas más importante de las distribuciones posteriores es que rá
 
 Construimos dos estadísticas de resumen que son las diferencias entre la diversificación neta de 0 y 1 para el estado A y el estado B respectivamente:
 
-+ $$T_A= (\lambda_{0A}=\mu_{0A})-(\lambda_{1A}=\mu_{1A})$$ 
-+ $$T_B= (\lambda_{0B}=\mu_{0B})-(\lambda_{1B}=\mu_{1B})$$ 
++ $$T_A= (\lambda_{0A}-\mu_{0A})-(\lambda_{1A}-\mu_{1A})$$ 
++ $$T_B= (\lambda_{0B}-\mu_{0B})-(\lambda_{1B}-\mu_{1B})$$ 
 
 Si estas diferencias son 0 con alta probabilidad esto significa que la polinización y sus estados no hacen la diferencia en el proceso de diversificación.
 
@@ -193,8 +195,8 @@ Observamos que el intervalo de credibilidad del 95% de la distribución de $$T_A
 
 Construimos dos estadísticas de resumen que son las diferencias entre la diversificación neta de A y B para el estado 0 y el estado 1 respectivamente:
 
-+ $$T_0= (\lambda_{0A}=\mu_{0A})-(\lambda_{0B}=\mu_{0B})$$ 
-+ $$T_1= (\lambda_{1A}=\mu_{1A})-(\lambda_{1B}=\mu_{1B})$$ 
++ $$T_0= (\lambda_{0A}-\mu_{0A})-(\lambda_{0B}-\mu_{0B})$$ 
++ $$T_1= (\lambda_{1A}-\mu_{1A})-(\lambda_{1B}-\mu_{1B})$$ 
 
 Si estas diferencias son 0 con alta probabilidad esto significa que hay cambios en el tempo de la diversificación pero se deben a algo más que nosotros no medimos en la filogenia.
 
@@ -252,7 +254,7 @@ netdiversification_rates<- data.frame(dens=c(bisse$net_diversification.1., bisse
 
 violin_diversification<- ggplot(netdiversification_rates,aes(x=rate,y=dens, fill=rate))+
   geom_violin(trim=FALSE)+
-  labs(title="Tasas de transicion")+
+  labs(title="Tasas de diversificación neta")+
   scale_fill_manual( values = divcols)+
   theme_classic()
 violin_diversification

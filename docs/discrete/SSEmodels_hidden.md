@@ -54,7 +54,7 @@ En inferencia con verosimilitud, ajustaríamos este modelo y compararíamos este
 
 Afortunadamente, en estadística Bayesiana, no tenemos que hacer una selección de modelos, ni siquiera ajustar BiSSE, ni el CID. Es suficiente, ajustar el HiSSE como se muestra en nuestra figura 1 y después interpretar las distribuciones posteriores, y transformarlas para probar nuestras hipótesis de interés. Incluso, con estadística Bayesiana, podemos encontrar historias de diversificación mucho más interesantes que con el criterio de información AIC. 
 
-![](images/sse_workflowv2.png)
+![](images/sse_workflowv3.png)
 *Figura 2. Flujo de trabajo de los modelos de diversificación. En la izquierda el flujo de trabajo con la función de verosimilitud y el criterio de información AIC requiere que de entrada se ajusten múltiples modelos. La razón por la cual esto sucede es porque la bajo la verosimilitud solamente obtenemos un estimador puntual para los parámetros llamado el máximo verosímil. En la derecha el flujo de trabajo con estadística bayesiana y el MCMC. Sólo necesitamos ajustar el modelo HiSSE y obtener las distribuciones posteriores de los parámetros. Después transformaremos las muestras de las posteriores para probar nuestras hipótesis de diversificación*
 
 ## Probando las hipótesis de diversificación con estadística bayesiana
@@ -86,6 +86,14 @@ Para probar esta hipótesis vamos a seguir los siguientes pasos:
  
 ![](images/CID1.png)
 *Figura 3. Observa el resultado de este HiSSe para la el caracter de las anteras de las flores (no-poricidal y poricidal) en (A) tenemos las distribuciones posteriores de las diversificaciones netas para los cuatro estados. En  (B) tenemos las estadísticas $$T_A$$ y $$T_B$$, donde claramente el cero cruza las distribuciones, mostrando que los estados 0 y 1 no son distintos en la diversificación. Esto equivale a ajustar el modelo CID. Resultado de Russell, Zenil-Ferguson, et al. 2024.*
+
+
+## Interpretando rápido de los resultados
+
+Lo mejor de tener un enfoque bayesiano es que sólo necesitamos hacer HiSSE para concluir que modelo SSE es el correcto. 
+
+![](images/hisse_results.png)
+*Figura 4. Observa los posibles resultados de los parámetros de diversificación neta del HiSSE en RevBayes. El traslape de las probabilidades posteriores de los parámetros de diversificación neta graficadas como violines indican cuál modelo de diversificación siguen tus datos.*
 
 
 ### Artículos importantes
