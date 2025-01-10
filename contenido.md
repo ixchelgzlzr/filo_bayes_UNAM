@@ -67,7 +67,7 @@ redirect: false
 
 ### Bloque 2 [11:30–14:00, 2.5 hrs]
 2. Diversificación dependiente de estados 
-    1. Diapositivas
+    1. [Diapositivas](https://github.com/ixchelgzlzr/filo_bayes_UNAM/blob/main/docs/discrete/files/intro_to_SSE.pdf)
     2. [Introducción a BiSSE](./docs/discrete/SSEmodels) 
     3. [Introducción a HiSSE y pruebas de hipótesis](./docs/discrete/SSEmodels_hidden)
     4. [Visualización HiSSE e hipótesis](./docs/discrete/hisse_visualizacion)
